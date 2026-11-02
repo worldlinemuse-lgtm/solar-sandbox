@@ -155,3 +155,11 @@ Snow cover in the recorded winters starts from a daily snowfall total, so when i
 **Stale saved results:** `tests/test_v7_results.json` was generated *before* these corrections and includes generator-assisted historical calculations with unrealistic operation. It is archival only. Run the updated full historical suite to produce corrected scenarios. Even corrected historical runs are stress tests, **not** a predictive future-failure probability.
 
 **Still unverified or simplified:** Motor startup apparent power (VA), power factor and transient timing, PV shading/snow uncertainty, battery aging, component pricing, field measurements, equipment integration, and code-compliant transfer arrangements. The app is an exploratory engineering model, not an electrical safety certification or guarantee of blackout survival.
+
+### Visible missing-service indication
+
+If a required appliance is incompatible with the configured inverter, the house display now shows **delivered and unserved watts**, and the affected appliance tile is marked as unpowered instead of looking switched off. The inverter display compares delivered AC output with all requested appliance watts, not only compatible watts.
+
+### Verification
+
+The corrected source and prebuilt `index.html` must match exactly; run `python source/build.py --check`. The fast browser integrity regression (`python tests/test_integrity.py`) and full fast CI suite (`SKIP_WINTERS=1 python tests/test_v7.py`) must pass before merging. The old 25-winter generator results in `tests/test_v7_results.json` remain historical artifacts, not validated outputs of this corrected engine.
