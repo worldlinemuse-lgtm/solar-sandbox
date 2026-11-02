@@ -28,3 +28,8 @@ A display refresh must not consume the pseudo-random event stream. Previously, d
 ## Worst historical low-sun stretch
 
 The multi-winter worst-stretch finder also runs asynchronously. It could mix old typical-year panel orientation with new historical-year orientation if tilt, azimuth, mount, panel, or horizon changed during the search. It now snapshots these inputs and rejects a changed-input search. The previous "Run this stretch" result is invalidated by configuration changes. A browser regression modifies tilt between the first two search iterations and verifies that no result is returned.
+
+
+## Merge verification checklist
+
+The checked-in `index.html` must match the source-generated bundle exactly, and the Playwright input-isolation test must pass alongside the minute-level energy accounting gate, all 50 modeled historical-winter runs, PV reference comparison and offline service-worker test. Do not treat a source-only commit's temporary failed build-consistency check as approval or failure of the final generated page; evaluate the final branch head and its own checks before merging.
