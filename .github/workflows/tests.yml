@@ -20,6 +20,8 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Page matches the source build
         run: python source/build.py --check
+      - name: Model integrity regressions (battery, loads, generator)
+        run: python tests/test_integrity.py
       - name: Page test suite (skips the slow 25-winter runs)
         run: SKIP_WINTERS=1 python tests/test_v7.py
       - name: Solar check against pvlib
