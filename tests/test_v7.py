@@ -9,7 +9,7 @@ PATH = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HERE,
 URL = 'file://' + PATH
 OUT = os.path.join(HERE, 'test_v7_results.json')
 
-DEFAULT = """()=>{SIM.setPlaying(false);SIM.S.mission=null;SIM.setWeather('tmy');Object.assign(SIM.S.cfg,{soh:100,heatSpeed:'mid',ambF:null,ccc:null,insC:null,termC:null,hor:[0,0,0,0,0,0,0,0],snowRec:true,reserve:0,genOn:false,genStart:20,genStop:80});SIM.S.genRun=false;SIM.S.randomSnow=false;SIM.setBattType('bb100');const c=SIM.S.cfg;c.sysV=24;c.bpar=2;c.bloc='in';c.inv='m24-3000';c.other=0;c.shade=0;
+DEFAULT = """()=>{SIM.setPlaying(false);SIM.S.mission=null;SIM.setWeather('tmy');Object.assign(SIM.S.cfg,{soh:100,heatSpeed:'mid',ambF:null,ccc:null,insC:null,termC:null,hor:[0,0,0,0,0,0,0,0],snowRec:true,reserve:0,genOn:false,genMode:'manual',genFuel:0.95,genStart:20,genStop:80});SIM.S.genRun=false;SIM.S.genFuelLeft=0.95;SIM.S.randomSnow=false;SIM.setBattType('bb100');const c=SIM.S.cfg;c.sysV=24;c.bpar=2;c.bloc='in';c.inv='m24-3000';c.other=0;c.shade=0;
  SIM.setPanelType('r200');c.ser=3;c.par=2;c.nMppt=1;c.mppt='150/35';c.tilt=40;c.az=180;c.mount='auto';c.bifOn=false;
  c.pvMat='cu';c.pvG='10';c.pvFt=50;c.cbMat='cu';c.cbG='6';c.cbFt=5;c.biMat='cu';c.biG='2/0';c.biFt=5;
  SIM.restoreLoads&&SIM.restoreLoads();SIM.cfgChanged(true,true);}"""
@@ -31,6 +31,7 @@ BAL = '''(o)=>{const S=SIM.S;S.t=o.day*1440;S.soc=o.soc;S.battT=o.bt;S.lastI=0;S
 # Run a fixed steady load for N minutes from a given state and report what happened.
 RUN = '''(o)=>{const S=SIM.S;const c=SIM.S.cfg;Object.assign(c,o.cfg||{});if(o.batt)SIM.setBattType(o.batt);Object.assign(c,o.cfg||{});
  S.loads=(o.loads||[]).map((l,i)=>Object.assign({id:'t'+i,name:'Test '+i,short:'T'+i,qty:1,surge:1,mode:'on',wins:[[0,0]],cyc:null,thermo:null,chg:null,off:0,basis:''},l));
+ if(c.genOn){c.genMode='attended';c.genFuel=500;S.genFuelLeft=500;} // Explicit always-present operator + ample finite fuel for the legacy fuel-curve reference scenario.
  SIM.cfgChanged(true,true);S.t=o.t;S.soc=o.soc;S.battT=o.bt;S.lastI=0;S.bmsTrip=false;S.invLow=false;S.invTrip=false;S.heatOn=false;S.coldDis=false;S.coldLock=o.bt<(SIM.BATT.chgMinC??-99);S.ovl=0;S.mission=null;
  const s0=JSON.parse(JSON.stringify(S.stats));const tr=[];let firstTrip=-1,heatMin=0,coldBlockMin=0,coldRiskMin=0,chgMin=0,disMin=0,maxBattT=-99;
  for(let i=0;i<o.min;i++){SIM.step();const L=S.live;if(firstTrip<0&&(L.unserved>0))firstTrip=i;if(L.heatW>0)heatMin++;if(L.coldBlock)coldBlockMin++;if(L.coldRisk)coldRiskMin++;
