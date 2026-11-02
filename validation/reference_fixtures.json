@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "sources": {
+    "victron15070": {
+      "type": "manufacturer technical specifications",
+      "url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html",
+      "scope": "SmartSolar MPPT 150/70 VE.Can; not all revisions or connector variants"
+    },
+    "cerrowire": {
+      "type": "published conductor ampacity table, based on NEC 310.16",
+      "url": "https://www.cerrowire.com/products/resources/tables-calculators/ampacity-charts/",
+      "scope": "Not installation certification; base table at 30 C, up to 3 current-carrying conductors"
+    },
+    "umd": {
+      "type": "university extension reproduction of NEC Chapter 9 Table 8",
+      "url": "https://dev.extension.umd.edu/resource/working-solar-wiring-and-fusing-eb-2023-0676",
+      "scope": "DC copper conductor resistance at 75 C; use stranded uncoated copper"
+    },
+    "victron15035Manual": {
+      "type": "Victron manufacturer technical manual",
+      "url": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-35__150-45/en/technical-specifications.html",
+      "scope": "Manual records 35 A maximum PV short-circuit current"
+    },
+    "victron15035Brochure": {
+      "type": "Victron later manufacturer off-grid brochure",
+      "url": "https://www.victronenergy.com/upload/documents/Brochure_Off-Grid-backup-and-island-systems_2025_EN_Web.pdf",
+      "scope": "2025 brochure records 40 A; may represent variant or revision difference"
+    }
+  },
+  "controller": {
+    "id": "150/70",
+    "source": "victron15070",
+    "max_charge_a": 70,
+    "max_voc_v": 150,
+    "max_operating_voc_v": 145,
+    "max_pv_isc_a": 50,
+    "pv_nominal_w": {
+      "12": 1000,
+      "24": 2000,
+      "48": 4000
+    },
+    "peak_efficiency": 0.98
+  },
+  "ampacity": [
+    {
+      "id": "cu10-75",
+      "mat": "cu",
+      "gauge": "10",
+      "rating_c": 75,
+      "expected_a": 35
+    },
+    {
+      "id": "cu6-75",
+      "mat": "cu",
+      "gauge": "6",
+      "rating_c": 75,
+      "expected_a": 65
+    },
+    {
+      "id": "cu12-60",
+      "mat": "cu",
+      "gauge": "12",
+      "rating_c": 60,
+      "expected_a": 20
+    },
+    {
+      "id": "al4-75",
+      "mat": "al",
+      "gauge": "4",
+      "rating_c": 75,
+      "expected_a": 65
+    }
+  ],
+  "circuit": {
+    "source": "umd",
+    "mat": "cu",
+    "gauge": "10",
+    "ohm_per_1000ft_at_75c": 1.24,
+    "one_way_length_ft": 50,
+    "current_a": 10,
+    "expected_round_trip_ohms": 0.124,
+    "expected_voltage_drop_v": 1.24,
+    "expected_resistive_loss_w": 12.4
+  },
+  "controller_discrepancy": {
+    "id": "150/35",
+    "max_isc_manual_a": 35,
+    "max_isc_brochure_a": 40,
+    "require_status_above_manual": "nv",
+    "notes": "Do not assume either document establishes rating for every hardware revision. Flag as not verified until variant and applicable published specification are identified."
+  }
+}
