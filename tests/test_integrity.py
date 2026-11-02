@@ -64,9 +64,24 @@ def main():
         assert all(preview['manual'].values()),preview
         assert all(preview['attended'].values()),preview
         assert all(preview['overload'].values()),preview
+        rng=page.evaluate("""()=>{
+            const S=SIM.S;SIM.setPlaying(false);
+            const saved={t:S.t,randomSnow:S.randomSnow};
+            S.t=20*1440;S.randomSnow=true;
+            const original=Math.random;let calls=0;
+            Math.random=()=>{calls++;return 1;};
+            try {
+              SIM.refreshLive();SIM.refreshLive();const previewCalls=calls;
+              SIM.step();const realStepCalls=calls-previewCalls;
+              return {previewCalls,realStepCalls};
+            } finally {
+              Math.random=original;S.t=saved.t;S.randomSnow=saved.randomSnow;
+            }
+        }""")
+        assert rng['previewCalls']==0 and rng['realStepCalls']==1,rng
         assert not errors,errors
         browser.close()
-        print('PASS: unmet 240V service, BMS isolation, manual recoil, finite fuel, energy accounting, preview isolation')
+        print('PASS: unmet 240V service, BMS isolation, manual recoil, finite fuel, energy accounting, preview and random-event isolation')
 
 if __name__=='__main__':
     main()
