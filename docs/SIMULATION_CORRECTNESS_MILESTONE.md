@@ -37,3 +37,11 @@ These numbers are **outputs of this model** for a particular starting design, no
 
 - **Milestone 2:** Household essential-load planner and automatic load shedding, using verified measured appliance inputs where possible.
 - **Milestone 3:** Search and compare system configurations with verified compatibility, cost, and robustness metrics. No claim of globally optimal purchasing until the objective, constraints, and search completeness are documented.
+
+## Preview-state isolation regression (2026-11-02)
+
+A control-panel refresh previously called the one-minute simulation step and restored only some fields. As a result it could consume generator fuel, start or stop an attended generator, latch an inverter trip without the corresponding statistics, or complete a mission without simulation time advancing. This created an unphysical dependency on how frequently controls were adjusted.
+
+The minute-step now accepts a read-only preview mode: it suppresses attended-start and mission-completion transitions, and the display refresh snapshots and restores simulation state (including generator status, finite fuel, fault latches, statistics, calendar time and mutable log/history buffers). The live readout is a prospective operating estimate; a real time step is still required for state changes. `tests/test_integrity.py` now checks repeated manual-generator previews, attended-generator isolation and inverter fault isolation.
+
+**Residual gap:** the preview still uses the full dynamics model to calculate prospective output. Its readout is not an independently validated instantaneous electrical measurement. A separate pure calculation routine would further reduce coupling, and actual system response remains subject to external equipment testing.
