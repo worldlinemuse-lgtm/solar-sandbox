@@ -40,9 +40,33 @@ def main():
             const S=SIM.S;const old=S.genFuelLeft;for(let i=0;i<240;i++)SIM.step();
             return {spent:old-S.genFuelLeft,left:S.genFuelLeft,running:S.genRun};}""")
         assert 0<stock['spent']<=0.1000001 and not stock['running'] and stock['left']>=0,stock
+        preview=page.evaluate("""()=>{
+            const S=SIM.S,c=S.cfg;SIM.setPlaying(false);
+            c.inv='m24-3000';c.genOn=true;c.genMode='manual';c.genFuel=.95;
+            S.loads=[];S.t=720;S.soc=.5;S.genRun=true;S.genFuelLeft=.95;
+            S.invOn=true;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.coldDis=false;
+            const initial={t:S.t,fuel:S.genFuelLeft,stats:JSON.stringify(S.stats)};
+            SIM.refreshLive();SIM.refreshLive();
+            const manual={timeUnchanged:S.t===initial.t,fuelUnchanged:S.genFuelLeft===initial.fuel,
+              running:S.genRun,statsUnchanged:JSON.stringify(S.stats)===initial.stats};
+            c.genMode='attended';c.genStart=20;S.soc=.1;S.genRun=false;
+            const starts=S.stats.genStarts||0;
+            SIM.refreshLive();
+            const attended={notStarted:!S.genRun,startsUnchanged:(S.stats.genStarts||0)===starts};
+            c.genOn=false;S.soc=1;S.invTrip=false;
+            S.loads=[{id:'overload',name:'Overload',short:'Overload',w:20000,qty:1,
+              surge:1,volt:120,leg:1,mode:'on',wins:[[0,0]],off:0}];
+            const faults=S.stats.faults;
+            SIM.refreshLive();
+            return {manual,attended,overload:{noTrip:!S.invTrip,
+              faultsUnchanged:S.stats.faults===faults,timeUnchanged:S.t===initial.t}};
+        }""")
+        assert all(preview['manual'].values()),preview
+        assert all(preview['attended'].values()),preview
+        assert all(preview['overload'].values()),preview
         assert not errors,errors
         browser.close()
-        print('PASS: unmet 240V service, BMS isolation, manual recoil, finite fuel, energy accounting')
+        print('PASS: unmet 240V service, BMS isolation, manual recoil, finite fuel, energy accounting, preview isolation')
 
 if __name__=='__main__':
     main()

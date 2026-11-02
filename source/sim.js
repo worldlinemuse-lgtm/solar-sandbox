@@ -311,7 +311,7 @@ function arrayW(){return S.cfg.ser*S.cfg.par*PANEL.w;}
 function log(msg,bad){if(S.quiet)return;S.log.unshift({t:S.t,msg,bad:!!bad});if(S.log.length>80)S.log.pop();renderLog();}
 
 // ---------- One simulated minute ----------
-function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty point: the battery's own floor or your reserve, whichever is higher
+function step(preview=false){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty point: the battery's own floor or your reserve, whichever is higher
  const c=S.cfg, M=mppt(), I=inv(), ns=nSer(), bp=c.bpar, nC=c.nMppt;
  const t=S.t, tw=wxT(t);
  const blast=(S.blastUntil>t)?-15:0;
@@ -367,7 +367,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  if(!gOK||S.genFuelLeft<genGph(0)/60){
   if(S.genRun&&S.genFuelLeft<genGph(0)/60)log('Generator stopped: not enough fuel for another full simulated minute.',true);
   S.genRun=false;
- }else if(c.genMode==='attended'){
+ }else if(c.genMode==='attended'&&!preview){
   if(!S.genRun&&S.soc<=c.genStart/100){S.genRun=true;S.stats.genStarts=(S.stats.genStarts||0)+1;log('Attended operator assumed: generator manually started at '+Math.round(S.soc*100)+'% battery.');}
   else if(S.genRun&&S.soc>=c.genStop/100){S.genRun=false;log('Attended operator assumed: generator manually stopped.');}
  }
@@ -478,7 +478,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  S.live={legD,requested,unservedSupply,unfit,unfitOn,genFuelLeft:S.genFuelLeft,genAC:invRun?genAC:0,genDC,genRun:!!S.genRun,ghi:lerpArr(GHI,tw),ta,taF,poa,geff,tcell,pPanel,pvAvail,harvestable,mOut,invDC,invLossW,contNow,heatW,demand,served,unserved,on,voc,vmp,state,Ibank,vb,vInv,invRun,coldBlock,coldRisk,maxOut,dm,absPhase:ab.phase,absMin:S.absMin,absLimit:ab.limit,wire:{pv:pvRun.W,cb:cb.W,bi:bi.W,biV:bi.V}};
  if(t%10===0){S.hist.push([t,mOut,served,S.soc]);if(S.hist.length>288)S.hist.shift();}
  S.t++; if(S.t>=YEARMIN)S.t-=YEARMIN; S.stats.mins=(S.stats.mins||0)+1; // elapsed minutes: never wraps at the year end
- if(S.mission&&S.missionEnd!==null&&((S.t-S.missionEnd+YEARMIN)%YEARMIN)<1)endMission();
+ if(!preview&&S.mission&&S.missionEnd!==null&&((S.t-S.missionEnd+YEARMIN)%YEARMIN)<1)endMission();
 }
 function monthOf(d){let m=0;while(m<11&&d>=MSTART[m+1])m++;return m;}
 
@@ -1026,12 +1026,20 @@ function ageHtml(o){const pc=v=>Math.round(v*100)+'%';const h=v=>v<1&&v>0?'under
 function renderAll(){render();renderScore();renderChart();}
 // recompute live readings without advancing time
 function refreshLive(){
- const saved={t:S.t,soc:S.soc,stats:Object.assign({},S.stats),day:Object.assign({},S.day),hist:S.hist.slice(),battT:S.battT,heatOn:S.heatOn,snow:S.snow,lastI:S.lastI,prevOn:Object.assign({},S.prevOn),overMin:S.overMin,ovl:S.ovl,coldLock:S.coldLock,coldDis:S.coldDis,coldWarnDay:S.coldWarnDay,mpptRun:S.mpptRun,absMin:S.absMin,absDay:S.absDay,logLen:S.log.length,inv:[S.invTrip,S.invLow,S.bmsTrip,S.mpptDead]};
- step();
- const tripped=[S.invTrip,S.invLow,S.bmsTrip,S.mpptDead];
- S.t=saved.t;S.soc=saved.soc;S.stats=saved.stats;S.day=saved.day;S.hist=saved.hist;S.battT=saved.battT;S.heatOn=saved.heatOn;S.snow=saved.snow;S.lastI=saved.lastI;S.overMin=saved.overMin;S.ovl=saved.ovl;S.coldLock=saved.coldLock;S.coldDis=saved.coldDis;S.coldWarnDay=saved.coldWarnDay;S.prevOn=saved.prevOn;S.mpptRun=saved.mpptRun;S.absMin=saved.absMin;S.absDay=saved.absDay;
- // keep faults the preview found (they are real consequences of the change), but not time
- renderAll();}
+ // A display refresh previews one modeled minute; it must not consume fuel, trip equipment,
+ // advance a mission or alter any counters. Preserve all state, including mutable buffers.
+ const saved=grabState(),wasQuiet=S.quiet;
+ saved.stats={...S.stats};saved.day={...S.day};
+ saved.hist=S.hist.slice();saved.log=S.log.slice();
+ let previewLive;
+ S.quiet=true;
+ try{step(true);previewLive=S.live;}
+ finally{putState(saved);S.quiet=wasQuiet;}
+ // Display prospective readings without moving the actual fuel inventory.
+ previewLive.genFuelLeft=S.genFuelLeft;
+ S.live=previewLive;
+ renderAll();
+}
 
 
 // ---------- Mount, wiring, save/load ----------
