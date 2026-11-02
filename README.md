@@ -22,7 +22,7 @@ The whole app is one self-contained file, `index.html`. The voice guide, weather
 - Horizon shading: the height of hills, trees or buildings in eight directions. Direct sun is blocked when the sun is lower; the diffuse-sky cut is a simple estimate.
 - Snow on the panels in the recorded winters, from NASA POWER's daily snowfall. A day with at least 1 mm of water equivalent (about 1 cm of snow) covers the panels; that trigger is an estimate. Snow slides off with NREL's published model, the one in pvlib. You can switch it off.
 - A battery reserve: the house goes dark at the level you choose instead of at empty.
-- A Honda EU2200i generator (Honda's page: 1,800 W rated, 0.95-gallon tank, 3.2 hours at rated load, 8.1 hours at quarter load), with start and stop battery levels. Fuel use between Honda's two runtimes is a straight line, an estimate, and the failure-rate runs report fuel per winter. Its $1,199 price is marked as an estimate because the Honda page read didn't show it.
+- A Honda EU2200i generator (1,800 W rated, **recoil start**, 0.95-gallon tank). The default simulation requires a manual start. An optional **attended operator** scenario assumes a person always operates it when charge crosses thresholds; there is no automatic starting hardware. Fuel inventory is finite and bounds runtime. Larger stocks assume refueling can occur without downtime: tank refills, human availability and maintenance are not modeled. Fuel use between Honda's two published runtimes is estimated; its $1,199 quoted price is an estimate.
 
 Every part links to its maker page or datasheet under "Sources by part" on the page.
 
@@ -141,3 +141,17 @@ python compare_gcr.py
 ## Limits
 
 Snow cover in the recorded winters starts from a daily snowfall total, so when in the day it fell is not known. This is a learning model, not a wiring plan or a safety check. The inverter efficiency curve shape, appliance running watts, charger efficiency, the AGM voltage curve, the charge taper start, the bifacial rear gain and the self-heating battery's warm-up rate are estimates, and the page labels them. PVWatts was cross-checked only up to a 40° tilt with a single row. The typical-year file's very light wind (about 0.2 m/s) hasn't been confirmed. Prices were taken from makers' and dealers' sites on October 30 and 31, 2026, before tax and shipping. The LONGi panels use your own $100 purchase price. Fuse and cable sizing, code compliance and real output still come from the manuals, the NEC and a licensed electrician.
+
+## Corrected model integrity (November 2, 2026)
+
+- Incompatible 240 V loads on a 120 V inverter are **unserved demand** and cause failed-service/blackout minutes. They no longer disappear from mission outcomes.
+- The load summary separates appliance demand, compatible and incompatible energy, and estimated inverter overhead.
+- The generic tripped BMS state blocks all charging, including generator charging, until a manual reset.
+- EU2200i operation defaults to manual recoil start. An **attended-operator** mode models a person starting/stopping it at battery thresholds. This is *not automatic standby equipment*.
+- A finite fuel stock is tracked. This model still does not simulate separate 0.95-gallon tank refills, refilling delays, operator absences, maintenance, or a certified electrical transfer arrangement.
+- The battery drawing and title use the selected model and its nominal Ah instead of hard-coded Battle Born 100 Ah labels.
+- `tests/test_integrity.py` adds specific browser regressions for inverter compatibility, BMS isolation, manual startup and bounded fuel.
+
+**Stale saved results:** `tests/test_v7_results.json` was generated *before* these corrections and includes generator-assisted historical calculations with unrealistic operation. It is archival only. Run the updated full historical suite to produce corrected scenarios. Even corrected historical runs are stress tests, **not** a predictive future-failure probability.
+
+**Still unverified or simplified:** Motor startup apparent power (VA), power factor and transient timing, PV shading/snow uncertainty, battery aging, component pricing, field measurements, equipment integration, and code-compliant transfer arrangements. The app is an exploratory engineering model, not an electrical safety certification or guarantee of blackout survival.
