@@ -1,0 +1,4288 @@
+{
+ "buyCost": {
+  "cases": 416,
+  "mismatches": []
+ },
+ "default_cost": {
+  "total": 6255.67,
+  "shown": "Parts priced so far: $6,255.67"
+ },
+ "inverter_curves": [
+  {
+   "id": "p12-800",
+   "datasheetEff": 0.9,
+   "modelPeakEff": 0.9,
+   "peakAtW": 320,
+   "idle": 8,
+   "model0": 8,
+   "effAtFull": 0.8821,
+   "effAt10pct": 0.8566
+  },
+  {
+   "id": "p12-1200",
+   "datasheetEff": 0.91,
+   "modelPeakEff": 0.91,
+   "peakAtW": 480,
+   "idle": 11,
+   "model0": 11,
+   "effAtFull": 0.8932,
+   "effAt10pct": 0.8692
+  },
+  {
+   "id": "m12-3000",
+   "datasheetEff": 0.93,
+   "modelPeakEff": 0.93,
+   "peakAtW": 960,
+   "idle": 13,
+   "model0": 13,
+   "effAtFull": 0.9196,
+   "effAt10pct": 0.9044
+  },
+  {
+   "id": "p24-800",
+   "datasheetEff": 0.9,
+   "modelPeakEff": 0.9,
+   "peakAtW": 320,
+   "idle": 8,
+   "model0": 8,
+   "effAtFull": 0.8821,
+   "effAt10pct": 0.8566
+  },
+  {
+   "id": "p24-1200",
+   "datasheetEff": 0.91,
+   "modelPeakEff": 0.91,
+   "peakAtW": 480,
+   "idle": 11,
+   "model0": 11,
+   "effAtFull": 0.8932,
+   "effAt10pct": 0.8692
+  },
+  {
+   "id": "m24-3000",
+   "datasheetEff": 0.94,
+   "modelPeakEff": 0.94,
+   "peakAtW": 960,
+   "idle": 13,
+   "model0": 13,
+   "effAtFull": 0.9294,
+   "effAt10pct": 0.9138
+  },
+  {
+   "id": "m24-5000",
+   "datasheetEff": 0.95,
+   "modelPeakEff": 0.95,
+   "peakAtW": 1600,
+   "idle": 24,
+   "model0": 24,
+   "effAtFull": 0.938,
+   "effAt10pct": 0.9205
+  },
+  {
+   "id": "p48-800",
+   "datasheetEff": 0.91,
+   "modelPeakEff": 0.91,
+   "peakAtW": 320,
+   "idle": 9,
+   "model0": 9,
+   "effAtFull": 0.8895,
+   "effAt10pct": 0.8605
+  },
+  {
+   "id": "p48-1200",
+   "datasheetEff": 0.92,
+   "modelPeakEff": 0.92,
+   "peakAtW": 480,
+   "idle": 12,
+   "model0": 12,
+   "effAtFull": 0.9013,
+   "effAt10pct": 0.8747
+  },
+  {
+   "id": "m48-3000",
+   "datasheetEff": 0.95,
+   "modelPeakEff": 0.95,
+   "peakAtW": 960,
+   "idle": 11,
+   "model0": 11,
+   "effAtFull": 0.9408,
+   "effAt10pct": 0.9273
+  },
+  {
+   "id": "m48-5000",
+   "datasheetEff": 0.96,
+   "modelPeakEff": 0.96,
+   "peakAtW": 1600,
+   "idle": 15,
+   "model0": 15,
+   "effAtFull": 0.9523,
+   "effAt10pct": 0.9409
+  },
+  {
+   "id": "sp-m12-3000",
+   "datasheetEff": 0.93,
+   "modelPeakEff": 0.93,
+   "peakAtW": 960,
+   "idle": 13,
+   "model0": 13,
+   "effAtFull": 0.9196,
+   "effAt10pct": 0.9044
+  },
+  {
+   "id": "sp-m24-3000",
+   "datasheetEff": 0.94,
+   "modelPeakEff": 0.94,
+   "peakAtW": 960,
+   "idle": 13,
+   "model0": 13,
+   "effAtFull": 0.9294,
+   "effAt10pct": 0.9138
+  },
+  {
+   "id": "sp-m24-5000",
+   "datasheetEff": 0.95,
+   "modelPeakEff": 0.95,
+   "peakAtW": 1600,
+   "idle": 24,
+   "model0": 24,
+   "effAtFull": 0.938,
+   "effAt10pct": 0.9205
+  },
+  {
+   "id": "sp-m48-3000",
+   "datasheetEff": 0.95,
+   "modelPeakEff": 0.95,
+   "peakAtW": 960,
+   "idle": 11,
+   "model0": 11,
+   "effAtFull": 0.9408,
+   "effAt10pct": 0.9273
+  },
+  {
+   "id": "sp-m48-5000",
+   "datasheetEff": 0.96,
+   "modelPeakEff": 0.96,
+   "peakAtW": 1600,
+   "idle": 15,
+   "model0": 15,
+   "effAtFull": 0.9523,
+   "effAt10pct": 0.9409
+  }
+ ],
+ "wire_table": {
+  "gauges": {
+   "cu": 11,
+   "al": 10
+  },
+  "mm2_known": true,
+  "max_dev_pct_vs_physics": 0.5,
+  "rows": [
+   [
+    "cu",
+    "2",
+    0.194,
+    0.1939,
+    0.07
+   ],
+   [
+    "cu",
+    "4",
+    0.308,
+    0.3082,
+    -0.07
+   ],
+   [
+    "cu",
+    "6",
+    0.491,
+    0.4903,
+    0.15
+   ],
+   [
+    "cu",
+    "8",
+    0.778,
+    0.7792,
+    -0.16
+   ],
+   [
+    "cu",
+    "10",
+    1.24,
+    1.2394,
+    0.05
+   ],
+   [
+    "cu",
+    "12",
+    1.98,
+    1.9702,
+    0.5
+   ],
+   [
+    "cu",
+    "14",
+    3.14,
+    3.1302,
+    0.31
+   ],
+   [
+    "cu",
+    "1/0",
+    0.122,
+    0.1218,
+    0.14
+   ],
+   [
+    "cu",
+    "2/0",
+    0.0967,
+    0.0967,
+    0.04
+   ],
+   [
+    "cu",
+    "3/0",
+    0.0766,
+    0.0767,
+    -0.09
+   ],
+   [
+    "cu",
+    "4/0",
+    0.0608,
+    0.0608,
+    0.0
+   ],
+   [
+    "al",
+    "2",
+    0.319,
+    0.3193,
+    -0.08
+   ],
+   [
+    "al",
+    "4",
+    0.508,
+    0.5076,
+    0.09
+   ],
+   [
+    "al",
+    "6",
+    0.808,
+    0.8074,
+    0.08
+   ],
+   [
+    "al",
+    "8",
+    1.28,
+    1.2832,
+    -0.25
+   ],
+   [
+    "al",
+    "10",
+    2.04,
+    2.041,
+    -0.05
+   ],
+   [
+    "al",
+    "12",
+    3.25,
+    3.2444,
+    0.17
+   ],
+   [
+    "al",
+    "1/0",
+    0.201,
+    0.2006,
+    0.19
+   ],
+   [
+    "al",
+    "2/0",
+    0.159,
+    0.1592,
+    -0.11
+   ],
+   [
+    "al",
+    "3/0",
+    0.126,
+    0.1263,
+    -0.2
+   ],
+   [
+    "al",
+    "4/0",
+    0.1,
+    0.1001,
+    -0.12
+   ]
+  ]
+ },
+ "wiring_report": {
+  "report": {
+   "pvImax": 27.625,
+   "pvNeed": 34.53125,
+   "pvAmp": 35,
+   "pvR75": 0.124,
+   "pvVd": 4.486388888888889,
+   "pvLossW": 53.853894399999994,
+   "backfeed": 13.8125,
+   "strFuseNeeded": false,
+   "strFuse": 20,
+   "cbI": 35,
+   "cbFuse": 45,
+   "cbAmp": 65,
+   "cbR75": 0.00491,
+   "cbVd": 0.7160416666666667,
+   "cbTooBig": false,
+   "biI": 135.91797312430012,
+   "biFuse": 175,
+   "biAmp": 175,
+   "biR75": 0.000967,
+   "biVd": 0.5476361667133258,
+   "biSurgeI": 323.25310818324624,
+   "faultV": 27.6,
+   "faultE": {
+    "amps": 3942.857142857143,
+    "rBank": 0.007,
+    "rTot": 0.007,
+    "basis": "the maker\u2019s published internal resistance",
+    "isFloor": false,
+    "verified": false
+   },
+   "fault": 3942.857142857143,
+   "fuseCmp": [
+    {
+     "f": {
+      "id": "mrbf",
+      "name": "MRBF terminal fuse",
+      "maker": "Blue Sea Systems",
+      "model": "5183 (30-300 A series)",
+      "aic": [
+       [
+        14,
+        10000
+       ],
+       [
+        32,
+        5000
+       ],
+       [
+        58,
+        2000
+       ]
+      ],
+      "url": "https://www.bluesea.com/products/5183"
+     },
+     "status": "nv",
+     "aic": {
+      "amps": 5000,
+      "atV": 32
+     },
+     "msg": "Rated 5,000 A, above the estimate (1.3\u00d7). Not verified: the estimate is not a maker short-circuit figure."
+    },
+    {
+     "f": {
+      "id": "anl",
+      "name": "ANL fuse",
+      "maker": "Blue Sea Systems",
+      "model": "5127 (ANL series)",
+      "aic": [
+       [
+        80,
+        6000
+       ]
+      ],
+      "url": "https://www.bluesea.com/products/5127/ANL_Fuse_-_100A"
+     },
+     "status": "nv",
+     "aic": {
+      "amps": 6000,
+      "atV": 80
+     },
+     "msg": "Rated 6,000 A, above the estimate (1.5\u00d7). Not verified: the estimate is not a maker short-circuit figure."
+    },
+    {
+     "f": {
+      "id": "classt",
+      "name": "Class T fuse",
+      "maker": "Blue Sea Systems",
+      "model": "5114 (Class T series)",
+      "aic": [
+       [
+        125,
+        20000
+       ]
+      ],
+      "url": "https://www.bluesea.com/products/5114/Class_T_Fuse_-_100A"
+     },
+     "status": "nv",
+     "aic": {
+      "amps": 20000,
+      "atV": 125
+     },
+     "msg": "Rated 20,000 A, above the estimate (5.1\u00d7). Not verified: the estimate is not a maker short-circuit figure."
+    }
+   ],
+   "amp": {
+    "pv": {
+     "missing": [
+      "hottest air temperature around the cable",
+      "how many current-carrying wires share the conduit or bundle",
+      "the insulation temperature rating printed on the cable",
+      "the terminal temperature rating of the equipment at each end"
+     ],
+     "base": null,
+     "tf": null,
+     "bf": null,
+     "corrected": null,
+     "termLimit": null,
+     "allowed": null,
+     "required": 27.625,
+     "requiredUncorr": 34.53125,
+     "status": "nv",
+     "notes": [],
+     "best": {
+      "missing": [],
+      "base": 40,
+      "tf": 1.15,
+      "bf": 1,
+      "corrected": 46,
+      "termLimit": 40,
+      "allowed": 40,
+      "required": 27.625,
+      "requiredUncorr": 34.53125,
+      "status": "tbl",
+      "notes": []
+     }
+    },
+    "cb": {
+     "missing": [
+      "hottest air temperature around the cable",
+      "how many current-carrying wires share the conduit or bundle",
+      "the insulation temperature rating printed on the cable",
+      "the terminal temperature rating of the equipment at each end"
+     ],
+     "base": null,
+     "tf": null,
+     "bf": null,
+     "corrected": null,
+     "termLimit": null,
+     "allowed": null,
+     "required": 35,
+     "requiredUncorr": 43.75,
+     "status": "nv",
+     "notes": [],
+     "best": {
+      "missing": [],
+      "base": 75,
+      "tf": 1.15,
+      "bf": 1,
+      "corrected": 86.25,
+      "termLimit": 75,
+      "allowed": 75,
+      "required": 35,
+      "requiredUncorr": 43.75,
+      "status": "tbl",
+      "notes": []
+     }
+    },
+    "bi": {
+     "missing": [
+      "hottest air temperature around the cable",
+      "how many current-carrying wires share the conduit or bundle",
+      "the insulation temperature rating printed on the cable",
+      "the terminal temperature rating of the equipment at each end"
+     ],
+     "base": null,
+     "tf": null,
+     "bf": null,
+     "corrected": null,
+     "termLimit": null,
+     "allowed": null,
+     "required": 135.91797312430012,
+     "requiredUncorr": 169.89746640537516,
+     "status": "nv",
+     "notes": [],
+     "best": {
+      "missing": [],
+      "base": 195,
+      "tf": 1.15,
+      "bf": 1,
+      "corrected": 224.24999999999997,
+      "termLimit": 195,
+      "allowed": 195,
+      "required": 135.91797312430012,
+      "requiredUncorr": 169.89746640537516,
+      "status": "tbl",
+      "notes": []
+     }
+    }
+   }
+  },
+  "cfg": {
+   "pvMat": "cu",
+   "pvG": "10",
+   "pvFt": 50,
+   "cbG": "6",
+   "cbFt": 5,
+   "biG": "2/0",
+   "biFt": 5
+  },
+  "pv_loop_ohm_at_75C": 0.124
+ },
+ "balance": [
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.56,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.407,
+   "id": "bb100",
+   "loc": "in",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.802,
+   "id": "bb100",
+   "loc": "in",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 14.41,
+   "servedKWh": 15.17,
+   "invLossKWh": 2.35,
+   "wireKWh": 0.039,
+   "heatKWh": 0,
+   "blackMin": 1993,
+   "soc": 0.082,
+   "id": "bb100",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.064,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.802,
+   "id": "bb100",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.57,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.406,
+   "id": "lt100",
+   "loc": "in",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.801,
+   "id": "lt100",
+   "loc": "in",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.56,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.057,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.406,
+   "id": "lt100",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.064,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.801,
+   "id": "lt100",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.73,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.483,
+   "id": "lt230",
+   "loc": "in",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.62,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.063,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.827,
+   "id": "lt230",
+   "loc": "in",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 1.95,
+   "servedKWh": 5.64,
+   "invLossKWh": 0.88,
+   "wireKWh": 0.003,
+   "heatKWh": 0,
+   "blackMin": 7013,
+   "soc": 0,
+   "id": "lt230",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.62,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.064,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.827,
+   "id": "lt230",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.57,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.406,
+   "id": "lth100",
+   "loc": "in",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.801,
+   "id": "lth100",
+   "loc": "in",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 16.7,
+   "servedKWh": 15.94,
+   "invLossKWh": 2.49,
+   "wireKWh": 0.048,
+   "heatKWh": 1.733,
+   "blackMin": 1461,
+   "soc": 0,
+   "id": "lth100",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 22.45,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.064,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.801,
+   "id": "lth100",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": -0.0,
+   "pvKWh": 20.09,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.44,
+   "wireKWh": 0.015,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.418,
+   "id": "lt48",
+   "loc": "in",
+   "day": 10,
+   "sysV": 48,
+   "inv": "m48-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 12.34,
+   "servedKWh": 14.17,
+   "invLossKWh": 1.77,
+   "wireKWh": 0.009,
+   "heatKWh": 0,
+   "blackMin": 2904,
+   "soc": 0,
+   "id": "lt48",
+   "loc": "in",
+   "day": 190,
+   "sysV": 48,
+   "inv": "m48-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": -0.0,
+   "pvKWh": 1.91,
+   "servedKWh": 5.22,
+   "invLossKWh": 0.67,
+   "wireKWh": 0.001,
+   "heatKWh": 0,
+   "blackMin": 7303,
+   "soc": 0,
+   "id": "lt48",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 48,
+   "inv": "m48-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 12.34,
+   "servedKWh": 14.17,
+   "invLossKWh": 1.77,
+   "wireKWh": 0.009,
+   "heatKWh": 0,
+   "blackMin": 2904,
+   "soc": 0,
+   "id": "lt48",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 48,
+   "inv": "m48-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.11,
+   "servedKWh": 15.9,
+   "invLossKWh": 2.47,
+   "wireKWh": 0.067,
+   "heatKWh": 0,
+   "blackMin": 1538,
+   "soc": 0.5,
+   "id": "agm100",
+   "loc": "in",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 24.66,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.077,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.767,
+   "id": "agm100",
+   "loc": "in",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 20.2,
+   "servedKWh": 13.8,
+   "invLossKWh": 2.17,
+   "wireKWh": 0.062,
+   "heatKWh": 0,
+   "blackMin": 2576,
+   "soc": 0.5,
+   "id": "agm100",
+   "loc": "shed",
+   "day": 10,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 24.57,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.079,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.771,
+   "id": "agm100",
+   "loc": "shed",
+   "day": 190,
+   "sysV": 24,
+   "inv": "m24-3000"
+  },
+  {
+   "maxSocErr": 0,
+   "clampMin": 0,
+   "acErrW": 2.842170943040401e-14,
+   "chainErr": 0,
+   "neg": 0,
+   "closureWh": 0,
+   "pvKWh": 24.07,
+   "servedKWh": 18.83,
+   "invLossKWh": 2.92,
+   "wireKWh": 0.128,
+   "heatKWh": 0,
+   "blackMin": 0,
+   "soc": 0.776,
+   "id": "r400 bifacial, Al wire"
+  }
+ ],
+ "balance_year": {
+  "maxSocErr": 0,
+  "clampMin": 0,
+  "acErrW": 2.842170943040401e-14,
+  "chainErr": 0,
+  "neg": 0,
+  "closureWh": -2e-06,
+  "pvKWh": 1132.37,
+  "servedKWh": 950.25,
+  "invLossKWh": 147.15,
+  "wireKWh": 3.612,
+  "heatKWh": 0,
+  "blackMin": 17803,
+  "soc": 0.058
+ },
+ "wx_len": 8760,
+ "edge_battery": {
+  "cold_noon_hour": 105,
+  "night_hour": 98,
+  "cases": {
+   "lt100@-10C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 0,
+    "coldRiskMin": 180,
+    "chargeMin": 180,
+    "dischargeMin": 0,
+    "battT": -8.76,
+    "maxBattT": -8.76,
+    "soc": 0.9368,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 1383.752,
+     "pvWaste": 132.196,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 168.643,
+     "wireCb": 13.487,
+     "wireBi": 0.065,
+     "invLoss": 43.068,
+     "ctlLoss": 28.24,
+     "coldChg": 180,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Charging the LiTime 100Ah below 32\u00b0F. This model has no cold protection, so the charger keeps going; LiTime says not to charge it below freezing (lithium plating damage).",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 100 Ah: 2 batteries (1S \u00d7 2P), 2.56 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Switched to Renogy 200 W 12 V N-type: 6 panels, 3 in series \u00d7 2 strings (1.20 kW)."
+    ]
+   },
+   "bb100@-3.3C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 161,
+    "coldRiskMin": 0,
+    "chargeMin": 19,
+    "dischargeMin": 0,
+    "battT": -5.6,
+    "maxBattT": -3.33,
+    "soc": 0.5396,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 328.764,
+     "pvWaste": 1187.184,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 15.943,
+     "wireCb": 1.414,
+     "wireBi": 0.067,
+     "invLoss": 43.068,
+     "ctlLoss": 6.709,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Battle Born 100 Ah 12 V: 2 batteries (1S \u00d7 2P), 2.56 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Charging the LiTime 100Ah below 32\u00b0F. This model has no cold protection, so the charger keeps going; LiTime says not to charge it below freezing (lithium plating damage).",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W)."
+    ]
+   },
+   "bb100@-4.5C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 180,
+    "coldRiskMin": 0,
+    "chargeMin": 0,
+    "dischargeMin": 0,
+    "battT": -6.16,
+    "maxBattT": -4.53,
+    "soc": 0.4999,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 223.48,
+     "pvWaste": 1292.468,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 4.013,
+     "wireCb": 0.345,
+     "wireBi": 0.068,
+     "invLoss": 43.068,
+     "ctlLoss": 4.561,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Battle Born 100 Ah 12 V: 2 batteries (1S \u00d7 2P), 2.56 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Battle Born 100 Ah 12 V: 2 batteries (1S \u00d7 2P), 2.56 kWh, kept close to the old bank size. New batteries join at the same charge."
+    ]
+   },
+   "agm100@-10C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 0,
+    "coldRiskMin": 180,
+    "chargeMin": 180,
+    "dischargeMin": 0,
+    "battT": -8.76,
+    "maxBattT": -8.76,
+    "soc": 0.9023,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 1309.985,
+     "pvWaste": 205.963,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 149.368,
+     "wireCb": 13.799,
+     "wireBi": 0.075,
+     "invLoss": 43.068,
+     "ctlLoss": 26.734,
+     "coldChg": 180,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Renogy 12 V 100 Ah AGM (lead-acid): 2 batteries (1S \u00d7 2P), 2.40 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Battle Born 100 Ah 12 V: 2 batteries (1S \u00d7 2P), 2.56 kWh, kept close to the old bank size. New batteries join at the same charge."
+    ]
+   },
+   "lt230@-10C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 180,
+    "coldRiskMin": 0,
+    "chargeMin": 0,
+    "dischargeMin": 0,
+    "battT": -8.76,
+    "maxBattT": -8.76,
+    "soc": 0.4999,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 223.48,
+     "pvWaste": 1292.468,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 4.013,
+     "wireCb": 0.345,
+     "wireBi": 0.068,
+     "invLoss": 43.068,
+     "ctlLoss": 4.561,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 230 Ah Plus: 1 batteries (1S \u00d7 1P), 2.94 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to Renogy 12 V 100 Ah AGM (lead-acid): 2 batteries (1S \u00d7 2P), 2.40 kWh, kept close to the old bank size. New batteries join at the same charge."
+    ]
+   },
+   "lth100@-10C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 80,
+    "coldBlockMin": 80,
+    "coldRiskMin": 0,
+    "chargeMin": 100,
+    "dischargeMin": 0,
+    "battT": 1.18,
+    "maxBattT": 5.19,
+    "soc": 0.7468,
+    "stats": {
+     "mins": 180,
+     "served": 180,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 1148.104,
+     "pvWaste": 367.844,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 266.667,
+     "wirePv": 124.074,
+     "wireCb": 9.929,
+     "wireBi": 0.067,
+     "invLoss": 43.068,
+     "ctlLoss": 23.431,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime LiHeat 12 V 100 Ah self-heating: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 230 Ah Plus: 1 batteries (1S \u00d7 1P), 2.94 kWh, kept close to the old bank size. New batteries join at the same charge."
+    ]
+   },
+   "lt230 discharge@-21C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": 0,
+    "heatMin": 0,
+    "coldBlockMin": 20,
+    "coldRiskMin": 0,
+    "chargeMin": 0,
+    "dischargeMin": 0,
+    "battT": -20.6,
+    "maxBattT": -20.6,
+    "soc": 0.8,
+    "stats": {
+     "mins": 20,
+     "served": 0,
+     "unserved": 33.333,
+     "blackMin": 20,
+     "pvIn": 0,
+     "pvWaste": 0,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 0,
+     "wireCb": 0,
+     "wireBi": 0,
+     "invLoss": 0,
+     "ctlLoss": 0,
+     "coldChg": 0,
+     "coldDis": 1
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Battery too cold to power anything: its BMS cut discharging at -6\u00b0F (rated down to -4\u00b0F).",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 230 Ah Plus: 1 batteries (1S \u00d7 1P), 2.94 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W)."
+    ]
+   },
+   "lt230 discharge@-19C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 20,
+    "coldRiskMin": 0,
+    "chargeMin": 0,
+    "dischargeMin": 20,
+    "battT": -18.76,
+    "maxBattT": -18.76,
+    "soc": 0.7932,
+    "stats": {
+     "mins": 20,
+     "served": 33.333,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 0,
+     "pvWaste": 0,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 0,
+     "wireCb": 0,
+     "wireBi": 0.018,
+     "invLoss": 5.595,
+     "ctlLoss": 0,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 230 Ah Plus: 2 batteries (1S \u00d7 2P), 5.89 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Battery too cold to power anything: its BMS cut discharging at -6\u00b0F (rated down to -4\u00b0F).",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W)."
+    ]
+   },
+   "lt100 discharge@-21C": {
+    "keys": [
+     "pvOpen",
+     "t",
+     "soc",
+     "battT",
+     "snow",
+     "blastUntil",
+     "randomSnow",
+     "mpptDead",
+     "mpptRun",
+     "invOn",
+     "invTrip",
+     "invLow",
+     "bmsTrip",
+     "overMin",
+     "ovl",
+     "coldLock",
+     "coldDis",
+     "coldWarnDay",
+     "lastI",
+     "vbat",
+     "absMin",
+     "absDay",
+     "playing",
+     "warnedIsc",
+     "unfitW",
+     "genRun",
+     "heatOn"
+    ],
+    "firstUnservedMin": -1,
+    "heatMin": 0,
+    "coldBlockMin": 0,
+    "coldRiskMin": 20,
+    "chargeMin": 0,
+    "dischargeMin": 20,
+    "battT": -20.6,
+    "maxBattT": -20.6,
+    "soc": 0.7844,
+    "stats": {
+     "mins": 20,
+     "served": 33.333,
+     "unserved": 0,
+     "blackMin": 0,
+     "pvIn": 0,
+     "pvWaste": 0,
+     "minSoc": 0,
+     "faults": 0,
+     "tripInv": 0,
+     "tripBms": 0,
+     "lowV": 0,
+     "dead": 0,
+     "heat": 0,
+     "wirePv": 0,
+     "wireCb": 0,
+     "wireBi": 0.018,
+     "invLoss": 5.595,
+     "ctlLoss": 0,
+     "coldChg": 0,
+     "coldDis": 0
+    },
+    "inv": "p12-1200",
+    "log": [
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 100 Ah: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+     "Rewired the panels for the new battery voltage: 4 panels, 4 in series \u00d7 1 string (800 W).",
+     "Switched to LiTime 12 V 230 Ah Plus: 2 batteries (1S \u00d7 2P), 5.89 kWh, kept close to the old bank size. New batteries join at the same charge."
+    ]
+   }
+  }
+ },
+ "edge_inverter": {
+  "780 W steady": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": -1,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 90,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.7335,
+   "stats": {
+    "mins": 90,
+    "served": 1170,
+    "unserved": 0,
+    "blackMin": 0,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 0,
+    "tripInv": 0,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 5.434,
+    "invLoss": 154.797,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F).",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F).",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F).",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F)."
+   ]
+  },
+  "850 W steady": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": -1,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 90,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.7083,
+   "stats": {
+    "mins": 90,
+    "served": 1275,
+    "unserved": 0,
+    "blackMin": 0,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 0,
+    "tripInv": 0,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 6.564,
+    "invLoss": 174.585,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F).",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F).",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F)."
+   ]
+  },
+  "900 W steady": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": 59,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 59,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.7968,
+   "stats": {
+    "mins": 90,
+    "served": 885,
+    "unserved": 465,
+    "blackMin": 31,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 1,
+    "tripInv": 1,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 4.852,
+    "invLoss": 124.177,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Inverter overload trip: ran over its 800 W continuous rating until it overheated (900 W is rated for 60 min from cold).",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Battery too cold to power anything: its BMS cut discharging at -5\u00b0F (rated down to -4\u00b0F)."
+   ]
+  },
+  "950 W steady": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": 0,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 0,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.9999,
+   "stats": {
+    "mins": 90,
+    "served": 0,
+    "unserved": 1425,
+    "blackMin": 90,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 1,
+    "tripInv": 1,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 0,
+    "invLoss": 0,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Inverter overload trip: 950 W is over its 900 W time-limited rating; it holds its 1200 W peak only 15 seconds.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Inverter overload trip: ran over its 800 W continuous rating until it overheated (900 W is rated for 60 min from cold).",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge."
+   ]
+  },
+  "600 W, 2x start surge (1200 W)": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": -1,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 90,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.8016,
+   "stats": {
+    "mins": 90,
+    "served": 880,
+    "unserved": 0,
+    "blackMin": 0,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 0,
+    "tripInv": 0,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 3.018,
+    "invLoss": 107.028,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Inverter overload trip: 950 W is over its 900 W time-limited rating; it holds its 1200 W peak only 15 seconds.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Inverter overload trip: ran over its 800 W continuous rating until it overheated (900 W is rated for 60 min from cold)."
+   ]
+  },
+  "650 W, 2x start surge (1300 W)": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": 2,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 2,
+   "battT": 18,
+   "maxBattT": 18,
+   "soc": 0.9999,
+   "stats": {
+    "mins": 90,
+    "served": 0,
+    "unserved": 953.333,
+    "blackMin": 88,
+    "pvIn": 0,
+    "pvWaste": 0,
+    "minSoc": 0,
+    "faults": 1,
+    "tripInv": 1,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0,
+    "wireCb": 0,
+    "wireBi": 0,
+    "invLoss": 0.267,
+    "ctlLoss": 0,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Inverter overload trip: 1300 W start-up surge beat its 1200 W peak.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Inverter overload trip: 950 W is over its 900 W time-limited rating; it holds its 1200 W peak only 15 seconds."
+   ]
+  },
+  "720 W steady, shed at hottest hour": {
+   "keys": [
+    "pvOpen",
+    "t",
+    "soc",
+    "battT",
+    "snow",
+    "blastUntil",
+    "randomSnow",
+    "mpptDead",
+    "mpptRun",
+    "invOn",
+    "invTrip",
+    "invLow",
+    "bmsTrip",
+    "overMin",
+    "ovl",
+    "coldLock",
+    "coldDis",
+    "coldWarnDay",
+    "lastI",
+    "vbat",
+    "absMin",
+    "absDay",
+    "playing",
+    "warnedIsc",
+    "unfitW",
+    "genRun",
+    "heatOn"
+   ],
+   "firstUnservedMin": -1,
+   "heatMin": 0,
+   "coldBlockMin": 0,
+   "coldRiskMin": 0,
+   "chargeMin": 0,
+   "dischargeMin": 5,
+   "battT": 30.01,
+   "maxBattT": 30.01,
+   "soc": 0.9943,
+   "stats": {
+    "mins": 5,
+    "served": 60,
+    "unserved": 0,
+    "blackMin": 0,
+    "pvIn": 40.017,
+    "pvWaste": 9.086,
+    "minSoc": 0,
+    "faults": 0,
+    "tripInv": 0,
+    "tripBms": 0,
+    "lowV": 0,
+    "dead": 0,
+    "heat": 0,
+    "wirePv": 0.501,
+    "wireCb": 0.45,
+    "wireBi": 0.249,
+    "invLoss": 7.708,
+    "ctlLoss": 0.817,
+    "coldChg": 0,
+    "coldDis": 0
+   },
+   "inv": "p12-800",
+   "log": [
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Inverter overload trip: 1300 W start-up surge beat its 1200 W peak.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge.",
+    "Switched to Battle Born 100 Ah 12 V: 4 batteries (1S \u00d7 4P), 5.12 kWh, kept close to the old bank size. New batteries join at the same charge."
+   ]
+  },
+  "hot_hour": 4548,
+  "hot_temp_C": 31
+ },
+ "tilt_az": [
+  {
+   "tilt": 0,
+   "az": 180,
+   "yearKWhm2": 1355.6,
+   "janKWhm2": 51.3,
+   "julKWhm2": 181.5
+  },
+  {
+   "tilt": 20,
+   "az": 180,
+   "yearKWhm2": 1567.2,
+   "janKWhm2": 82.3,
+   "julKWhm2": 182.7
+  },
+  {
+   "tilt": 40,
+   "az": 180,
+   "yearKWhm2": 1622.9,
+   "janKWhm2": 104.7,
+   "julKWhm2": 166.6
+  },
+  {
+   "tilt": 60,
+   "az": 180,
+   "yearKWhm2": 1518.6,
+   "janKWhm2": 116.5,
+   "julKWhm2": 135
+  },
+  {
+   "tilt": 90,
+   "az": 180,
+   "yearKWhm2": 1099.9,
+   "janKWhm2": 112.2,
+   "julKWhm2": 69.2
+  },
+  {
+   "tilt": 40,
+   "az": 90,
+   "yearKWhm2": 1262.1,
+   "janKWhm2": 54.2,
+   "julKWhm2": 167.9
+  },
+  {
+   "tilt": 40,
+   "az": 270,
+   "yearKWhm2": 1250.9,
+   "janKWhm2": 53.4,
+   "julKWhm2": 155.5
+  },
+  {
+   "tilt": 40,
+   "az": 135,
+   "yearKWhm2": 1524.6,
+   "janKWhm2": 88,
+   "julKWhm2": 172.8
+  }
+ ],
+ "missions": [
+  {
+   "name": "Keep the food cold: a January week",
+   "minutes": 10080,
+   "remap": false,
+   "blackMin": 37,
+   "minSoc": 0,
+   "faults": 0,
+   "pvKWh": 18.7,
+   "servedKWh": 18.7,
+   "invLossKWh": 2.9,
+   "remapAfter": false,
+   "banner": "Mission failed: Keep the food cold: a January week. Lowest battery 0%, 37 min of blackout, 0 faults, 0.1 kWh of power you needed and didn't get. Your own appliance settings are back."
+  },
+  {
+   "name": "The darkest two weeks",
+   "minutes": 20160,
+   "remap": false,
+   "blackMin": 3454,
+   "minSoc": 0,
+   "faults": 0,
+   "pvKWh": 32.5,
+   "servedKWh": 31.4,
+   "invLossKWh": 4.8,
+   "remapAfter": false,
+   "banner": "Mission failed: The darkest two weeks. Lowest battery 0%, 58 h of blackout, 0 faults, 6.3 kWh of power you needed and didn't get. Your own appliance settings are back."
+  },
+  {
+   "name": "Cold snap with the furnace running",
+   "minutes": 10080,
+   "remap": false,
+   "blackMin": 4511,
+   "minSoc": 0,
+   "faults": 0,
+   "pvKWh": 33.4,
+   "servedKWh": 34.6,
+   "invLossKWh": 2.8,
+   "remapAfter": false,
+   "banner": "Mission failed: Cold snap with the furnace running. Lowest battery 0%, 75 h of blackout, 0 faults, 28.8 kWh of power you needed and didn't get. Your own appliance settings are back."
+  },
+  {
+   "name": "Synthetic worst week",
+   "minutes": 10080,
+   "remap": true,
+   "blackMin": 6651,
+   "minSoc": 0,
+   "faults": 0,
+   "pvKWh": 2.9,
+   "servedKWh": 5.9,
+   "invLossKWh": 1,
+   "remapAfter": false,
+   "banner": "Mission failed: Synthetic worst week. Lowest battery 0%, 111 h of blackout, 0 faults, 13.0 kWh of power you needed and didn't get. Your own appliance settings are back."
+  },
+  {
+   "name": "Summer comfort",
+   "minutes": 10080,
+   "remap": false,
+   "blackMin": 0,
+   "minSoc": 0.067,
+   "faults": 0,
+   "pvKWh": 27.2,
+   "servedKWh": 24.6,
+   "invLossKWh": 3.2,
+   "remapAfter": false,
+   "banner": "Mission failed: Summer comfort. Lowest battery 7%, 0 min of blackout, 0 faults, 0.0 kWh of power you needed and didn't get. Your own appliance settings are back."
+  }
+ ],
+ "worst_week": {
+  "name": "Synthetic worst week",
+  "startDay": 347,
+  "dailyGhiKWhm2": [
+   0.38,
+   0.42,
+   0.37,
+   0.27,
+   0.6,
+   0.42,
+   0.44
+  ]
+ },
+ "persistence": {
+  "save_note": "Saved in this browser at 2:24 PM.",
+  "changed_before_load": true,
+  "load_note": "Loaded the build saved 10/31/2026, 2:24:33 PM.",
+  "same_after_load": false,
+  "same_after_load_text_identical": false,
+  "first_str_diff": {
+   "at": 509,
+   "before": "c\":null,\"insC\":null,\"termC\":null,\"hor\":[0,0,0,0,0,0,0,0],\"snowRec\":true,\"reserve\":0,\"genOn\":false,\"genStart\":20,\"genStop\":80,\"ageOn\":false,\"ageYears\":0},\"l\":[{\"id\":\"t0\",\"name\":\"Test 0\",\"short\":\"T0\",\"qty\":3,\"surge\":1,\"mode\":\"on\",\"wins\":[[0,0]],\"cyc\":null,\"thermo\":null,\"chg\":null,\"",
+   "after": "c\":null,\"insC\":null,\"termC\":null,\"hor\":[0,0,0,0,0,0,0,0],\"snowRec\":true,\"reserve\":0,\"genOn\":false,\"genStart\":20,\"genStop\":80,\"ageOn\":false,\"ageYears\":0},\"l\":[{\"qty\":3,\"surge\":1,\"mode\":\"on\",\"wins\":[[0,0]],\"cyc\":null,\"thermo\":null,\"chg\":null,\"off\":0,\"basis\":\"\",\"volt\":120,\"leg\":1,\"i"
+  },
+  "load_diff": [
+   [
+    "load",
+    "t0",
+    "volt",
+    null,
+    120
+   ],
+   [
+    "load",
+    "t0",
+    "leg",
+    null,
+    1
+   ]
+  ],
+  "ui_after_load": {
+   "tilt": "55",
+   "ptype": "r400",
+   "bif": "grid",
+   "pvG": "8"
+  },
+  "same_after_reload": false,
+  "export_keys": [
+   "app",
+   "cfg",
+   "kind",
+   "loads",
+   "saved",
+   "version"
+  ],
+  "export_version": 5,
+  "same_after_import": false,
+  "import_note": "Imported solar-build-export.json.",
+  "bad_files": {
+   "not json": {
+    "note": "That file isn\u2019t valid JSON.",
+    "unchanged": true
+   },
+   "other app": {
+    "note": "That file is not a build saved from this sandbox.",
+    "unchanged": true
+   },
+   "unknown part": {
+    "note": "The file names a part this version doesn\u2019t have.",
+    "unchanged": true
+   },
+   "bad appliance": {
+    "note": "An appliance in the file is incomplete or damaged, so nothing was changed.",
+    "unchanged": true
+   }
+  },
+  "clamped_and_escaped": {
+   "tilt": 90,
+   "ser": 1,
+   "name": "<img src=x onerror=alert(1)>",
+   "imgs": 0
+  }
+ },
+ "ui_controls": {
+  "tilt_az": {
+   "tilt": 70,
+   "az": 250,
+   "label": "250\u00b0 WSW"
+  },
+  "pv_change_pct": -26.6,
+  "mount_used": "glued",
+  "bif_row_r200": "none",
+  "bif_row_r400": "grid",
+  "bifacial_gain_pct": 0.0,
+  "aluminum": {
+   "mat": "al",
+   "g": "10",
+   "opts": [
+    "2",
+    "4",
+    "6",
+    "8",
+    "10",
+    "12",
+    "1/0",
+    "2/0",
+    "3/0",
+    "4/0"
+   ]
+  },
+  "wire_after": {
+   "g": "4",
+   "ft": 120,
+   "note": "Design current 16.3 A; this wire is rated 65 A. Voltage drop 1.4% at the panels\u2019 working current.",
+   "checks": [
+    "Not verifiedPanel cable (4 AWG aluminum): ampacity not checked. Enter hottest air temperature around the cable, how many current-carrying wires share the conduit or bundle, the insulation temperature rating printed on the cable, the terminal temperature rating of the equipment at each end under Wiring.",
+    "EstimatePanel cable drop at full sun: 1.4% over 120 ft (about 17 W per controller). Victron\u2019s guide aims for 2.5% or less."
+   ]
+  },
+  "sources_list": {
+   "items": 33,
+   "links": 40,
+   "first": "Renogy 200 W 12 V N-type: 23 V open-circuit, 11.05 A short-circuit, 19.2 V and 10.42 A at max power. Heat: -0.37%/\u00b0C power. Renogy RSP200D-G"
+  }
+ },
+ "asserts": {
+  "zero_sun_no_pv": {
+   "maxPvW": 0,
+   "socStart": 0.9,
+   "socEnd": 0,
+   "blackMin": 377,
+   "servedDay": 0,
+   "passed": true
+  },
+  "depleted_battery_blackout": {
+   "first": 0,
+   "blackMin": 30,
+   "soc": 0,
+   "passed": true
+  },
+  "inverter_overload_rules": {
+   "first_850": -1,
+   "first_900": 59,
+   "first_950": 0,
+   "faults_1200": 0,
+   "faults_1300": 1,
+   "passed": true
+  },
+  "controller_clipping": {
+   "clipMin": 181,
+   "overMin": 0,
+   "maxOutW": 789.0887704233267,
+   "amps": 35,
+   "nMppt": 2,
+   "vb": 13.594248433201523,
+   "passed": true
+  },
+  "high_cable_resistance": {
+   "good": {
+    "biVd": 0.5,
+    "minVinv": 25.76,
+    "black": 0,
+    "fails": 0
+   },
+   "bad": {
+    "biVd": 355.7,
+    "minVinv": 12.71,
+    "black": 30,
+    "fails": 2
+   },
+   "passed": true
+  },
+  "battery_temp_extremes": {
+   "lt100": 180,
+   "bb_block": 180,
+   "lt230_dis21": 0,
+   "lt230_dis19": 20,
+   "lth_heat": 80,
+   "passed": true
+  },
+  "battery_hot_finite": {
+   "soc": 0.4961,
+   "battT": 58.28,
+   "passed": true
+  },
+  "incompatible_equipment": {
+   "voc": [
+    "Cold-morning string voltage at -20\u00b0F: 158.8 V vs 100 V controller limit. Uses this panel\u2019s -0.28 %/\u00b0C voltage coefficient."
+   ],
+   "term": [
+    "Controller-to-battery cable 4/0 AWG is thicker than SmartSolar MPPT 150/35\u2019s terminals take (6 AWG max, datasheet)."
+   ],
+   "passed": true
+  },
+  "labels_no_approval": {
+   "tags": [
+    "Within spec",
+    "Estimate",
+    "Warning",
+    "Info",
+    "Not verified"
+   ],
+   "okTag": false,
+   "suitable": false,
+   "nv": 7,
+   "passed": true
+  },
+  "nec_tables": {
+   "got": {
+    "cu14": [
+     15,
+     20,
+     25
+    ],
+    "cu10": [
+     30,
+     35,
+     40
+    ],
+    "cu6": [
+     55,
+     65,
+     75
+    ],
+    "cu2/0": [
+     null,
+     175,
+     195
+    ],
+    "al6": [
+     null,
+     50,
+     55
+    ],
+    "al2/0": [
+     null,
+     135,
+     150
+    ],
+    "t40": 0.91,
+    "t50": 0.82,
+    "b5": 0.8,
+    "b8": 0.7,
+    "null60": "nv",
+    "miss": "nv"
+   },
+   "expected": {
+    "cu14": [
+     15,
+     20,
+     25
+    ],
+    "cu10": [
+     30,
+     35,
+     40
+    ],
+    "cu6": [
+     55,
+     65,
+     75
+    ],
+    "cu2/0": [
+     null,
+     175,
+     195
+    ],
+    "al6": [
+     null,
+     50,
+     55
+    ],
+    "al2/0": [
+     null,
+     135,
+     150
+    ]
+   },
+   "passed": true
+  },
+  "fault_estimate": {
+   "hand": 3942.857142857143,
+   "amps": 3942.857142857143,
+   "v": 27.6,
+   "isFloor": false,
+   "fuse": [
+    [
+     "5183 (30-300 A series)",
+     "nv"
+    ],
+    [
+     "5127 (ANL series)",
+     "nv"
+    ],
+    [
+     "5114 (Class T series)",
+     "nv"
+    ]
+   ],
+   "passed": true
+  },
+  "agm_drain": {
+   "run": {
+    "avgDm": 1.1199577638704992,
+    "socDrop": 0.17172815787291462,
+    "cap": 4800,
+    "expectNoDm": 0
+   },
+   "mults": {
+    "m54": 1.8426386585590566,
+    "m5": 0.9950248756218907,
+    "m5c": 1.1764705882352942,
+    "lfp": 1
+   },
+   "passed": true
+  },
+  "absorption_timer": {
+   "absMinutesCharging": 60,
+   "floatMin": 435,
+   "maxAbsMin": 60,
+   "limit": 60,
+   "socEnd": 0.9997476851851714,
+   "passed": true
+  },
+  "battery_health": {
+   "a": 5120,
+   "b": 4096,
+   "passed": true
+  },
+  "heater_speeds_in_range": {
+   "fast": [
+    70,
+    116.66666666666667
+   ],
+   "mid": [
+    78.94736842105263,
+    131.57894736842104
+   ],
+   "slow": [
+    90,
+    150
+   ],
+   "passed": true
+  },
+  "heater_speed_in_sim": {
+   "heatMin": {
+    "fast": 71,
+    "mid": 80,
+    "slow": 91
+   },
+   "passed": true
+  },
+  "balance_agm_cold": {
+   "maxSocErr": 0,
+   "closureWh": -0.0,
+   "chainErr": 0,
+   "neg": 0,
+   "passed": true
+  },
+  "balance_all_cases": {
+   "cases": 26,
+   "worstSocErr": 0,
+   "worstClosure": 2e-06,
+   "passed": true
+  },
+  "weather_switch": {
+   "ok": true,
+   "id": "w2013",
+   "diffInHours": 2848,
+   "diffOutHours": 0,
+   "pvTmy": 1622945.4268591404,
+   "pvHist": 1559245.5743071437,
+   "pvBack": 1622945.4268591404,
+   "bad": false,
+   "passed": true
+  },
+  "wind_effect_measured": {
+   "pctGainNasaWindVs02": 1.07,
+   "perWinterMin": 0.92,
+   "perWinterMax": 1.25,
+   "nasaWinterWindMean": 2.73,
+   "tmyWindMean": 0.21,
+   "passed": true
+  },
+  "observed_winter_mission": {
+   "minutes": 172800,
+   "wxDuring": "w2013",
+   "wxAfter": "tmy",
+   "loadsBack": true,
+   "black": 62315,
+   "minSoc": 0,
+   "faults": 0,
+   "passed": true
+  },
+  "worst_stretch_finder": {
+   "best": {
+    "y": 2004,
+    "k": 62,
+    "n": 7,
+    "kwh": 5.790936210632324,
+    "pctTyp": 20.550268998566647
+   },
+   "windows": 2850,
+   "passed": true
+  },
+  "failure_rate_consistent": {
+   "singles": {
+    "2002": 50464,
+    "2013": 62315,
+    "2025": 55288
+   },
+   "from_batch": {
+    "2002": 50464,
+    "2013": 62315,
+    "2025": 55288
+   },
+   "ms": 24028.900000002235,
+   "passed": true
+  },
+  "state_save_resume": {
+   "err": null,
+   "midOk": true,
+   "same": true,
+   "passed": true
+  },
+  "state_bad_files_refused": {
+   "bads": {
+    "soc_out_of_range": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    },
+    "unknown_mission": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    },
+    "unknown_winter": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    },
+    "design_file": {
+     "refused": true,
+     "msg": "That is a design file. Use Import design file instead.",
+     "unchanged": true
+    },
+    "missing_stats": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    },
+    "huge_history": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    },
+    "bad_part_in_design": {
+     "refused": true,
+     "msg": "The file names a part this version doesn\u2019t have.",
+     "unchanged": true
+    },
+    "wrong_app": {
+     "refused": true,
+     "msg": "That file is not saved from this sandbox.",
+     "unchanged": true
+    },
+    "string_number": {
+     "refused": true,
+     "msg": "The state file is damaged, so nothing was changed.",
+     "unchanged": true
+    }
+   },
+   "passed": true
+  },
+  "state_buttons": {
+   "note": "Imported a8b38c86-af47-4226-ac15-bb328f74540e.",
+   "passed": true
+  },
+  "cross_import_refused": {
+   "n1": "That is a design file. Use Import design file instead.",
+   "n2": "That is a simulation state file. Use Import state file instead.",
+   "passed": true
+  },
+  "mission_replay_deterministic": {
+   "results": [
+    [
+     [
+      37,
+      0,
+      0,
+      87.68
+     ],
+     [
+      37,
+      0,
+      0,
+      87.68
+     ]
+    ],
+    [
+     [
+      3454,
+      0,
+      0,
+      6252.203
+     ],
+     [
+      3454,
+      0,
+      0,
+      6252.203
+     ]
+    ],
+    [
+     [
+      4511,
+      0,
+      0,
+      28791.899
+     ],
+     [
+      4511,
+      0,
+      0,
+      28791.899
+     ]
+    ],
+    [
+     [
+      6651,
+      0,
+      0,
+      12977.895
+     ],
+     [
+      6651,
+      0,
+      0,
+      12977.895
+     ]
+    ],
+    [
+     [
+      0,
+      0.066643,
+      0,
+      0
+     ],
+     [
+      0,
+      0.066643,
+      0,
+      0
+     ]
+    ]
+   ],
+   "passed": true
+  },
+  "ui_new_inputs": {
+   "cfg": {
+    "ambF": 104,
+    "ccc": 4,
+    "insC": 90,
+    "termC": 75,
+    "soh": 80
+   },
+   "tbl": [
+    "Table mathPanel cable (10 AWG copper): NEC table math gives 40 A at 90\u00b0C \u00d7 0.91 (air) \u00d7 0.8 (bundling) = 29 A, vs 27.6 A; 75\u00b0C terminals allow 35 A vs",
+    "Table mathController-to-battery cable (6 AWG copper): NEC table math gives 75 A at 90\u00b0C \u00d7 0.91 (air) \u00d7 0.8 (bundling) = 55 A, vs 35.0 A; 75\u00b0C terminal",
+    "Table mathBattery-to-inverter cable (2/0 AWG copper): NEC table math gives 195 A at 90\u00b0C \u00d7 0.91 (air) \u00d7 0.8 (bundling) = 142 A, vs 135.9 A; 75\u00b0C termi"
+   ],
+   "passed": true
+  },
+  "ui_weather_select": {
+   "wx": "w2010",
+   "note": "Observed 2010\u201311 from NASA POWER, Nov 1 to Feb 28 only; other months use the typical year.",
+   "passed": true
+  },
+  "ui_worst_stretch": {
+   "found": "Worst recorded 5-day stretch for your panels: Dec 12 to Dec 16, winter 2018\u201319. Sun on the panels: 2.94 kWh per square meter over the 5 days, 38% of the same dates in the typical year. These days happened in this order.",
+   "mission": "Worst recorded 5-day stretch: Dec 12, winter 2018\u201319",
+   "wx": "w2018",
+   "passed": true
+  },
+  "longi_specs": {
+   "sim": {
+    "w": 435,
+    "voc": 49.1,
+    "isc": 11.36,
+    "vmp": 40.8,
+    "imp": 10.66,
+    "tiers": [
+     [
+      1,
+      100
+     ]
+    ],
+    "priceKind": "yours",
+    "g": -0.35,
+    "b": -0.284,
+    "a": 0.05,
+    "fuse": 25,
+    "bifi": 0.7,
+    "noct": 45,
+    "bifacial": true
+   },
+   "datasheet": {
+    "w": 435.0,
+    "voc": 49.1,
+    "isc": 11.36,
+    "vmp": 40.8,
+    "imp": 10.66,
+    "fuse": true,
+    "b": true,
+    "g": true,
+    "a": true,
+    "bifi": true
+   },
+   "datasheet_checked": true,
+   "passed": true
+  },
+  "longi_preset": {
+   "panel": "lg435",
+   "ser": 2,
+   "par": 2,
+   "mppt": "150/70",
+   "nMppt": 1,
+   "batt": "bb100",
+   "bpar": 2,
+   "sysV": 24,
+   "inv": "m24-3000",
+   "coldF": -20,
+   "arrayW": 1740,
+   "fails": [],
+   "passed": true
+  },
+  "longi_cold_voc": {
+   "one_panel_cold_voc": 56.61,
+   "max_err_v": 0.0,
+   "design_F": -20,
+   "passed": true
+  },
+  "compat_layouts": {
+   "got": {
+    "2S2P on 1x150/70": true,
+    "4S1P on 1x150/70": false,
+    "4S1P on 1x250/70": true,
+    "1S4P on 1x100/30": false,
+    "1S4P on 2x100/30": true,
+    "2S2P on 1x100/30": false,
+    "4S1P on 1x150/35": false
+   },
+   "expected": {
+    "2S2P on 1x150/70": true,
+    "4S1P on 1x150/70": false,
+    "4S1P on 1x250/70": true,
+    "1S4P on 1x100/30": false,
+    "1S4P on 2x100/30": true,
+    "2S2P on 1x100/30": false,
+    "4S1P on 1x150/35": false
+   },
+   "why_4s_150_70": [
+    "cold Voc 226.5 V is over the 150 V absolute limit: this destroys the controller"
+   ],
+   "passed": true
+  },
+  "bom_categories_totals": {
+   "sums": {
+    "confirmed": 5122.95,
+    "yours": 400,
+    "estimated": 291,
+    "missing": 0
+   },
+   "total": 5813.95,
+   "note": "That is $5,122.95 confirmed + $400.00 your own purchase price + $291.00 estimated. Not included because they aren\u2019t priced: Class T main battery fuse; Ground-mount racking for 4 panels; AC breakers, subpanel and transfer switch or interlock; Grounding and bonding: ground rod, grounding conductors, lugs. So the real total will be higher. Before tax and shipping. Works out to $1,135.54 per usable kW",
+   "seller_prices": {
+    "shunt": 100.3,
+    "lynxT": 212.5,
+    "lynxD": 232.9,
+    "mega": 93.5,
+    "inv": 885.7
+   },
+   "seller_checked": true,
+   "passed": true
+  },
+  "bom_default_panels_confirmed": {
+   "status": "confirmed",
+   "passed": true
+  },
+  "split_phase_leg_limits": {
+   "one_leg_3000W": {
+    "trips": 1,
+    "first": 1,
+    "log": [
+     "Inverter overload trip: 3000 W on one leg (each unit carries one leg) for 2 minutes, rated 2400 W at 64\u00b0F."
+    ]
+   },
+   "split_1500_each": {
+    "trips": 0,
+    "first": -1
+   },
+   "single_unit_3000W": {
+    "trips": 1
+   },
+   "passed": true
+  },
+  "load_240v_blocked_on_120v": {
+   "on_120v": {
+    "unfitWh": 250,
+    "servedWh": 0,
+    "flagged": true
+   },
+   "on_split": {
+    "unfitWh": 0,
+    "servedWh": 250
+   },
+   "passed": true
+  },
+  "well_pump_surge": {
+   "preset": {
+    "w": 670,
+    "surge": 11,
+    "volt": 240
+   },
+   "surge_w": 7370,
+   "locked_rotor_va": 7406,
+   "aim_row_checked": true,
+   "per_leg_peak_alone": 3685.0,
+   "per_leg_peak_with_2000W": 5685.0,
+   "trips_alone": 0,
+   "trips_with_2000W": 1,
+   "log_with": [
+    "Inverter overload trip: 5685 W start-up surge on one leg (each unit carries one leg) beat its 5500 W peak."
+   ],
+   "blocked_on_120v_Wh": 55.83,
+   "passed": true
+  },
+  "controller_string_sharing": {
+   "shares": [
+    [
+     2,
+     1
+    ],
+    [
+     2,
+     1,
+     1
+    ],
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     1
+    ]
+   ],
+   "harvestable_W": 944.7,
+   "limit_per_controller_W": 393.0,
+   "maxOut_W": 707.9,
+   "expected_whole_strings_W": 707.9,
+   "equal_split_would_be_W": 786.0,
+   "passed": true
+  },
+  "day_counter_past_365": {
+   "t": 10,
+   "mins": 576010,
+   "txt": "400.0days simulated0.5 kWhsolar used0.1 kWhsolar wasted (full, clipped, off)1.0 kWhpower delivered1.1 kWhpower you needed, not delivered23 minblackout time30%lowest battery3faults (trips, burnouts)",
+   "passed": true
+  },
+  "aging_math": {
+   "lt60": 9000,
+   "lt80": 4800,
+   "lt100": 4000,
+   "lt70": 6900,
+   "lt40": 9000,
+   "bb": 3000,
+   "agm": 250,
+   "lt48": 4000,
+   "soh_lt": 0.85,
+   "soh_agm": 0.6000000000000001,
+   "missing": [],
+   "ui": true,
+   "sohStep": "1",
+   "passed": true
+  },
+  "horizon_physics": {
+   "zero_horizon_max_diff": 0,
+   "diffuse_only_ratio_all_60deg": 0.25,
+   "expected_ratio": 0.25,
+   "dec21_beam_open_Wh": 3602,
+   "dec21_beam_30deg_all_round_Wh": 0,
+   "jun21_beam_open_Wh": 2318,
+   "jun21_beam_hill_Wh": 2124,
+   "passed": true
+  },
+  "horizon_in_sim": {
+   "jan_open_Wh_per_m2": 104727,
+   "jan_with_hills_Wh_per_m2": 99975,
+   "drop_pct": 4.5,
+   "saved_and_loaded": [
+    0,
+    0,
+    0,
+    10,
+    20,
+    10,
+    0,
+    0
+   ],
+   "passed": true
+  },
+  "snow_vs_pvlib": {
+   "winter": "2010-11",
+   "snow_days": 24,
+   "expected_days_from_nasa_file": 24,
+   "max_coverage_diff": 0.0021104859851497904,
+   "allowed": 0.00211,
+   "panel_equiv_covered_hours_sim": 721.3,
+   "pvlib": 721.3,
+   "pv_while_fully_covered": 0,
+   "passed": true
+  },
+  "snow_off_and_typical_year": {
+   "offMax": 0,
+   "tmyMax": 0,
+   "passed": true
+  },
+  "battery_reserve": {
+   "end_soc_with_40pct_reserve": 0.408,
+   "dark_minutes": 522,
+   "log": [
+    "Battery down to your 40% reserve: the sim shut the house off to keep the reserve in the battery.",
+    "Battery recovered: inverter restarted."
+   ],
+   "no_reserve_dark_minutes_first_2h": 0,
+   "passed": true
+  },
+  "generator_specs_fuel": {
+   "gal_per_h_quarter": 0.1173,
+   "gal_per_h_rated": 0.2969,
+   "gal_per_h_60pct": 0.2011,
+   "passed": true
+  },
+  "generator_run": {
+   "starts": 4,
+   "dark": 0,
+   "statMin": 396,
+   "statAC": 2640,
+   "statDC": 8316,
+   "run_minutes": 396,
+   "fuel_gal": 1.9594,
+   "house_Wh_from_gen": 2640,
+   "charge_Wh_from_gen": 8316,
+   "soc_balance_max_err": 0,
+   "ac_balance_max_err": 0,
+   "log": [
+    "Generator stopped at 70% battery.",
+    "Generator started at 30% battery.",
+    "Generator stopped at 70% battery."
+   ],
+   "passed": true
+  },
+  "generator_needs_charger": {
+   "run_minutes": 0,
+   "passed": true
+  },
+  "generator_bom_line": {
+   "before": false,
+   "status": "estimated",
+   "cost": 1199,
+   "passed": true
+  },
+  "aging_run": {
+   "passed": true,
+   "why": null,
+   "restored": true
+  },
+  "aging_ui": {
+   "passed": true,
+   "prog": "Done.",
+   "buttons": 1
+  },
+  "voice_guide_current": {
+   "dur": 143.28,
+   "label": "2:23",
+   "note": false,
+   "outdated": false,
+   "passed": true
+  },
+  "phone_layout_light_dark": {
+   "views": 8,
+   "passed": true
+  }
+ },
+ "wind_effect": {
+  "pctGainNasaWindVs02": 1.07,
+  "perWinterMin": 0.92,
+  "perWinterMax": 1.25,
+  "nasaWinterWindMean": 2.73,
+  "tmyWindMean": 0.21
+ },
+ "observed_2013": {
+  "minutes": 172800,
+  "wxDuring": "w2013",
+  "wxAfter": "tmy",
+  "loadsBack": true,
+  "black": 62315,
+  "minSoc": 0,
+  "faults": 0
+ },
+ "worst_stretch_7": {
+  "best": {
+   "y": 2004,
+   "k": 62,
+   "n": 7,
+   "kwh": 5.790936210632324,
+   "pctTyp": 20.550268998566647
+  },
+  "bruteMin": 5.790936210632324,
+  "windows": 2850
+ },
+ "failure_rate_food": {
+  "why": null,
+  "ms": 24028.900000002235,
+  "sum": {
+   "fails": 25,
+   "n": 25,
+   "ci": [
+    0.8668035060468212,
+    1
+   ],
+   "medH": 640.5,
+   "minH": 335.65,
+   "maxH": 1038.5833333333333,
+   "worst": {
+    "y": 2013,
+    "black": 62315,
+    "faults": 0,
+    "minSoc": 0,
+    "unserved": 116911.06713758057,
+    "genGal": 0,
+    "genMin": 0,
+    "genStarts": 0,
+    "snowDays": 26,
+    "snowMin": 62970
+   },
+   "runs": [
+    [
+     2001,
+     20255
+    ],
+    [
+     2002,
+     50464
+    ],
+    [
+     2003,
+     47211
+    ],
+    [
+     2004,
+     49423
+    ],
+    [
+     2005,
+     37416
+    ],
+    [
+     2006,
+     26903
+    ],
+    [
+     2007,
+     46191
+    ],
+    [
+     2008,
+     47158
+    ],
+    [
+     2009,
+     33607
+    ],
+    [
+     2010,
+     45804
+    ],
+    [
+     2011,
+     20139
+    ],
+    [
+     2012,
+     35649
+    ],
+    [
+     2013,
+     62315
+    ],
+    [
+     2014,
+     54400
+    ],
+    [
+     2015,
+     30671
+    ],
+    [
+     2016,
+     38430
+    ],
+    [
+     2017,
+     38525
+    ],
+    [
+     2018,
+     40749
+    ],
+    [
+     2019,
+     36680
+    ],
+    [
+     2020,
+     51253
+    ],
+    [
+     2021,
+     23804
+    ],
+    [
+     2022,
+     31234
+    ],
+    [
+     2023,
+     34373
+    ],
+    [
+     2024,
+     31022
+    ],
+    [
+     2025,
+     55288
+    ]
+   ]
+  },
+  "untouched": true
+ },
+ "state_save": {
+  "err": null,
+  "midOk": true,
+  "sameContinuation": true,
+  "bads": {
+   "soc_out_of_range": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   },
+   "unknown_mission": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   },
+   "unknown_winter": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   },
+   "design_file": {
+    "refused": true,
+    "msg": "That is a design file. Use Import design file instead.",
+    "unchanged": true
+   },
+   "missing_stats": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   },
+   "huge_history": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   },
+   "bad_part_in_design": {
+    "refused": true,
+    "msg": "The file names a part this version doesn\u2019t have.",
+    "unchanged": true
+   },
+   "wrong_app": {
+    "refused": true,
+    "msg": "That file is not saved from this sandbox.",
+    "unchanged": true
+   },
+   "string_number": {
+    "refused": true,
+    "msg": "The state file is damaged, so nothing was changed.",
+    "unchanged": true
+   }
+  },
+  "htmlEscaped": true,
+  "e2": null
+ },
+ "longi_25_winters": {
+  "front_only": {
+   "why": null,
+   "ms": 70058.80000000075,
+   "tilt": 40,
+   "az": 180,
+   "bif": false,
+   "loads": [
+    [
+     "LED lights",
+     60,
+     1,
+     "auto"
+    ],
+    [
+     "Refrigerator, 18 cu ft top-freezer",
+     125,
+     1,
+     "auto"
+    ],
+    [
+     "Chest freezer, 8 to 12 cu ft",
+     90,
+     1,
+     "auto"
+    ],
+    [
+     "Radio, router and modem",
+     15,
+     1,
+     "auto"
+    ],
+    [
+     "Phones charging (7)",
+     25,
+     7,
+     "auto"
+    ],
+    [
+     "Water system pump",
+     100,
+     1,
+     "auto"
+    ],
+    [
+     "Furnace blower (oil or propane)",
+     500,
+     1,
+     "off"
+    ],
+    [
+     "HP EliteBook 8 G1i 14\" laptop, charging",
+     65,
+     1,
+     "off"
+    ],
+    [
+     "TV",
+     100,
+     1,
+     "off"
+    ],
+    [
+     "Microwave",
+     1200,
+     1,
+     "off"
+    ],
+    [
+     "Coffee maker",
+     900,
+     1,
+     "off"
+    ],
+    [
+     "Space heater",
+     1500,
+     1,
+     "off"
+    ]
+   ],
+   "sums": [
+    {
+     "p": "food",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 365.05,
+     "minH": 155.1,
+     "maxH": 785.7166666666667,
+     "worst": [
+      2013,
+      47143
+     ],
+     "faultWinters": 0,
+     "lowSoc": 0,
+     "runs": [
+      [
+       2001,
+       10661
+      ],
+      [
+       2002,
+       34509
+      ],
+      [
+       2003,
+       34118
+      ],
+      [
+       2004,
+       34574
+      ],
+      [
+       2005,
+       18028
+      ],
+      [
+       2006,
+       16177
+      ],
+      [
+       2007,
+       27536
+      ],
+      [
+       2008,
+       26874
+      ],
+      [
+       2009,
+       16870
+      ],
+      [
+       2010,
+       30813
+      ],
+      [
+       2011,
+       9306
+      ],
+      [
+       2012,
+       21903
+      ],
+      [
+       2013,
+       47143
+      ],
+      [
+       2014,
+       42298
+      ],
+      [
+       2015,
+       17530
+      ],
+      [
+       2016,
+       17735
+      ],
+      [
+       2017,
+       22826
+      ],
+      [
+       2018,
+       21969
+      ],
+      [
+       2019,
+       19119
+      ],
+      [
+       2020,
+       32910
+      ],
+      [
+       2021,
+       12891
+      ],
+      [
+       2022,
+       16457
+      ],
+      [
+       2023,
+       20489
+      ],
+      [
+       2024,
+       15196
+      ],
+      [
+       2025,
+       35682
+      ]
+     ]
+    },
+    {
+     "p": "furnace",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 1466.5666666666666,
+     "minH": 907.3166666666667,
+     "maxH": 1715.3166666666666,
+     "worst": [
+      2013,
+      102919
+     ],
+     "faultWinters": 0,
+     "lowSoc": 0,
+     "runs": [
+      [
+       2001,
+       54439
+      ],
+      [
+       2002,
+       101211
+      ],
+      [
+       2003,
+       89883
+      ],
+      [
+       2004,
+       91561
+      ],
+      [
+       2005,
+       83099
+      ],
+      [
+       2006,
+       75566
+      ],
+      [
+       2007,
+       96287
+      ],
+      [
+       2008,
+       96131
+      ],
+      [
+       2009,
+       87994
+      ],
+      [
+       2010,
+       95890
+      ],
+      [
+       2011,
+       64129
+      ],
+      [
+       2012,
+       86571
+      ],
+      [
+       2013,
+       102919
+      ],
+      [
+       2014,
+       100608
+      ],
+      [
+       2015,
+       71393
+      ],
+      [
+       2016,
+       82681
+      ],
+      [
+       2017,
+       88122
+      ],
+      [
+       2018,
+       94095
+      ],
+      [
+       2019,
+       86720
+      ],
+      [
+       2020,
+       96005
+      ],
+      [
+       2021,
+       77280
+      ],
+      [
+       2022,
+       76770
+      ],
+      [
+       2023,
+       74201
+      ],
+      [
+       2024,
+       80967
+      ],
+      [
+       2025,
+       98632
+      ]
+     ]
+    },
+    {
+     "p": "mine",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 365.05,
+     "minH": 155.1,
+     "maxH": 785.7166666666667,
+     "worst": [
+      2013,
+      47143
+     ],
+     "faultWinters": 0,
+     "lowSoc": 0,
+     "runs": [
+      [
+       2001,
+       10661
+      ],
+      [
+       2002,
+       34509
+      ],
+      [
+       2003,
+       34118
+      ],
+      [
+       2004,
+       34574
+      ],
+      [
+       2005,
+       18028
+      ],
+      [
+       2006,
+       16177
+      ],
+      [
+       2007,
+       27536
+      ],
+      [
+       2008,
+       26874
+      ],
+      [
+       2009,
+       16870
+      ],
+      [
+       2010,
+       30813
+      ],
+      [
+       2011,
+       9306
+      ],
+      [
+       2012,
+       21903
+      ],
+      [
+       2013,
+       47143
+      ],
+      [
+       2014,
+       42298
+      ],
+      [
+       2015,
+       17530
+      ],
+      [
+       2016,
+       17735
+      ],
+      [
+       2017,
+       22826
+      ],
+      [
+       2018,
+       21969
+      ],
+      [
+       2019,
+       19119
+      ],
+      [
+       2020,
+       32910
+      ],
+      [
+       2021,
+       12891
+      ],
+      [
+       2022,
+       16457
+      ],
+      [
+       2023,
+       20489
+      ],
+      [
+       2024,
+       15196
+      ],
+      [
+       2025,
+       35682
+      ]
+     ]
+    }
+   ]
+  },
+  "rear_gain_on": {
+   "why": null,
+   "ms": 25671.39999999851,
+   "tilt": 40,
+   "az": 180,
+   "bif": true,
+   "loads": [
+    [
+     "LED lights",
+     60,
+     1,
+     "auto"
+    ],
+    [
+     "Refrigerator, 18 cu ft top-freezer",
+     125,
+     1,
+     "auto"
+    ],
+    [
+     "Chest freezer, 8 to 12 cu ft",
+     90,
+     1,
+     "auto"
+    ],
+    [
+     "Radio, router and modem",
+     15,
+     1,
+     "auto"
+    ],
+    [
+     "Phones charging (7)",
+     25,
+     7,
+     "auto"
+    ],
+    [
+     "Water system pump",
+     100,
+     1,
+     "auto"
+    ],
+    [
+     "Furnace blower (oil or propane)",
+     500,
+     1,
+     "off"
+    ],
+    [
+     "HP EliteBook 8 G1i 14\" laptop, charging",
+     65,
+     1,
+     "off"
+    ],
+    [
+     "TV",
+     100,
+     1,
+     "off"
+    ],
+    [
+     "Microwave",
+     1200,
+     1,
+     "off"
+    ],
+    [
+     "Coffee maker",
+     900,
+     1,
+     "off"
+    ],
+    [
+     "Space heater",
+     1500,
+     1,
+     "off"
+    ]
+   ],
+   "sums": [
+    {
+     "p": "food",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 293.75,
+     "minH": 118.5,
+     "maxH": 721.55,
+     "worst": [
+      2013,
+      43293
+     ],
+     "faultWinters": 0,
+     "lowSoc": 0,
+     "runs": [
+      [
+       2001,
+       8331
+      ],
+      [
+       2002,
+       31885
+      ],
+      [
+       2003,
+       31937
+      ],
+      [
+       2004,
+       30687
+      ],
+      [
+       2005,
+       13388
+      ],
+      [
+       2006,
+       14438
+      ],
+      [
+       2007,
+       22247
+      ],
+      [
+       2008,
+       22509
+      ],
+      [
+       2009,
+       13423
+      ],
+      [
+       2010,
+       28005
+      ],
+      [
+       2011,
+       7110
+      ],
+      [
+       2012,
+       18439
+      ],
+      [
+       2013,
+       43293
+      ],
+      [
+       2014,
+       39026
+      ],
+      [
+       2015,
+       13621
+      ],
+      [
+       2016,
+       14665
+      ],
+      [
+       2017,
+       19643
+      ],
+      [
+       2018,
+       17625
+      ],
+      [
+       2019,
+       15375
+      ],
+      [
+       2020,
+       28254
+      ],
+      [
+       2021,
+       10902
+      ],
+      [
+       2022,
+       13477
+      ],
+      [
+       2023,
+       16145
+      ],
+      [
+       2024,
+       12432
+      ],
+      [
+       2025,
+       32658
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ "longi_25_winters_v8": {
+  "snow_on": {
+   "why": null,
+   "ms": 48323.5,
+   "sums": [
+    {
+     "p": "food",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 365.05,
+     "minH": 155.1,
+     "maxH": 785.7166666666667,
+     "worst": [
+      2013,
+      47143
+     ],
+     "snowDaysMed": 20,
+     "snowDaysMin": 9,
+     "snowDaysMax": 33,
+     "genGalMed": 0,
+     "genGalMin": 0,
+     "genGalMax": 0,
+     "genHMed": 0
+    },
+    {
+     "p": "furnace",
+     "fails": 25,
+     "n": 25,
+     "ci": [
+      0.8668035060468212,
+      1
+     ],
+     "medH": 1466.5666666666666,
+     "minH": 907.3166666666667,
+     "maxH": 1715.3166666666666,
+     "worst": [
+      2013,
+      102919
+     ],
+     "snowDaysMed": 20,
+     "snowDaysMin": 9,
+     "snowDaysMax": 33,
+     "genGalMed": 0,
+     "genGalMin": 0,
+     "genGalMax": 0,
+     "genHMed": 0
+    }
+   ]
+  },
+  "snow_on_generator": {
+   "why": null,
+   "ms": 49536,
+   "sums": [
+    {
+     "p": "food",
+     "fails": 0,
+     "n": 25,
+     "ci": [
+      0,
+      0.13319649395317873
+     ],
+     "medH": 0,
+     "minH": 0,
+     "maxH": 0,
+     "worst": [
+      2001,
+      0
+     ],
+     "snowDaysMed": 20,
+     "snowDaysMin": 9,
+     "snowDaysMax": 33,
+     "genGalMed": 16.10546875000124,
+     "genGalMin": 8.134374999999944,
+     "genGalMax": 25.38776041666613,
+     "genHMed": 54.25
+    },
+    {
+     "p": "furnace",
+     "fails": 0,
+     "n": 25,
+     "ci": [
+      0,
+      0.13319649395317873
+     ],
+     "medH": 0,
+     "minH": 0,
+     "maxH": 0,
+     "worst": [
+      2001,
+      0
+     ],
+     "snowDaysMed": 20,
+     "snowDaysMin": 9,
+     "snowDaysMax": 33,
+     "genGalMed": 114.2028645833158,
+     "genGalMin": 86.87057291665437,
+     "genGalMax": 132.92578124999304,
+     "genHMed": 384.68333333333334
+    }
+   ]
+  }
+ },
+ "aging_longi": {
+  "why": null,
+  "ms": 79324.5,
+  "restored": true,
+  "sohAfter": 0.9,
+  "o": {
+   "batt": "bb100",
+   "efcYr": 132.9626396673724,
+   "dod": 34.350693191841714,
+   "life": 3000,
+   "days": 365,
+   "rows": [
+    {
+     "y": 1,
+     "soh": 0.9811358240221751,
+     "past": false,
+     "fails": 25,
+     "n": 25,
+     "medH": 369.71666666666664,
+     "minH": 159.56666666666666,
+     "maxH": 791.75
+    },
+    {
+     "y": 5,
+     "soh": 0.9056791201108758,
+     "past": false,
+     "fails": 25,
+     "n": 25,
+     "medH": 395.4166666666667,
+     "minH": 183.1,
+     "maxH": 815.4666666666667
+    },
+    {
+     "y": 10,
+     "soh": 0.8113582402217517,
+     "past": false,
+     "fails": 25,
+     "n": 25,
+     "medH": 437.8333333333333,
+     "minH": 221.75,
+     "maxH": 853.6666666666666
+    }
+   ]
+  }
+ },
+ "aging_ui_agm": {
+  "prog": "Done.",
+  "text": "How hard your design cycles the batteries\n\nKeep-the-food-cold list, typical year, new batteries: 134 full-cycle equivalents a year, with a median daily swing of 40% of capacity.\n\nRenogy's page: 500 cycles at 50% depth (0.5C, 77\u00b0F). It gives no figure for other depths, so 500 is used at every depth; for daily swings deeper than 50% that flatters the battery. At that swing the sim allows 250 full-cycle equivalents before the battery is down to 80% of its capacity. The 80% end point is an estimate: the maker doesn't say what capacity is left at the end of the rated cycles.\n\nCalendar loss: 4% of capacity a year on top of cycling. That is an estimate; no maker here publishes one. Heat and cold aren't counted in either loss.\n\nAfter 1 year: about 85% health\n\nBlackout in\n25 of 25\nrecorded winters. Blackout per winter: median 1168 h, range 810 h to 1430 h.\n\nSet battery health to 85%\nAfter 5 years: below 60% health\n\nBelow 60%, well past the rated life this estimate is built on, so the winters weren't run. Plan on replacing the battery before this.\n\nAfter 10 years: below 60% health\n\nBelow 60%, well past the rated life this estimate is built on, so the winters weren't run. Plan on replacing the battery before this.",
+  "buttons": 1,
+  "rows": [
+   {
+    "y": 1,
+    "soh": 0.8527034635723252,
+    "past": false,
+    "fails": 25,
+    "medH": 1168.3833333333334
+   },
+   {
+    "y": 5,
+    "soh": 0.26351731786162613,
+    "past": true,
+    "fails": null,
+    "medH": null
+   },
+   {
+    "y": 10,
+    "soh": -0.47296536427674774,
+    "past": true,
+    "fails": null,
+    "medH": null
+   }
+  ],
+  "efcYr": 134.12067053459347,
+  "dod": 40.007460534718675,
+  "batt": "agm100",
+  "pick": 85,
+  "slider": 85,
+  "cfg": 85,
+  "label": "85%"
+ },
+ "layout_light_build": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_light_loads": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_light_missions": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_light_score": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_dark_build": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_dark_loads": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_dark_missions": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "layout_dark_score": {
+  "W": 390,
+  "sw": 390,
+  "bad": [],
+  "overlaps": 0
+ },
+ "errors": []
+}

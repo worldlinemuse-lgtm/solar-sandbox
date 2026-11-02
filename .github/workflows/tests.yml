@@ -1,0 +1,34 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install test tools
+        run: |
+          pip install playwright pvlib pandas numpy
+          python -m playwright install --with-deps chromium
+      - name: Page matches the source build
+        run: python source/build.py --check
+      - name: Page test suite (skips the slow 25-winter runs)
+        run: SKIP_WINTERS=1 python tests/test_v7.py
+      - name: Solar check against pvlib
+        run: python tests/check_solar.py
+      - name: Offline install check
+        run: python tests/test_pwa.py
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/test_v7_results.json

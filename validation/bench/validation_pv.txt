@@ -1,0 +1,16 @@
+Solar model validation, Honesdale weather year (NSRDB PSM V3 TMY via PVWatts v8)
+Annual sums in kWh/m2 (irradiance) or kWh per kW (DC). Monthly error is the largest monthly difference.
+
+Orientation   | POA kWh/m2: PVWatts  sandbox  pvlib | sandbox vs PVWatts annual, worst month | DC/kW PVWatts vs sandbox (same 14% loss, -0.37%/C, sandbox cell temp)
+tilt   40 az 180 |  1622.0   1674.8  1674.4 |  +3.3%  worst month  5.2%  hourly RMSE 11 W/m2 |   1297 vs   1348 (+4.0%; with PVWatts cell temp +2.2%; worst month 5.5%)
+tilt    0 az 180 |  1425.7   1426.2  1426.2 |  +0.0%  worst month  1.1%  hourly RMSE 2 W/m2 |   1131 vs   1132 (+0.1%; with PVWatts cell temp -1.6%; worst month 4.8%)
+tilt   60 az 180 |  1478.6   1571.1  1570.5 |  +6.3%  worst month 10.0%  hourly RMSE 20 W/m2 |   1191 vs   1270 (+6.6%; with PVWatts cell temp +5.1%; worst month 8.8%)
+tilt   90 az 180 |  1130.1   1169.8  1169.2 |  +3.5%  worst month  7.8%  hourly RMSE 14 W/m2 |    915 vs    940 (+2.8%; with PVWatts cell temp +1.7%; worst month 6.6%)
+tilt   40 az  90 |  1253.4   1312.6  1312.2 |  +4.7%  worst month  5.7%  hourly RMSE 16 W/m2 |   1001 vs   1057 (+5.5%; with PVWatts cell temp +3.9%; worst month 7.6%)
+tilt   40 az 225 |  1513.7   1568.0  1567.6 |  +3.6%  worst month  8.5%  hourly RMSE 13 W/m2 |   1207 vs   1261 (+4.5%; with PVWatts cell temp +2.7%; worst month 6.6%)
+tilt   20 az 180 |  1608.3   1623.2  1623.0 |  +0.9%  worst month  1.5%  hourly RMSE 3 W/m2 |   1282 vs   1302 (+1.6%; with PVWatts cell temp -0.4%; worst month 3.2%)
+tilt   40 az 135 |  1503.2   1573.5  1573.2 |  +4.7%  worst month  8.2%  hourly RMSE 21 W/m2 |   1201 vs   1269 (+5.6%; with PVWatts cell temp +3.9%; worst month 7.4%)
+tilt   75 az 180 |  1312.6   1403.1  1402.5 |  +6.9%  worst month 11.0%  hourly RMSE 21 W/m2 |   1064 vs   1134 (+6.6%; with PVWatts cell temp +5.4%; worst month 9.8%)
+
+Cell temperature, daylight hours (POA>50): sandbox minus PVWatts averages -3.1 C; hottest hour sandbox 63.4 C vs PVWatts 71.9 C
+Bifacial rear credit (bifaciality 0.70, unshaded-ground view factor): +16.4% effective irradiance at 40 deg tilt

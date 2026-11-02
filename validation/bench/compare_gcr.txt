@@ -1,0 +1,7 @@
+PVWatts v8 with gcr 0.01 (rows widely spaced) vs the sandbox, tilt facing south, yearly sun on the panel in kWh/m2
+Default-spacing PVWatts (gcr 0.4) shown for comparison where saved.
+
+tilt 40: PVWatts gcr 0.01  1673.4  sandbox  1674.8  diff +0.08%  worst month 0.5%  (PVWatts default spacing 1622.0)
+tilt 60: PVWatts gcr 0.01  1568.9  sandbox  1571.1  diff +0.14%  worst month 0.7%  (PVWatts default spacing 1478.6)
+tilt 75: PVWatts gcr 0.01  1400.6  sandbox  1403.1  diff +0.18%  worst month 1.2%  (PVWatts default spacing 1312.6)
+tilt 90: PVWatts gcr 0.01  1169.2  sandbox  1169.8  diff +0.05%  worst month 1.6%  (PVWatts default spacing 1130.1)

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solar sandbox</title>
+<style>
+.sim{--sg:#f7f7f5;--sc:#fff;--sr:#dcdcd8;--si:#161616;--sm:#6b6b6b;--sfm:ui-monospace,SFMono-Regular,Menlo,monospace;--sfs:-apple-system,system-ui,"Segoe UI",sans-serif;color:var(--si);font-family:var(--sfs);margin:18px 0;border:1px solid var(--sr);border-radius:14px;background:var(--sc);overflow:hidden}
+.sim .bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--sr);font-family:var(--sfm);font-size:12px;color:var(--sm)}
+.sim .bar b{color:var(--si);font-weight:600}
+.sim svg.stage{display:block;width:100%;height:auto;background:var(--sg)}
+.sim svg text{font-family:var(--sfs);fill:var(--si)}
+.sim svg .mono{font-family:var(--sfm)}
+.sim svg .mut{fill:var(--sm)}
+.sim svg .box{fill:var(--sc);stroke:var(--si);stroke-width:1.4}
+.sim svg .wire{fill:none;stroke:var(--sm);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.45}
+.sim svg .flow{fill:none;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:3 13;opacity:0}
+.sim svg .fault{fill:#c62828}
+.sim .ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid var(--sr)}
+.sim button,.sim select,.sim input[type=number]{font:inherit;font-size:14px;color:var(--si);background:var(--sg);border:1px solid var(--sr);border-radius:9px;padding:7px 10px}
+.sim button{cursor:pointer}
+.sim button.primary{background:var(--si);color:var(--sc);border-color:var(--si);min-width:84px}
+.sim button.warnbtn{border-color:#c62828;color:#c62828}
+.sim .tabs{display:flex;border-top:1px solid var(--sr);border-bottom:1px solid var(--sr)}
+.sim .tabs button{flex:1;border:0;border-radius:0;background:transparent;padding:11px 6px;color:var(--sm);border-bottom:2px solid transparent}
+.sim .tabs button.on{color:var(--si);border-bottom-color:var(--si);font-weight:600}
+.sim .pane{display:none;padding:12px 14px 16px}
+.sim .pane.on{display:block}
+.sim .row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--sr)}
+.sim .row:last-child{border-bottom:0}
+.sim .row label{font-size:14px}
+.sim .row small{display:block;color:var(--sm);font-size:12px;line-height:1.35}
+.sim .row select{max-width:220px}
+.sim .row input[type=number]{width:78px}
+.sim .row input[type=range]{width:150px}
+.sim .seg{display:inline-flex;border:1px solid var(--sr);border-radius:9px;overflow:hidden}
+.sim .seg button{border:0;border-radius:0;padding:6px 9px;font-size:13px;background:var(--sg)}
+.sim .seg button.on{background:var(--si);color:var(--sc)}
+.sim .checks{list-style:none;margin:10px 0 0;padding:0}
+.sim .checks li{display:grid;grid-template-columns:78px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--sr);font-size:13px;line-height:1.4}
+.sim .tag{font-family:var(--sfm);font-size:11px;padding:2px 6px;border-radius:6px;text-align:center;align-self:start;border:1px solid var(--sr)}
+.sim .tag.spec,.sim .tag.tbl{color:#2e7d32;border-color:#2e7d32}
+.sim .tag.est{color:#1565c0;border-color:#1565c0}
+.sim .tag.nv{color:#6a1b9a;border-color:#6a1b9a;border-style:dashed}
+.sim .tag.warn{color:#b26a00;border-color:#b26a00}
+.sim .tag.fail{color:#fff;background:#c62828;border-color:#c62828}
+.sim .tag.info{color:var(--sm)}
+.sim .score{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;padding:12px 14px}
+.sim .score div{border:1px solid var(--sr);border-radius:10px;padding:8px 10px}
+.sim .score b{display:block;font-family:var(--sfm);font-size:17px}
+.sim .score span{font-size:12px;color:var(--sm)}
+.sim canvas{display:block;width:100%;height:170px;border-top:1px solid var(--sr)}
+.sim .legend{display:flex;flex-wrap:wrap;gap:12px;padding:6px 14px 10px;font-size:12px;color:var(--sm)}
+.sim .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.sim .log{max-height:190px;overflow:auto;margin:0;padding:6px 14px 12px;list-style:none;font-size:13px;border-top:1px solid var(--sr)}
+.sim .log li{padding:4px 0;border-bottom:1px solid var(--sr);line-height:1.35}
+.sim .log li span{font-family:var(--sfm);font-size:11px;color:var(--sm);margin-right:6px}
+.sim .log li.bad{color:#c62828}
+.sim .banner{display:none;margin:10px 14px;padding:10px 12px;border-radius:10px;border:1px solid var(--si);font-size:14px;line-height:1.4}
+.sim .banner.show{display:block}
+.sim .mgroup{margin:18px 0 6px;padding-top:10px;border-top:1px solid var(--sr)}
+.sim .mgroup b{display:block;font-size:1rem}
+.sim .mgroup small{display:block;opacity:.8;margin-top:2px}
+.sim .mission.synth{border-style:dashed}
+.sim .rate{margin-top:8px;padding:8px;border:1px solid var(--sr);border-radius:8px}
+.sim .rate p{margin:4px 0}
+.sim .mission button[hidden]{display:none}
+.sim .mission{border:1px solid var(--sr);border-radius:10px;padding:10px 12px;margin:8px 0}
+.sim .mission b{display:block}
+.sim .mission small{color:var(--sm);display:block;margin:2px 0 8px;line-height:1.35}
+.sim .faults{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px}
+.sim .faults:empty{display:none}
+.sim .faults button{margin:8px 0 0}
+.sim .note{font-size:12px;color:var(--sm);line-height:1.4;margin:8px 0 0}
+.sim .quick{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid var(--sr)}
+.sim .qi{display:grid;grid-template-columns:40px 44px 40px;align-items:center;gap:4px 6px;max-width:150px}
+.sim .qi>span{font-size:14px;font-weight:600;grid-column:1/-1}
+.sim .qi>b{font-family:var(--sfm);font-size:18px;text-align:center}
+.sim .qi button{padding:6px 0;font-size:18px;line-height:1;min-height:38px}
+.sim .qi small{grid-column:1/-1;color:var(--sm);font-size:12px;line-height:1.3}
+.sim .quick #qLoads{min-height:40px;font-weight:600}
+.sim .quick #qCost{min-height:40px;font-weight:600;font-variant-numeric:tabular-nums}
+.sim .costs{list-style:none;margin:6px 0 0;padding:0}
+.sim .costs li{display:grid;grid-template-columns:1fr auto;gap:10px;padding:6px 0;border-bottom:1px solid var(--sr);font-size:13px;line-height:1.4}
+.sim .costs li b{font-variant-numeric:tabular-nums;font-weight:600}
+.sim .costs li small{display:block;color:var(--sm);font-size:12px}
+.sim .cost-total{font-size:17px;font-weight:700;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+.sim #ptype,.sim #btype{max-width:190px}
+.sim .lsrc{font-size:12px;color:var(--sm);line-height:1.4;margin:8px 0 0}
+.sim svg .tile{cursor:pointer}
+.sim svg .tile:focus{outline:none}.sim svg .tile:focus rect{stroke-width:2.5}
+.sim #discBox{cursor:pointer}
+.sim .lsum{font-size:14px;line-height:1.45;margin:0 0 8px}
+.sim .lsum b{display:block}
+.sim .lsum span{color:var(--sm);font-size:13px}
+.sim #dayChart{height:150px;border:1px solid var(--sr);border-radius:8px;margin:4px 0 0}
+.sim .pane .legend{padding:6px 0 4px}
+.sim .addrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.sim .addrow select{flex:1 1 200px;min-width:0}
+.sim .load{border:1px solid var(--sr);border-radius:10px;padding:9px 11px;margin:8px 0}
+.sim .load.isoff .ln b,.sim .load.isoff .lf{opacity:.6}
+.sim .lh{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.sim .ln{min-width:0}
+.sim .ln b{display:block;font-size:15px}
+.sim .ln small{display:block;color:var(--sm);font-size:12px;line-height:1.35}
+.sim .ln .lk{font-family:var(--sfm);color:var(--si)}
+.sim .lh .seg{flex:none}
+.sim .lh .seg button{padding:8px 10px}
+.sim .ledit{margin-top:8px;font-size:13px;padding:9px 12px}
+.sim .le{margin-top:8px;padding-top:8px;border-top:1px solid var(--sr)}
+.sim .lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.sim .lg label,.sim .ownrow label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--sm)}
+.sim .lg input,.sim .lg select,.sim .ownrow input,.sim .ownrow select{width:100%;box-sizing:border-box;min-width:0}
+.sim input[type=text],.sim input[type=time]{font:inherit;font-size:14px;color:var(--si);background:var(--sg);border:1px solid var(--sr);border-radius:9px;padding:7px 8px}
+.sim .lt{font-size:13px;font-weight:600;margin:12px 0 4px}
+.sim .win{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:5px 0;font-size:13px}
+.sim .win input[type=time]{width:118px}
+.sim .win input[type=number]{width:70px}
+.sim .wx{font-size:12px;padding:5px 8px}
+.sim .wx:disabled{opacity:.4}
+.sim .le select[data-k=pat]{width:100%;box-sizing:border-box}
+.sim .lbtns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.sim .row.wr{grid-template-columns:1fr}
+.sim .wire3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px}
+.sim .wire3 select,.sim .wire3 input{max-width:none;width:100%;min-width:0}
+.sim .src-list li{margin:4px 0}
+.sim .ownrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:8px;margin:0 0 8px}
+.sim .ownck{display:flex;gap:8px;align-items:center;font-size:13px;margin:0 0 8px}
+@media (prefers-color-scheme:dark){.sim{--sg:#161616;--sc:#202020;--sr:#3a3a3a;--si:#ededed;--sm:#a0a0a0}.sim svg .fault{fill:#ef5350}.sim .tag.fail{background:#ef5350;border-color:#ef5350}}
+.guide{--si:#161616;--sr:#dcdcd8;--sg:#f7f7f5;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0;padding:10px 12px;border:1px solid var(--sr);border-radius:12px;font-family:-apple-system,system-ui,"Segoe UI",sans-serif}
+.guide button{font:inherit;font-size:15px;font-weight:600;background:var(--si);color:var(--sg);border:0;border-radius:9px;padding:9px 14px;cursor:pointer}
+.guide .gt{font-family:ui-monospace,Menlo,monospace;font-size:13px;opacity:.7}
+.guide .gbar{flex:1 1 120px;height:6px;border-radius:3px;background:var(--sr);cursor:pointer;overflow:hidden}
+.guide .gbar i{display:block;height:100%;width:0;background:var(--si)}
+@media (prefers-color-scheme:dark){.guide{--si:#ededed;--sr:#3a3a3a;--sg:#161616}}
+.sim .costs li.bom-h{font-weight:700;border:0;padding-top:10px}
+.sim .costs li.bom-h span{font-size:.92em;opacity:.85}
+.sim .costs li.bom-missing b{opacity:.6}
+.costs li small i{font-style:normal;font-weight:600}
+.sim .costs li.bom-estimated small i{color:#a35f00}
+.sim .costs li.bom-missing small i{color:#b3261e}
+.sim .horgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.sim .horgrid label{display:flex;flex-direction:column;font-size:12px;gap:2px}
+.sim .horgrid input{width:100%;min-width:0}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Solar and house-battery sandbox</h1>
+<p class="kicker">Simulation, real part specs, Honesdale weather</p>
+<p class="updated">Researched Oct 30–31, 2026</p>
+<div class="guide" id="guide"><button type="button" id="gBtn">Play the voice guide</button><span class="gt" id="gTime">2:23</span><span class="gbar" id="gBar"><i id="gFill"></i></span><audio id="gAudio" preload="metadata" src="__AUDIO_SRC__"></audio></div>
+<p class="lede">Build an off-grid system from real parts, pick exactly what it powers and when, then run it through Honesdale's typical weather year and see whether the lights stay on.</p>
+<ul>
+<li>A learning model, not a wiring plan or safety check: the manuals, proper fusing and an electrician decide a real build.</li>
+<li>Sun and temperature are hourly <a href="https://pvwatts.nlr.gov/">PVWatts</a> typical-year data, or 25 recorded winters from <a href="https://power.larc.nasa.gov/">NASA POWER</a> on the Missions tab; appliance watts are estimates you can edit.</li>
+<li>The Panels and Batteries buttons above the diagram add or remove hardware; the Loads tab sets each appliance's watts, count and run times.</li>
+</ul>
+
+<div class="sim" id="sim">
+  <div class="bar" id="statusbar"><span><b id="sbDate">-</b></span><span id="sbWeather">-</span><span id="sbTemp">-</span><span>Battery <b id="sbSoc">-</b></span><span id="sbMission">Free play</span></div>
+  <div class="quick" id="quick">
+    <div class="qi"><span>Panels</span><button type="button" data-q="p-" aria-label="Fewer panels">−</button><b class="qP">-</b><button type="button" data-q="p+" aria-label="More panels">+</button><small class="qPs"></small></div>
+    <div class="qi"><span>Batteries</span><button type="button" data-q="b-" aria-label="Fewer batteries">−</button><b class="qB">-</b><button type="button" data-q="b+" aria-label="More batteries">+</button><small class="qBs"></small></div>
+    <button type="button" id="qLoads">What's powered</button>
+    <button type="button" id="qCost" aria-label="Parts cost, open the breakdown">Parts cost</button>
+  </div>
+  <svg class="stage" id="stage" viewBox="0 0 600 1050" role="img" aria-label="Live diagram of the solar array, charge controller, battery bank, inverter and house">
+    <defs>
+      <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop id="sky1" offset="0" stop-color="#9fc3e6"/><stop id="sky2" offset="1" stop-color="#e6eef6"/></linearGradient>
+      <pattern id="cells" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#1f2a3a"/><path d="M8 0V8M0 8H8" stroke="#5d7290" stroke-width=".8"/></pattern>
+    </defs>
+    <rect x="0" y="0" width="600" height="300" fill="url(#skyg)" id="sky"/>
+    <g id="stars"></g>
+    <circle id="sun" cx="120" cy="60" r="20" fill="#f6c443"/>
+    <g id="clouds"></g>
+    <line x1="0" y1="300" x2="600" y2="300" stroke="var(--sr)" stroke-width="2"/>
+    <text x="16" y="30" class="mono" font-size="16" id="skyText" style="fill:#13202f">-</text>
+    <g id="array"></g>
+    <text x="20" y="326" font-size="14" class="mut" id="arrayLabel">-</text>
+    <text x="20" y="346" font-size="14" class="mut mono" id="arrayLabel2">-</text>
+
+    <path id="wPV" class="wire" d="M486 185 H560 V405 H480"/>
+    <path id="fPV" class="flow" d="M486 185 H560 V405 H480" stroke="#e0a100"/>
+    <path id="wMB" class="wire" d="M300 452 V480"/>
+    <path id="fMB" class="flow" d="M300 452 V480" stroke="#e0a100"/>
+    <path id="wBat" class="wire" d="M150 505 H12"/>
+    <path id="fBat" class="flow" d="M150 505 H12" stroke="#2e7d32"/>
+    <path id="wInv" class="wire" d="M450 505 H500 V600"/>
+    <path id="fInv" class="flow" d="M450 505 H500 V600" stroke="#5c6bc0"/>
+    <path id="wAC" class="wire" d="M570 720 V928"/>
+    <path id="fAC" class="flow" d="M570 720 V928" stroke="#5c6bc0"/>
+
+    <g id="discBox" role="button" tabindex="0" aria-label="PV disconnect switch: tap to open or close"><rect x="496" y="386" width="48" height="38" rx="5" class="box" id="discRect"/>
+    <text x="520" y="410" font-size="11" text-anchor="middle" id="discTxt">ON</text></g>
+    <text x="520" y="438" font-size="12" text-anchor="middle" class="mut">PV disconnect</text>
+
+    <rect x="20" y="360" width="460" height="92" rx="9" class="box" id="mpptBox"/>
+    <text x="34" y="383" font-size="16" font-weight="600" id="mpptName">MPPT</text>
+    <text x="34" y="405" font-size="15" class="mono" id="mpptPV">PV -</text>
+    <text x="250" y="405" font-size="15" class="mono" id="mpptOut">Out -</text>
+    <text x="34" y="438" font-size="15" id="mpptState" class="mut">-</text>
+
+    <rect x="150" y="480" width="300" height="52" rx="7" class="box"/>
+    <text x="300" y="501" font-size="14" text-anchor="middle" font-weight="600">DC busbar + shunt</text>
+    <text x="300" y="522" font-size="15" text-anchor="middle" class="mono" id="busText">-</text>
+    <rect x="100" y="493" width="24" height="24" rx="3" class="box" id="fuseBox"/>
+    <text x="112" y="510" font-size="11" text-anchor="middle">T</text>
+    <text x="20" y="550" font-size="12" class="mut" id="fuseText">Class T fuse</text>
+
+    <g id="bank"></g>
+    <text x="20" y="576" font-size="15" font-weight="600" id="bankTitle">Battery bank</text>
+    <text x="20" y="596" font-size="14" class="mono" id="bankText">-</text>
+    <text x="20" y="616" font-size="14" class="mut" id="bankState">-</text>
+    <rect x="20" y="814" width="290" height="18" rx="9" fill="none" stroke="var(--si)" stroke-width="1.2"/>
+    <rect x="22" y="816" width="0" height="14" rx="7" id="socBar" fill="var(--si)"/>
+    <text x="20" y="852" font-size="13" class="mut" id="socText">-</text>
+
+    <rect x="330" y="600" width="250" height="120" rx="9" class="box" id="invBox"/>
+    <text x="342" y="622" font-size="14" font-weight="600" id="invName">Inverter</text>
+    <text x="342" y="642" font-size="13" class="mut" id="invRating">-</text>
+    <text x="342" y="664" font-size="14" class="mono" id="invAC">-</text>
+    <text x="342" y="684" font-size="14" class="mono" id="invDC">-</text>
+    <text x="342" y="708" font-size="14" id="invState" class="mut">-</text>
+    <text x="330" y="746" font-size="13" class="mut" id="todayText">-</text>
+    <text x="330" y="766" font-size="13" class="mut" id="todayText2">-</text>
+    <text x="330" y="786" font-size="13" class="mut" id="todayText3">-</text>
+    <text x="330" y="814" font-size="15" font-weight="600" id="bigMsg"></text>
+
+    <path id="housePath" d="M20 932 L300 872 L580 932 V1040 H20 Z" fill="var(--sc)" stroke="var(--si)" stroke-width="1.6"/>
+    <text x="300" y="910" font-size="15" text-anchor="middle" font-weight="600">House, 120 V AC</text>
+    <text x="300" y="929" font-size="14" text-anchor="middle" class="mono" id="houseW">-</text>
+    <g id="appl"></g>
+  </svg>
+  <div class="faults" id="faults"></div>
+  <div class="banner" id="banner"></div>
+  <div class="ctl">
+    <button class="primary" id="play">Play</button>
+    <select id="speed" aria-label="Speed">
+      <option value="5">5 min per second</option>
+      <option value="30">30 min per second</option>
+      <option value="120" selected>2 hours per second</option>
+      <option value="480">8 hours per second</option>
+      <option value="1440">1 day per second</option>
+    </select>
+    <button id="step">+1 hour</button>
+    <button id="snow">Snowstorm</button>
+    <button id="brush">Brush off snow</button>
+    <button id="blast">Arctic blast</button>
+  </div>
+  <div class="ctl">
+    <label for="jumpM" style="font-size:14px">Jump to</label>
+    <select id="jumpM" aria-label="Month"></select>
+    <input type="number" id="jumpD" min="1" max="31" value="1" aria-label="Day">
+    <select id="jumpH" aria-label="Hour"></select>
+    <button id="jump">Go</button>
+    <button id="recharge">Refill battery</button>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="on" data-tab="build">Build</button>
+    <button data-tab="loads">Loads</button>
+    <button data-tab="missions">Missions</button>
+    <button data-tab="score">Score</button>
+  </div>
+
+  <div class="pane on" id="pane-build">
+    <div class="lbtns" style="margin-top:0"><button type="button" id="myLongiB">Start from my 4 × LONGi 435 W panels</button></div>
+    <p class="note">Loads your four LONGi LR4-72HBD-435M panels ($100 each, your purchase price) wired 2 in series × 2 strings on one SmartSolar 150/70, with the default 24 V battery bank. It keeps your appliances, mount and wiring.</p>
+    <div class="row"><label>Solar panel<small id="pKind"></small></label><select id="ptype" aria-label="Solar panel model"></select></div>
+    <div class="row"><label>Battery<small id="bKind"></small></label><select id="btype" aria-label="Battery model"></select></div>
+    <div class="row"><label>System voltage<small id="sysVnote">Battery bank: 12 V batteries in series</small></label><div class="seg" id="sysV"><button data-v="12">12 V</button><button data-v="24">24 V</button><button data-v="48">48 V</button></div></div>
+    <div class="row"><label>Total panels<small class="qPs"></small></label><div class="qi" style="grid-template-columns:40px 44px 40px"><button type="button" data-q="p-" aria-label="Fewer panels">−</button><b class="qP">-</b><button type="button" data-q="p+" aria-label="More panels">+</button></div></div>
+    <div class="row"><label>Total batteries<small class="qBs"></small></label><div class="qi" style="grid-template-columns:40px 44px 40px"><button type="button" data-q="b-" aria-label="Fewer batteries">−</button><b class="qB">-</b><button type="button" data-q="b+" aria-label="More batteries">+</button></div></div>
+    <p class="note">The + and − buttons wire panels into equal strings that suit your controller, and add a controller when one can't take the current or most of the power. Fine-tune the wiring below.</p>
+    <div class="row"><label>Panels in series<small class="pName">Renogy 200 W 12 V, per string</small></label><input type="number" id="ser" min="1" max="10"></div>
+    <div class="row"><label>Strings in parallel<small>Rows of panels joined at the combiner</small></label><input type="number" id="par" min="1" max="8"></div>
+    <div class="row"><label>Shade and dirt loss <span id="shadeV" class="mono"></span><small>Extra loss you add for trees, chimneys or dirty glass. Soiling, mismatch and connection losses (about 6.8%) and wire loss are already counted</small></label><input type="range" id="shade" min="0" max="60" step="5"></div>
+    <details class="more" id="horBox"><summary><b>Horizon: hills, trees and buildings</b><span>How high things stand above your horizon in each direction, in degrees. Blocks direct sun when the sun is lower.</span></summary>
+    <div class="horgrid"><label>N<input type="number" class="hor" data-i="0" min="0" max="60" step="1" aria-label="Horizon height toward N, degrees"></label><label>NE<input type="number" class="hor" data-i="1" min="0" max="60" step="1" aria-label="Horizon height toward NE, degrees"></label><label>E<input type="number" class="hor" data-i="2" min="0" max="60" step="1" aria-label="Horizon height toward E, degrees"></label><label>SE<input type="number" class="hor" data-i="3" min="0" max="60" step="1" aria-label="Horizon height toward SE, degrees"></label><label>S<input type="number" class="hor" data-i="4" min="0" max="60" step="1" aria-label="Horizon height toward S, degrees"></label><label>SW<input type="number" class="hor" data-i="5" min="0" max="60" step="1" aria-label="Horizon height toward SW, degrees"></label><label>W<input type="number" class="hor" data-i="6" min="0" max="60" step="1" aria-label="Horizon height toward W, degrees"></label><label>NW<input type="number" class="hor" data-i="7" min="0" max="60" step="1" aria-label="Horizon height toward NW, degrees"></label></div>
+    <p class="note">Between directions the height is a straight line. Diffuse sky light drops by the share of sky the obstructions cover, a simple estimate. The bright sky right around the sun isn't blocked separately, so heavy shading reads slightly optimistic. A fist held at arm's length is roughly 10°.</p></details>
+    <div class="row"><label>Charge controller<small>Victron SmartSolar</small></label><select id="mppt"></select></div>
+    <div class="row"><label>Number of controllers<small>Each controller gets whole strings of its own; with an uneven split, one controller carries more</small></label><input type="number" id="nMppt" min="1" max="4"></div>
+    <details class="more"><summary><b>Which controllers and string layouts work with these panels</b><span>Cold-morning voltage and short-circuit current against each Victron controller.</span></summary><div id="compat"></div></details>
+    <div class="row"><label>Battery strings in parallel<small class="bName">Battle Born 100 Ah 12 V each</small></label><input type="number" id="bpar" min="1" max="16"></div>
+    <div class="row"><label>Battery location<small>Most of these batteries stop charging, or shouldn't charge, below about 25 to 32°F, so a cold shed matters</small></label><select id="bloc"><option value="in">Heated house, 64°F</option><option value="shed">Unheated shed (follows outdoor air, slowly)</option></select></div>
+    <div class="row"><label>Battery health <span id="sohV" class="mono"></span><small>Your estimate of how much capacity is left. New is 100%. The aging estimate on the Missions tab can set it for you</small></label><input type="range" id="soh" min="50" max="100" step="1" aria-label="Battery health percent"></div>
+    <div class="row"><label>Battery reserve <span id="reserveV" class="mono"></span><small>Charge you keep back for emergencies. The house goes dark at this level instead of at empty</small></label><input type="range" id="reserve" min="0" max="80" step="5" aria-label="Battery reserve percent"></div>
+    <div class="row"><label>Generator backup<small>Honda EU2200i, 120 V, 1,800 W rated. It powers the house through the inverter and charges the battery with what's left</small></label><select id="genOn" aria-label="Generator backup"><option value="0">None</option><option value="1">Honda EU2200i</option></select></div>
+    <div class="row genRow"><label>Generator starts at <span id="genStartV" class="mono"></span><small>Battery level that starts it</small></label><input type="range" id="genStart" min="5" max="90" step="5" aria-label="Generator start battery percent"></div>
+    <div class="row genRow"><label>Generator stops at <span id="genStopV" class="mono"></span><small>Battery level that stops it</small></label><input type="range" id="genStop" min="10" max="100" step="5" aria-label="Generator stop battery percent"></div>
+    <p class="note genRow" id="genNote"></p>
+    <div class="row" id="heatRow"><label>Heater warm-up speed<small>LiTime gives a range, 70 to 90 minutes from 14°F, not one number</small></label><select id="heatSpeed" aria-label="Self-heating warm-up speed"><option value="fast">Fast end of LiTime's range</option><option value="mid">Middle of LiTime's range</option><option value="slow">Slow end of LiTime's range</option></select></div>
+    <div class="row"><label>Inverter<small>120 V AC models only</small></label><select id="inv"></select></div>
+    <div class="row"><label>Coldest morning you design for <span id="coldV" class="mono"></span><small>Sets the cold-voltage check. The weather file's coldest hour is 1°F</small></label><input type="range" id="cold" min="-40" max="20" step="1"></div>
+    <p class="group" style="margin-top:14px">Panel mount</p>
+    <div class="row"><label>Tilt <span id="tiltV" class="mono"></span><small>0° is flat, 90° is a wall. Steep tilts shed snow and favor winter sun</small></label><input type="range" id="tilt" min="0" max="90" step="1" aria-label="Panel tilt in degrees"></div>
+    <div class="row"><label>Facing <span id="azV" class="mono"></span><small>180° is due south</small></label><input type="range" id="az" min="90" max="270" step="5" aria-label="Panel azimuth in degrees"></div>
+    <div class="row"><label>Mount<small id="mountNote"></small></label><select id="mount" aria-label="Mount type"><option value="auto">Usual for this panel</option><option value="open">Open rack: ground or pole, air behind</option><option value="roof">Close to a roof, a few inches of air</option><option value="glued">Glued flat, no air behind</option></select></div>
+    <div class="row" id="bifRow"><label>Count rear-side gain<small id="bifNote"></small></label><select id="bifOn" aria-label="Count bifacial rear-side gain"><option value="0">No: front side only</option><option value="1">Yes: estimate it</option></select></div>
+    <div class="row"><label>Snow on the panels in recorded winters<small>From NASA's daily snowfall; the 1 cm trigger is an estimate. The typical year never uses it</small></label><select id="snowRec" aria-label="Recorded snow on the panels"><option value="1">On</option><option value="0">Off</option></select></div>
+    <p class="group" style="margin-top:14px">Wiring</p>
+    <p class="note">Length is one way; the sim doubles it for the round trip. Copper or aluminum resistance comes from NEC Chapter 9 Table 8. The ampacity check uses NEC Table 310.16 with the temperature and bundling corrections below; it stays "Not verified" until you fill them in.</p>
+    <div class="row"><label>Hottest air around the cables, °F<small>Attic, shed or sun-baked conduit in summer. Leave blank if you don't know</small></label><input type="number" id="ambF" min="-40" max="160" step="1" inputmode="numeric" placeholder="Not entered" aria-label="Hottest air temperature around the cables in Fahrenheit"></div>
+    <div class="row"><label>Current-carrying wires bundled together<small>In one conduit or bundle. Count every wire carrying current</small></label><input type="number" id="ccc" min="1" max="50" step="1" inputmode="numeric" placeholder="Not entered" aria-label="Number of current-carrying wires bundled together"></div>
+    <div class="row"><label>Cable insulation rating<small>Printed on the cable jacket, for example THHN 90°C</small></label><select id="insC" aria-label="Cable insulation temperature rating"><option value="">Not entered</option><option value="60">60°C</option><option value="75">75°C</option><option value="90">90°C</option></select></div>
+    <div class="row"><label>Terminal rating<small>Lowest rating of the lugs or equipment at either end; check the manuals</small></label><select id="termC" aria-label="Terminal temperature rating"><option value="">Not entered</option><option value="60">60°C</option><option value="75">75°C</option><option value="90">90°C</option></select></div>
+    <div class="row wr"><label>Panels to controller<small id="pvWireNote"></small></label><div class="wire3"><select id="pvMat" aria-label="Panel cable material"></select><select id="pvG" aria-label="Panel cable gauge"></select><input type="number" id="pvFt" min="1" max="500" step="1" inputmode="numeric" aria-label="Panel cable length, feet one way"></div></div>
+    <div class="row wr"><label>Controller to battery<small id="cbWireNote"></small></label><div class="wire3"><select id="cbMat" aria-label="Controller cable material"></select><select id="cbG" aria-label="Controller cable gauge"></select><input type="number" id="cbFt" min="1" max="100" step="1" inputmode="numeric" aria-label="Controller cable length, feet one way"></div></div>
+    <div class="row wr"><label>Battery to inverter<small id="biWireNote"></small></label><div class="wire3"><select id="biMat" aria-label="Inverter cable material"></select><select id="biG" aria-label="Inverter cable gauge"></select><input type="number" id="biFt" min="1" max="100" step="1" inputmode="numeric" aria-label="Inverter cable length, feet one way"></div></div>
+    <p class="group" style="margin-top:14px">Save and share</p>
+    <p class="note"><b>Save design</b> keeps the parts, wiring, mount and appliance list, not the clock.</p>
+    <div class="lbtns"><button type="button" id="saveB">Save design in this browser</button><button type="button" id="loadB">Load saved design</button><button type="button" id="exportB">Export design file</button><button type="button" id="importB">Import design file</button><input type="file" id="importF" accept=".json,application/json" hidden></div>
+    <p class="note"><b>Save simulation state</b> also keeps the clock, battery charge and temperature, faults, the chart history, the weather and mission progress.</p>
+    <div class="lbtns"><button type="button" id="saveSB">Save state in this browser</button><button type="button" id="loadSB">Load saved state</button><button type="button" id="exportSB">Export state file</button><button type="button" id="importSB">Import state file</button><input type="file" id="importSF" accept=".json,application/json" hidden></div>
+    <p class="note" id="saveNote"></p>
+    <p class="group" style="margin-top:14px" id="costTop">What it costs</p>
+    <ul class="costs" id="costList"></ul>
+    <p class="note">Each line says whether its price is <b>confirmed</b> on a seller's page (with the link and the date it was checked), <b>your own purchase price</b>, an <b>estimate</b> (a typical figure, not a quote), or <b>missing</b> (not priced and not in the total). Prices change; check them before you buy.</p>
+    <div class="row"><label>Anything else<small>Your own estimate, counted as an estimate</small></label><input type="number" id="otherCost" min="0" max="50000" step="10" inputmode="numeric" aria-label="Other parts cost in dollars"></div>
+    <p class="cost-total" id="costTotal"></p>
+    <p class="note" id="costNote"></p>
+    <p class="group" style="margin-top:14px">Design check</p>
+    <ul class="checks" id="checks"></ul>
+    <p class="note"><b>Within spec</b> means a number is inside a maker’s published rating. <b>Table math</b> means the NEC table arithmetic works out for what you entered. <b>Estimate</b> rests on the sim’s own model. <b>Not verified</b> means an input or a source figure is missing. None of these is an approval: the manuals, the electrical code and an electrician have the final word.</p>
+    <p class="note">Changing parts keeps the clock and battery charge running. A burned-out controller stays dead until you change the controller or the panel layout, or tap Replace.</p>
+  </div>
+
+  <div class="pane" id="pane-loads">
+    <div id="loadsTop"></div>
+    <p class="lsum" id="loadSum"></p>
+    <canvas id="dayChart" aria-label="Today hour by hour: appliance power against the sun the panels could catch"></canvas>
+    <div class="legend"><span><i style="background:#5c6bc0;height:8px"></i>Your appliances, by hour</span><span><i style="background:rgba(224,161,0,.5);height:8px"></i>Sun your panels could catch today</span></div>
+    <p class="note" style="margin-top:4px">Auto runs an appliance at the times you set. On runs it nonstop, Off cuts it. Tap "Change watts and times" to set watts, how many, start-up surge, the clock times, or a charger's battery size. Each appliance says where its numbers come from; ones marked estimate are typical values, and a plug-in watt meter gives you your own.</p>
+    <p class="lt" style="margin-top:12px">Plug in another appliance</p>
+    <div class="addrow"><select id="addSel" aria-label="Appliance to add"></select><button type="button" id="addBtn">Add appliance</button></div>
+    <p class="note" id="addInfo"></p>
+    <div id="loadRows"></div>
+    <div class="lbtns"><button type="button" id="allOff">Switch everything off</button><button type="button" id="resetLoads">Back to the starting list</button></div>
+    <p class="note" id="loadEst"></p>
+  </div>
+
+  <div class="pane" id="pane-missions">
+    <div id="missionList"></div>
+  </div>
+
+  <div class="pane" id="pane-score" style="padding:0">
+    <div class="score" id="score"></div>
+    <canvas id="chart" width="900" height="170" aria-label="Last 48 hours of solar, load and battery"></canvas>
+    <div class="legend"><span><i style="background:#e0a100"></i>Solar into system</span><span><i style="background:#5c6bc0"></i>House load</span><span><i style="background:var(--si)"></i>Battery %</span></div>
+    <ul class="log" id="log"></ul>
+  </div>
+</div>
+
+<h2>How the model works</h2>
+<details class="more"><summary><b>The parts and prices</b><span>Ratings and prices from each maker's or seller's page, checked Oct 30–31, 2026.</span></summary><ul id="partsList"></ul></details>
+<details class="more"><summary><b>Sources by part</b><span>Each rating and the maker page or datasheet it comes from.</span></summary><ul id="srcParts"></ul></details>
+<details class="more"><summary><b>Weather and sun</b><span>A typical year for Honesdale, plus 25 recorded winters. Not a forecast.</span></summary><ul>
+<li>Hour-by-hour typical-year weather for Honesdale from the national solar radiation database, served through PVWatts: direct and diffuse sun, air temperature, wind and ground reflectance.</li>
+<li>Sun on the panels is worked out for your tilt and direction each hour, with the Perez sky model PVWatts uses and the loss from light glancing off the glass at low angles.</li>
+<li>Panel temperature uses the Sandia model for your mount type. Each panel's own power-versus-heat figure comes from its datasheet where published.</li>
+<li>Soiling, mismatch, connection, light-induced and nameplate losses (PVWatts defaults, about 6.8% together) are always on. Wire loss is worked out from your cables. Shade is the extra slider.</li>
+<li>Snowstorms and Arctic blasts are game events you trigger in the typical year, and how fast that snow melts off is a rough game rule. The typical year puts no snow on the panels by itself.</li>
+<li>In the recorded winters, NASA POWER's daily snowfall covers the panels on any day with at least 1 mm of water equivalent, about 1 cm of snow at an assumed 10 to 1 ratio. That trigger is an estimate. The snow then slides off using NREL's published model (Marion and others, 2013, as in pvlib): it slides when the air is warm enough for the sun on the panel, faster on steeper panels. You can switch this off in the build settings.</li>
+<li>The weather file's wind is very light, about 0.2 m/s on average. Light wind makes the panels run warmer in the model, which trims output slightly. That figure wasn't independently confirmed.</li>
+</ul></details>
+<details class="more"><summary><b>Accuracy checks</b><span>Automated checks against independent tools.</span></summary><ul>
+<li>Yearly sun on the panels matched pvlib (an open-source solar library) within 0.1% at every tilt tested, using the same weather.</li>
+<li>PVWatts gives 3 to 7% less on steep tilts by default because it assumes rows of panels shading each other. Rerun with widely spaced rows (ground coverage ratio 0.01, the lowest PVWatts accepts), its yearly sun on the panel matched the sandbox within 0.2% at 40°, 60°, 75° and 90° facing south, with no month more than 1.6% apart.</li>
+<li>The bifacial rear-side estimate at 40° (16.4% extra) is within a point of pvlib's bifacial model (15.7%).</li>
+<li>Energy in equals energy out plus losses, minute by minute, for every battery, indoors and in a shed, in January, July and over a full year.</li>
+</ul></details>
+<details class="more"><summary><b>What's estimated or simplified</b><span>Labeled guesses, so treat results as rough.</span></summary><ul>
+<li>Inverter efficiency changes with load. Victron publishes only peak efficiency and no-load draw, so the shape of the curve and where it peaks are assumptions.</li>
+<li>Panels with no published temperature figures (the Renogy 320 W and the flexible 100 W) use the most cautious values from the other datasheets.</li>
+<li>The bifacial panel's rear gain is an estimate and only counts on an open rack. Renogy publishes no bifaciality number.</li>
+<li>Charging is capped at half each battery's amp-hours or the maker's max, whichever is lower. Round trip is about 95% for lithium and 81% for AGM. The AGM resting-voltage curve is a guess.</li>
+<li>Charging tapers from 95% charge for lithium and 80% for AGM; where the taper starts is an estimate. Lithium absorption ends after Battle Born's published 30 minutes per 100 Ah of bank, applied to every lithium battery here (LiTime publishes no time), then it floats. The absorption timer restarts each day or when charge falls 5 points below the taper start, which is also an estimate.</li>
+<li>AGM capacity at high current and in the cold comes from Renogy's spec-sheet tables (for example 54 Ah at the 1-hour rate, 85% at 32°F). The sim drains charge faster to match and multiplies the two effects together, which is an estimate. The tables were read off an image of the sheet by text recognition; the 30-minute figure was re-read character by character as 86.32 A.</li>
+<li>Battery health scales usable capacity only, not internal resistance. The aging estimate turns each maker's published cycle life into capacity left after 1, 5 and 10 years. The 80% end-of-life point and the calendar loss (1% a year for lithium, 4% for AGM) are estimates, heat and cold don't change them, and a bank that has lost capacity is assumed to keep cycling at the same rate.</li>
+<li>The self-heating battery's warm-up speed comes in three settings, fast, middle and slow. Each warming rate fits both of LiTime's ranges: 70 to 90 minutes from 14°F and 100 to 150 minutes from −4°F. The sim steps minute by minute, which adds about a minute, so from 14°F the slow setting takes 91 minutes. The heater needs at least 10 A from the charger (LiTime manual).</li>
+<li>In a shed, battery temperature follows the outdoor air with about a 4-hour lag, and the inverter's heat derating uses the outdoor air directly. Indoors both sit at an assumed 64°F.</li>
+<li>Chargers run at their full watts until the battery is full, then stop. Real chargers slow down near full, but the energy is about the same.</li>
+<li>Appliances run exactly on the clock you set. Several of the same appliance start together, the worst case for surge. Thermostat appliances run up to 60% of the time in deep cold, a rough guess.</li>
+<li>Wire heating with current is estimated. Ampacity uses NEC Table 310.16 and the temperature corrections of 310.15(B)(1), both checked against independent reproductions. The bundling factors of 310.15(C)(1) and the 690.8 and 110.14(C) rules (PV current ×1.25 twice, terminal temperature limits) were checked only against search summaries, not the code text itself. A check stays "Not verified" until you enter the air temperature, bundling and ratings.</li>
+<li>Short-circuit current is never verified: no battery maker here publishes one. Battle Born gives 7 milliohms internal resistance; LiTime's 12 V manuals give at most 40 milliohms, so a fault current worked out from it is a minimum. Fuse interrupt ratings are Blue Sea Systems' own: Class T (5114) 20,000 A at 125 V DC, ANL (5127) 6,000 A at 80 V, MRBF (5183) 10,000 A at 14 V, 5,000 A at 32 V and 2,000 A at 58 V. MEGA fuses are left out because no Littelfuse datasheet was found. No fuse is ever marked as right for your bank.</li>
+<li>The inverter overload timing is approximate: Victron publishes the continuous, 1-hour and peak points, and the sim's behavior between them is a simple rule.</li>
+<li>The recorded winters are NASA POWER hourly data for Honesdale, Nov 1 to Feb 28, 2001–02 through 2025–26, with Feb 29 dropped. It's satellite and weather-model data on a coarse grid, not a ground station. Its wind averages about 2.7 m/s over Nov–Feb, against 0.2 m/s in the typical-year file. Measured on the starting panels, that extra wind makes them run cooler and produce about 1.1% more over the 25 winters than the same weather with 0.2 m/s wind (0.9% to 1.3% by winter). Months outside Nov–Feb stay typical-year weather.</li>
+<li>The synthetic worst week is made-up weather: seven of the dullest December days from the typical-year file strung together. The worst recorded stretch and the recorded winters are real sequences of days. The failure rate is a count over 25 past winters: each recorded winter is a historical-weather scenario, not a prediction, so the rate is not the probability that your system fails next winter. With only 25 winters its range is wide.</li>
+<li>Prices are single-unit or pack prices on the day checked, before tax and shipping. Each line in the cost list says whether it's confirmed (with the date), your own purchase price, an estimate, or missing. Prices change often.</li>
+</ul></details>
+<details class="more" id="notModeled"><summary><b>Not modeled: you still need these</b><span>The sim does none of this. It says nothing about whether an installation is safe or meets code.</span></summary>
+<ul class="lim">
+<li><b>Transfer switch or generator interlock.</b> Feeding house circuits from an inverter or generator needs a listed transfer switch or panel interlock so power can't flow back onto the grid lines. Not modeled. Follow the inverter's and the switch maker's manuals and use a licensed electrician.</li>
+<li><b>Household wiring.</b> Breakers, subpanels, branch circuits, receptacles and which circuits go on which leg aren't modeled. The 120/240 V leg split here is only a load estimate.</li>
+<li><b>Grounding and bonding.</b> Equipment grounding, ground rods, the neutral-ground bond in inverters and generators, and array frame grounding aren't modeled. Victron's MultiPlus-II manual covers its ground relay; the rest needs an electrician.</li>
+<li><b>System integration.</b> Settings and communication between the inverter, controllers, battery monitor and battery (charge voltages, BMS signals, GX device setup), and the rules for two units in split phase, aren't modeled. Follow Victron's manuals and the battery maker's settings.</li>
+<li><b>Permits, inspection, racking structure and wind or snow loads on the mount.</b> Not modeled.</li>
+<li>Wire and fuse checks here are table math against the code tables listed in Sources. They are not an approval: have an electrician size and check the real installation.</li>
+</ul></details>
+
+<div class="sources"><b>Sources and where to verify</b><ul>
+<li><a href="https://pvwatts.nlr.gov/">PVWatts, NLR (formerly NREL)</a>, hourly typical-year data for 41.58 N, 75.26 W, NSRDB TMY</li>
+<li><a href="https://power.larc.nasa.gov/">NASA POWER</a>: hourly sun, temperature and wind for Honesdale, winters 2001–02 to 2025–26</li>
+<li><a href="https://pvlib-python.readthedocs.io/">pvlib python</a>, used to check the sun and bifacial math</li>
+<li>Blue Sea Systems product pages for the <a href="https://www.bluesea.com/products/5114/Class_T_Fuse_-_100A">Class T 5114</a>, <a href="https://www.bluesea.com/products/5127/ANL_Fuse_-_100A">ANL 5127</a> and <a href="https://www.bluesea.com/products/5183">MRBF 5183</a> interrupt ratings</li>
+<li><a href="https://www.cerrowire.com/products/resources/tables-calculators/ampacity-charts/">Cerrowire</a>: reproduction of NEC Table 310.16 ampacities</li>
+<li><a href="https://www.victronenergy.com/upload/documents/Wiring-Unlimited-EN.pdf">Victron, Wiring Unlimited</a>: cable, voltage drop and fuse guidance</li>
+<li>Each part's maker page and datasheet are linked under "Sources by part" above</li>
+<li><a href="https://bluemarine.com/products/victron-multiplus-ii">Blue Marine</a>, Victron dealer: controller and inverter prices</li>
+<li><a href="https://www.energystar.gov/productfinder/product/certified-residential-refrigerators/results">ENERGY STAR certified refrigerators</a> and <a href="https://www.energystar.gov/productfinder/product/certified-residential-freezers/results">freezers</a>: label kWh per year, medians worked out from ENERGY STAR's public data</li>
+<li><a href="https://www.hp.com/us-en/shop/pdp/hp-elitebook-8-g1i-14-inch-ai-customizable-ap6j3av-mb">HP EliteBook 8 G1i 14" specs</a>: battery and adapter</li>
+<li><a href="https://api.starlink.com/public-files/specification_sheet_standard.pdf">Starlink Standard spec sheet</a>: average power</li>
+</ul></div>
+</div>
+<script>
+__TMY__
+__PHYS__
+__BATT__
+__ELEC__
+__HIST__
+__SNOW__
+__SIMJS__
+</script>
+<script>(function(){const a=document.getElementById('gAudio'),btn=document.getElementById('gBtn'),t=document.getElementById('gTime'),f=document.getElementById('gFill'),bar=document.getElementById('gBar');const fm=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');const d=()=>isFinite(a.duration)?a.duration:0;const u=()=>{t.textContent=(a.currentTime>0?fm(a.currentTime)+' / ':'')+fm(d()||143.28);f.style.width=(d()?a.currentTime/d()*100:0)+'%';};btn.onclick=()=>a.paused?a.play():a.pause();a.onplay=()=>{btn.textContent='Pause the voice guide';};a.onpause=a.onended=()=>{btn.textContent=a.ended?'Play the voice guide again':'Resume the voice guide';u();};a.ontimeupdate=a.onloadedmetadata=u;bar.onclick=e=>{const r=bar.getBoundingClientRect();if(d())a.currentTime=Math.min(Math.max((e.clientX-r.left)/r.width,0),1)*d();};})();</script>
+<script>/* Installable offline version: only when served from a web address, never from a local file. */
+if(/^https?:$/.test(location.protocol)){const l=document.createElement('link');l.rel='manifest';l.href='manifest.webmanifest';document.head.appendChild(l);if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
+</body></html>

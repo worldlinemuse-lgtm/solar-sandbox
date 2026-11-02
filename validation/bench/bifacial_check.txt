@@ -1,0 +1,7 @@
+Bifacial rear-side check, Honesdale weather year, facing south, bifaciality 0.70
+Rear gain = extra effective irradiance from the back side, as a % of the front side.
+pvlib infinite_sheds: panel 1.72 m long (Renogy 400 W), lowest edge 0.5 m above ground.
+An isolated row is approximated with a very wide row spacing (ground coverage ratio 0.05).
+tilt 20: sandbox +15.8%   pvlib isolated row +14.9%   pvlib rows at GCR 0.3 +10.3%
+tilt 40: sandbox +16.4%   pvlib isolated row +15.7%   pvlib rows at GCR 0.3 +11.0%
+tilt 60: sandbox +19.3%   pvlib isolated row +18.8%   pvlib rows at GCR 0.3 +14.2%
