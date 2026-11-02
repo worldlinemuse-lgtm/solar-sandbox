@@ -1115,7 +1115,7 @@ function step(preview=false){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100
  const poa=Math.max(0,lerpArr(PVH.poa,tw)), geff=Math.max(0,lerpArr(PVH.eff,tw));
  const tcell=lerpArr(PVH.tcell,tw)+blast;
  // snow
- if(S.randomSnow&&t%1440===0){const d=Math.floor(t/1440);const mo=monthOf(d);if((mo<=2||mo>=10)&&Math.random()<0.12&&ta<2){S.snow=1;log('Overnight snow buried the panels. Brush them off.',true);}}
+ if(!preview&&S.randomSnow&&t%1440===0){const d=Math.floor(t/1440);const mo=monthOf(d);if((mo<=2||mo>=10)&&Math.random()<0.12&&ta<2){S.snow=1;log('Overnight snow buried the panels. Brush them off.',true);}}
  const recSnow=c.snowRec&&WXID!=='tmy'&&typeof SNOWHIST!=='undefined';
  if(recSnow&&t%1440===0){const d=Math.floor(t/1440),wi=d>=HIST_DAY0?d-HIST_DAY0:d+(365-HIST_DAY0);const w=SNOWHIST.w[WXID.slice(1)];const sf=w&&wi>=0&&wi<120?w.sf[wi]:0;
   if(sf>=SNOW_COVER_MM){S.snow=1;S.stats.snowDays=(S.stats.snowDays||0)+1;log('Recorded snowfall ('+(sf*SNOW_RATIO/10).toFixed(1)+' cm estimated) covered the panels.',true);}}
