@@ -114,6 +114,7 @@ def main():
                 "120-day winter, full battery at start",
                 "Current default equipment and food/furnace preset loads",
                 "Generator disabled", "Equipment and demand assumptions not field-validated"],
+            "model_provenance": page.evaluate("window.SIM_PROVENANCE"),
             "invariant_scenarios": checks, "winter_stress_tests": winters
         }
         OUTPUT.write_text(json.dumps(report, indent=2, allow_nan=False)+"\n",encoding="utf-8")

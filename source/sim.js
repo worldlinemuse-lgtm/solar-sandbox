@@ -540,7 +540,8 @@ function checks(){
  if(I.v!==c.sysV)out.push(['fail',I.name+' needs a '+I.v+' V battery, not '+c.sysV+' V.']);
  out.push([vocCold>M.abs?'fail':vocCold>M.abs*0.97?'warn':'spec','Cold-morning string voltage at '+c.coldF+'\u00b0F: '+vocCold.toFixed(1)+' V vs '+M.abs+' V controller limit. Uses this panel\u2019s '+PANEL.b+' %/\u00b0C voltage coefficient'+(PANEL.tcAssumed?' (assumed: not published)':'')+'.']);
  out.push([vmpHot<c.sysV*1.25+5?'warn':'est','Hottest-cell working voltage: '+vmpHot.toFixed(1)+' V at '+Math.round(tMax)+'\u00b0C cell temperature (from this year\u2019s weather and your mount). The controller needs about 5 V above battery voltage to start.']);
- out.push([isc>M.isc?'fail':'spec','Panel short-circuit current per controller: '+isc.toFixed(1)+' A vs '+M.isc+' A max.']);
+ const iscManualConflict=M.id==='150/35'&&isc>35&&isc<=40;
+ out.push([isc>M.isc?'fail':iscManualConflict?'nv':'spec','Panel short-circuit current per controller: '+isc.toFixed(1)+' A vs '+M.isc+' A published max.'+(M.id==='150/35'?' Victron sources differ: 150/35 manual lists 35 A; later brochure lists 40 A. Above 35 A, verify the precise hardware model and applicable specification; this simulation does not establish suitability.':'')]);
  out.push([pvW>pvLimit*1.0001?'warn':'spec','Panels per controller: '+Math.round(pvW)+' W vs '+pvLimit+' W listed for '+c.sysV+' V. Extra is clipped, not harmful.']);
  out.push(['info','Controller output limit: '+M.amps+' A \u00d7 '+c.nMppt+' = about '+Math.round(nominal*c.nMppt)+' W.']);
  const bc=bankCont(c.bpar);
@@ -1082,7 +1083,7 @@ function wireChanged(k){const c=S.cfg;const mat=$(k+'Mat').value==='al'?'al':'cu
  c[k+'Ft']=clampInt($(k+'Ft').value,1,k==='pv'?500:100);cfgChanged(false);}
 const SAVE_KEY='solarSandboxBuild.v4';
 const CFG_NUM={other:[0,10000],sysV:[12,48],ser:[1,20],par:[1,20],shade:[0,90],nMppt:[1,8],bpar:[1,16],coldF:[-40,50],tilt:[0,90],az:[90,270],pvFt:[1,500],cbFt:[1,100],biFt:[1,100],soh:[50,100],reserve:[0,80],genStart:[5,90],genStop:[10,100],genFuel:[0,500],ageYears:[0,20]};
-function buildPayload(){return {app:'solar-battery-sandbox',kind:'design',version:5,saved:new Date().toISOString(),cfg:JSON.parse(JSON.stringify(S.cfg)),loads:S.loads.map(cloneLoad)};}
+function buildPayload(){return {app:'solar-battery-sandbox',kind:'design',version:5,model_provenance:window.SIM_PROVENANCE||null,saved:new Date().toISOString(),cfg:JSON.parse(JSON.stringify(S.cfg)),loads:S.loads.map(cloneLoad)};}
 function num(v,a,b,d){v=Number(v);if(!isFinite(v))return d;return Math.max(a,Math.min(b,v));}
 function cleanWins(w){if(!Array.isArray(w)||!w.length)return null;const o=[];for(const x of w.slice(0,6)){if(!Array.isArray(x)||x.length!==2)return null;o.push([Math.round(num(x[0],0,1439,0)),Math.round(num(x[1],0,1439,0))]);}return o;}
 function cleanLoad(l,used){if(!l||typeof l!=='object')return null;const w=num(l.w,0,20000,NaN);if(!isFinite(w)||typeof l.name!=='string')return null;

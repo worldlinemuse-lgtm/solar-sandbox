@@ -422,6 +422,7 @@ __BATT__
 __ELEC__
 __HIST__
 __SNOW__
+__PROVENANCE__
 __SIMJS__
 </script>
 <script>(function(){const a=document.getElementById('gAudio'),btn=document.getElementById('gBtn'),t=document.getElementById('gTime'),f=document.getElementById('gFill'),bar=document.getElementById('gBar');const fm=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');const d=()=>isFinite(a.duration)?a.duration:0;const u=()=>{t.textContent=(a.currentTime>0?fm(a.currentTime)+' / ':'')+fm(d()||143.28);f.style.width=(d()?a.currentTime/d()*100:0)+'%';};btn.onclick=()=>a.paused?a.play():a.pause();a.onplay=()=>{btn.textContent='Pause the voice guide';};a.onpause=a.onended=()=>{btn.textContent=a.ended?'Play the voice guide again':'Resume the voice guide';u();};a.ontimeupdate=a.onloadedmetadata=u;bar.onclick=e=>{const r=bar.getBoundingClientRect();if(d())a.currentTime=Math.min(Math.max((e.clientX-r.left)/r.width,0),1)*d();};})();</script>
