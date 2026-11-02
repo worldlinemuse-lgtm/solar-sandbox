@@ -26,6 +26,8 @@ jobs:
         run: SKIP_WINTERS=1 python tests/test_v7.py
       - name: Model correctness gate (24-hour invariants and 50 winters)
         run: python tests/test_correctness_gate.py
+      - name: Async analysis input-integrity regressions
+        run: python tests/test_batch_input_isolation.py
       - name: Solar check against pvlib
         run: python tests/check_solar.py
       - name: Offline install check

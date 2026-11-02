@@ -867,7 +867,16 @@ function addLoad(pi){const p=PRESETS[pi];if(!p)return;if(S.loads.length>=24){log
  S.loads.push(l);log(l.name+' added at '+l.w+' W.');buildAppl();
  const box=$('loadRows');const card=loadCard(l);box.appendChild(card);afterLoadChange(true);
  const eb=card.querySelector('.ledit');eb.click();card.scrollIntoView({block:'nearest'});}
+function invalidateBatchReports(){
+ // A previously calculated result refers to the OLD build and appliance schedule.
+ for(const [outId,progressId] of [['rOut','rProg'],['ageOut','ageProg']]){
+  const out=$(outId),status=$(progressId);
+  if(out&&out.children.length){out.replaceChildren();if(status)status.textContent='Inputs changed. Run this analysis again.';}
+ }
+ AGE_LAST=null;
+}
 function afterLoadChange(quiet){
+ invalidateBatchReports();
  const P=dayProfile();const I=inv();const n=S.loads.filter(l=>l.mode!=='off').length;
  const top=S.loads.filter(l=>P.per[l.id]>0).sort((a,b)=>P.per[b.id]-P.per[a.id]).slice(0,3).map(l=>l.name+' '+(P.per[l.id]/1000).toFixed(2));
  $('loadSum').innerHTML='<b></b><span></span>';
@@ -925,7 +934,7 @@ function renderMissions(){const box=$('missionList');box.innerHTML='';
   const fr=document.createElement('div');fr.className='mission';
   fr.innerHTML='<b>Failure rate across all winters</b><small>Appliance use: the keep-the-food-cold list, the same plus the furnace blower on its thermostat, and your own list as set now.</small><div class="ownrow"><label>Appliance use<select id="rP" aria-label="Appliance use"><option value="all">All three</option><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="rGo">Run '+HIST_YEARS.length+' winters</button><small>About 15 seconds per appliance set on a computer; longer on a phone. You can keep reading while it runs.</small><small id="rProg" aria-live="polite"></small><div id="rOut"></div>';
   box.appendChild(fr);
-  fr.querySelector('#rGo').onclick=()=>{if(RATE_RUN){RATE_RUN.cancel=true;return;}const sel=$('rP').value;const pats=sel==='all'?['food','furnace','mine']:[sel];$('rOut').innerHTML='';$('rGo').textContent='Stop';
+  fr.querySelector('#rGo').onclick=()=>{if(AGE_RUN){$('rProg').textContent='Wait for the battery-aging calculation to finish, or stop it.';return;}if(RATE_RUN){RATE_RUN.cancel=true;return;}const sel=$('rP').value;const pats=sel==='all'?['food','furnace','mine']:[sel];$('rOut').innerHTML='';$('rGo').textContent='Stop';
    runFailureRates(pats,(txt)=>{$('rProg').textContent=txt;},(res,why)=>{$('rGo').textContent='Run '+HIST_YEARS.length+' winters';$('rProg').textContent=why||'Done.';if(res.length)$('rOut').innerHTML=res.map(rateHtml).join('');});};
   const ag=document.createElement('div');ag.className='mission';
   ag.innerHTML='<b>Battery aging: after 1, 5 and 10 years</b><small>Estimates the capacity your batteries keep, from the maker\'s published cycle life and how hard a typical year cycles them in your design, then runs all '+HIST_YEARS.length+' recorded winters at each age. The aging itself is an estimate; the details show with the results.</small><div class="ownrow"><label>Appliance use<select id="ageP" aria-label="Appliance use for aging"><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="ageGo">Run aging estimate</button><small>About as long as four failure-rate runs.</small><small id="ageProg" aria-live="polite"></small><div id="ageOut"></div>';
@@ -953,10 +962,12 @@ const STATE_KEYS=['t','soc','battT','snow','blastUntil','randomSnow','mpptDead',
 function grabState(){const o={};for(const k of STATE_KEYS)o[k]=S[k];o.REMAP=REMAP;o.WXID=WXID;return o;}
 function putState(o){for(const k of STATE_KEYS)S[k]=o[k];REMAP=o.REMAP;if(WXID!==o.WXID)setWeather(o.WXID);}
 let RATE_RUN=null;
+function inputSignature(){return JSON.stringify([S.cfg,S.loads]);}
 function patternLoads(p){if(p==='mine')return S.loads.map(cloneLoad);return missionLoads(p==='furnace'?Object.assign({},BASE,{furnace:'auto'}):BASE);}
 const PAT_NAME={food:'Keep-the-food-cold list',furnace:'Food list plus furnace blower',mine:'Your own appliances'};
 function runFailureRates(pats,prog,done,sohOv){
- const cfgKey=JSON.stringify(S.cfg),wasPlaying=S.playing;setPlaying(false);
+ if(RATE_RUN||(AGE_RUN&&sohOv==null)){done([],'Another analysis is already running.');return;}
+ const inputKey=inputSignature(),wasPlaying=S.playing;setPlaying(false);
  const jobs=[];for(const p of pats)for(const y of HIST_YEARS)jobs.push({p,y});
  const loadsFor={};for(const p of pats)loadsFor[p]=patternLoads(p);
  const res={};for(const p of pats)res[p]={p,runs:[]};
@@ -964,7 +975,7 @@ function runFailureRates(pats,prog,done,sohOv){
  const finish=why=>{RATE_RUN=null;dropWxCache();if(wasPlaying&&!why)setPlaying(true);done(why?[]:pats.map(p=>summarizeRuns(res[p])),why);};
  const tick=()=>{
   if(run.cancel){finish('Stopped. Nothing was counted.');return;}
-  if(JSON.stringify(S.cfg)!==cfgKey){finish('Your design changed during the run, so it stopped. Run it again.');return;}
+  if(inputSignature()!==inputKey){finish('The system or appliance inputs changed during the run. No partial results were used. Run it again.');return;}
   const user=grabState();
   try{
    if(!cur){const jb=jobs[j];setWeather('w'+jb.y);REMAP=null;S.mission=null;S.missionEnd=null;S.loads=loadsFor[jb.p].map(cloneLoad);S.savedLoads=null;S.prevOn={};S.log=[];S.hist=[];
@@ -987,20 +998,22 @@ function summarizeRuns(r){const runs=r.runs,n=runs.length;const fails=runs.filte
 function rateHtml(x){const pc=v=>Math.round(v*100)+'%';const h=v=>v<1&&v>0?'under 1 h':Math.round(v)+' h';
  return '<div class="rate"><b>'+PAT_NAME[x.p]+'</b><p>Some requested load unserved in <b>'+x.fails+' of '+x.n+'</b> recorded winters ('+pc(x.rate)+'). This is the fraction of observed historical winters that failed under the selected model assumptions; it is <b>not a probability forecast</b>. These years are not an independent random sample of future weather, and equipment/operator uncertainty is not included.</p><p>Time with unmet demand per winter: median '+h(x.medH)+', range '+h(x.minH)+' to '+h(x.maxH)+'. Worst: '+winterName(x.worst.y)+' with '+h(x.worst.black/60)+'. Winters with a trip or fault: '+x.faultWinters+'. Lowest battery in any winter: '+Math.round(x.lowSoc*100)+'%.</p>'+(x.snowRec?'<p>Recorded snowfall covered the panels on a median '+x.snowDaysMed+' days a winter (range '+x.snowDaysMin+' to '+x.snowDaysMax+'). The cover trigger is an estimate.</p>':'<p>Recorded snow on the panels is switched off for this run.</p>')+(x.genOn?'<p>Generator: median '+x.genHMed.toFixed(0)+' hours and '+x.genGalMed.toFixed(1)+' gallons of fuel a winter, range '+x.genGalMin.toFixed(1)+' to '+x.genGalMax.toFixed(1)+' gallons. Fuel use is an estimate drawn between Honda\'s two published runtimes.</p>':'')+(x.reserve>0?'<p>Battery reserve: '+x.reserve+'% held back, so the house goes dark at '+x.reserve+'%.</p>':'')+'</div>';}
 function runAging(pat,prog,done){
+ if(AGE_RUN||RATE_RUN){done(null,'Another analysis is already running.');return;}
  const d=AGE_DATA[BATT.id];if(!d){done(null,'No published cycle life for this battery.');return;}
- const cfgKey=JSON.stringify(S.cfg),wasPlaying=S.playing;setPlaying(false);
+ const inputKey=inputSignature(),wasPlaying=S.playing;setPlaying(false);
  const run=AGE_RUN={cancel:false};const loads=patternLoads(pat);const Y=365*1440;
  let cur=null,left=Y,thru=0,prev=1,dmax=1,dmin=1,lastDay=0;const swings=[];
  const finish=(out,why)=>{AGE_RUN=null;AGE_SOH=null;dropWxCache();if(wasPlaying&&!why)setPlaying(true);done(out,why);};
  const winters=out=>{let k=0;const next=()=>{
    if(run.cancel){finish(null,'Stopped. Nothing was counted.');return;}
    if(k>=AGE_YEARS.length){finish(out,null);return;}
+   if(inputSignature()!==inputKey){finish(null,'The system or appliance inputs changed during the run. Run it again.');return;}
    const row=out.rows[k++];if(row.soh<AGE_MIN){row.past=true;next();return;}
    runFailureRates([pat],txt=>prog('Year '+row.y+' (health '+Math.round(row.soh*100)+'%): '+txt),(res,why)=>{
     if(why){finish(null,why);return;}row.sum=res[0];next();},row.soh);};next();};
  const tick=()=>{
   if(run.cancel){finish(null,'Stopped. Nothing was counted.');return;}
-  if(JSON.stringify(S.cfg)!==cfgKey){finish(null,'Your design changed during the run, so it stopped. Run it again.');return;}
+  if(inputSignature()!==inputKey){finish(null,'The system or appliance inputs changed during the run. Run it again.');return;}
   const user=grabState();
   try{
    if(!cur){setWeather('tmy');REMAP=null;S.mission=null;S.missionEnd=null;S.loads=loads.map(cloneLoad);S.savedLoads=null;S.prevOn={};S.log=[];S.hist=[];
