@@ -24,6 +24,8 @@ jobs:
         run: python tests/test_integrity.py
       - name: Page test suite (skips the slow 25-winter runs)
         run: SKIP_WINTERS=1 python tests/test_v7.py
+      - name: Model correctness gate (24-hour invariants and 50 winters)
+        run: python tests/test_correctness_gate.py
       - name: Solar check against pvlib
         run: python tests/check_solar.py
       - name: Offline install check
@@ -33,4 +35,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: tests/test_v7_results.json
+          path: |
+            tests/test_v7_results.json
+            tests/correctness_results.json

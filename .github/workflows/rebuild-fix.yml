@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - fix/model-integrity-2026-11-02
+      - milestone/simulation-correctness-2026-11-02
     paths:
       - 'source/**'
       - '.github/workflows/rebuild-fix.yml'
