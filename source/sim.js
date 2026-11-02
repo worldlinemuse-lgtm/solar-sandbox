@@ -336,8 +336,8 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  const coldRisk=!BATT.bms&&S.battT<BATT.chgMinC;
  if(BATT.disMinC!=null&&BATT.bms){if(S.battT<BATT.disMinC){if(!S.coldDis){S.coldDis=true;S.stats.coldDis++;log('Battery too cold to power anything: its BMS cut discharging at '+Math.round(cToF(S.battT))+'°F (rated down to '+Math.round(cToF(BATT.disMinC))+'°F).',true);}}else if(S.coldDis&&S.battT>BATT.disMinC+2){S.coldDis=false;log('Battery warmed up: discharging allowed again.');}}
  // loads
- let demand=0,surge=0,unfit=0;const on={},legD=[0,0],legS=[0,0];
- for(const l of S.loads){let o=loadOn(l,t,taF);if(o&&!loadFits(l,I)){unfit+=loadW(l);o=false;}on[l.id]=o;if(o){const w=loadW(l),sh=legShare(l),su=!S.prevOn[l.id]?w*(l.surge-1):0;demand+=w;surge+=su;legD[0]+=w*sh[0];legD[1]+=w*sh[1];legS[0]+=su*sh[0];legS[1]+=su*sh[1];}}
+ let demand=0,surge=0,unfit=0;const on={},unfitOn={},legD=[0,0],legS=[0,0];
+ for(const l of S.loads){let o=loadOn(l,t,taF);if(o&&!loadFits(l,I)){unfit+=loadW(l);unfitOn[l.id]=true;o=false;}on[l.id]=o;if(o){const w=loadW(l),sh=legShare(l),su=!S.prevOn[l.id]?w*(l.surge-1):0;demand+=w;surge+=su;legD[0]+=w*sh[0];legD[1]+=w*sh[1];legS[0]+=su*sh[0];legS[1]+=su*sh[1];}}
  S.unfitW=unfit; // Incompatible requests remain unmet household demand, not a successful blackout-free minute.
  // per-unit view: a single inverter sees everything; a split-phase pair is judged on its busier leg
  const uD=I.split?Math.max(legD[0],legD[1]):demand, uS=I.split?Math.max(legD[0]+legS[0],legD[1]+legS[1])-uD:surge;
@@ -475,7 +475,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  st.wirePv+=pvRun.W/60;st.wireCb+=cb.W/60;st.wireBi+=bi.W/60;st.invLoss+=(invRun?invLossW:0)/60;st.ctlLoss+=pIn*(1-M.eff)/60;
  if(P>0&&coldRisk){st.coldChg++;if(S.coldWarnDay!==Math.floor(t/1440)){S.coldWarnDay=Math.floor(t/1440);log(BATT.coldMsg,true);}}
  const d=Math.floor(t/1440);if(d!==S.day.d)S.day=newDay();S.day.pv+=mOut/60;S.day.load+=served/60;
- S.live={legD,requested,unservedSupply,unfit,genFuelLeft:S.genFuelLeft,genAC:invRun?genAC:0,genDC,genRun:!!S.genRun,ghi:lerpArr(GHI,tw),ta,taF,poa,geff,tcell,pPanel,pvAvail,harvestable,mOut,invDC,invLossW,contNow,heatW,demand,served,unserved,on,voc,vmp,state,Ibank,vb,vInv,invRun,coldBlock,coldRisk,maxOut,dm,absPhase:ab.phase,absMin:S.absMin,absLimit:ab.limit,wire:{pv:pvRun.W,cb:cb.W,bi:bi.W,biV:bi.V}};
+ S.live={legD,requested,unservedSupply,unfit,unfitOn,genFuelLeft:S.genFuelLeft,genAC:invRun?genAC:0,genDC,genRun:!!S.genRun,ghi:lerpArr(GHI,tw),ta,taF,poa,geff,tcell,pPanel,pvAvail,harvestable,mOut,invDC,invLossW,contNow,heatW,demand,served,unserved,on,voc,vmp,state,Ibank,vb,vInv,invRun,coldBlock,coldRisk,maxOut,dm,absPhase:ab.phase,absMin:S.absMin,absLimit:ab.limit,wire:{pv:pvRun.W,cb:cb.W,bi:bi.W,biV:bi.V}};
  if(t%10===0){S.hist.push([t,mOut,served,S.soc]);if(S.hist.length>288)S.hist.shift();}
  S.t++; if(S.t>=YEARMIN)S.t-=YEARMIN; S.stats.mins=(S.stats.mins||0)+1; // elapsed minutes: never wraps at the year end
  if(S.mission&&S.missionEnd!==null&&((S.t-S.missionEnd+YEARMIN)%YEARMIN)<1)endMission();
@@ -739,13 +739,13 @@ function render(){
  $('socText').textContent=Math.round(S.soc*100)+'% charged, '+(S.soc*capWh()/1000).toFixed(2)+' kWh left'+(hrsLeft!==null?', about '+(hrsLeft<48?hrsLeft.toFixed(1)+' h':Math.round(hrsLeft/24)+' days')+' at this draw':'');
  // inverter
  $('invName').textContent=I.name;$('invRating').textContent=I.cont+' W continuous, '+I.peak+' W peak';
- $('invAC').textContent='AC out '+W(L.served)+(L.served<L.demand-0.5?' / '+W(L.demand):'');
+ $('invAC').textContent='AC delivered '+W(L.served)+(L.requested>L.served+0.5?' / '+W(L.requested)+' requested':'');
  $('invDC').textContent='DC in '+W(L.invDC)+'  '+(L.invDC/L.vb).toFixed(0)+' A';
- const ist=!S.invOn?'Switched off':S.bmsTrip?'No DC: battery disconnected':S.invTrip?'Overload trip: reset it':S.invLow?'Low-battery shutdown':L.demand>I.cont?'Overloaded!':'Running, '+Math.round(L.demand/I.cont*100)+'% load';
+ const ist=!S.invOn?'Switched off':S.bmsTrip?'No DC: battery disconnected':S.invTrip?'Overload trip: reset it':S.invLow?'Low-battery shutdown':L.demand>I.cont?'Overloaded!':'Running, '+Math.round(L.demand/I.cont*100)+'% compatible load'+(L.unfit>0.01?'; '+W(L.unfit)+' incompatible':'');
  $('invState').textContent=ist;$('invState').setAttribute('class',(S.invTrip||S.invLow||S.bmsTrip||L.demand>I.cont)?'fault':'mut');$('invBox').style.stroke=(S.invTrip||S.invLow)?'#c62828':'';
  $('discTxt').textContent=S.pvOpen?'OPEN':'ON';$('discTxt').style.fill=S.pvOpen?'#c62828':'';$('discRect').setAttribute('stroke',S.pvOpen?'#c62828':'');
- $('houseW').textContent=L.invRun?W(L.served)+' in use':(L.demand>0?'DARK, '+W(L.demand)+' not served':'Off');
- for(const l of S.loads){const e=applEls[l.id];if(!e)continue;const o=L.on[l.id];const lit=o&&L.invRun;e.r.setAttribute('fill',lit?'#f6c443':o?'#c62828':'var(--sg)');e.r.setAttribute('opacity',lit||o?0.9:1);e.r.setAttribute('stroke',l.mode==='on'?'var(--si)':'var(--sr)');e.r.setAttribute('stroke-dasharray',l.mode==='off'?'4 3':'none');e.t.style.fill=lit?'#13202f':o?'#fff':l.mode==='off'?'var(--sm)':'var(--si)';e.t.style.opacity=l.mode==='off'?0.55:1;}
+ $('houseW').textContent=L.unserved>0.5?W(L.served)+' delivered, '+W(L.unserved)+' unserved':(L.requested>0.5?W(L.served)+' in use':'Off');
+ for(const l of S.loads){const e=applEls[l.id];if(!e)continue;const o=L.on[l.id],unfit=!!(L.unfitOn&&L.unfitOn[l.id]);const lit=o&&L.invRun;e.r.setAttribute('fill',lit?'#f6c443':(o||unfit)?'#c62828':'var(--sg)');e.r.setAttribute('opacity',lit||o||unfit?0.9:1);e.r.setAttribute('stroke',l.mode==='on'?'var(--si)':'var(--sr)');e.r.setAttribute('stroke-dasharray',l.mode==='off'?'4 3':'none');e.t.style.fill=lit?'#13202f':(o||unfit)?'#fff':l.mode==='off'?'var(--sm)':'var(--si)';e.t.style.opacity=l.mode==='off'?0.55:1;}
  $('todayText').textContent='Today solar in: '+(S.day.pv/1000).toFixed(2)+' kWh';$('todayText2').textContent='Today house used: '+(S.day.load/1000).toFixed(2)+' kWh';
  $('todayText3').textContent='Solar going unused now: '+W(Math.max(0,L.harvestable-L.mOut));
  $('bigMsg').textContent=S.mpptDead?'Controller burned out!':(L.unserved>0.01?'Unmet demand: '+W(L.unserved)+' (including incompatible loads)':'');
