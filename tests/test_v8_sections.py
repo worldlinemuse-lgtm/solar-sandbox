@@ -6,7 +6,7 @@ GEN = dict(w=1800, max=2200, tank=0.95, rated_h=3.2, quarter_h=8.1)  # Honda EU2
 
 RUNG = '''(o)=>{const S=SIM.S,c=S.cfg;Object.assign(c,o.cfg||{});
  S.loads=(o.loads||[]).map((l,i)=>Object.assign({id:'g'+i,name:'Test '+i,short:'T'+i,qty:1,surge:1,mode:'on',wins:[[0,0]],cyc:null,thermo:null,chg:null,off:0,basis:'',volt:120,leg:1},l));
- SIM.cfgChanged(true,true);S.t=o.t;S.soc=o.soc;S.battT=20;S.lastI=0;S.bmsTrip=false;S.invLow=false;S.invTrip=false;S.heatOn=false;S.coldDis=false;S.coldLock=false;S.ovl=0;S.overMin=0;S.mission=null;S.prevOn={};S.invOn=true;S.genRun=false;S.snow=0;
+ if(c.genOn){c.genMode='attended';c.genFuel=500;S.genFuelLeft=500;} // Explicit staffed generator with a bounded 500-gal reserve, not a recoil auto-start.\n SIM.cfgChanged(true,true);S.t=o.t;S.soc=o.soc;S.battT=20;S.lastI=0;S.bmsTrip=false;S.invLow=false;S.invTrip=false;S.heatOn=false;S.coldDis=false;S.coldLock=false;S.ovl=0;S.overMin=0;S.mission=null;S.prevOn={};S.invOn=true;S.genRun=false;S.snow=0;
  const s0=JSON.parse(JSON.stringify(S.stats));const tr=[];let maxErr=0,acErr=0,genMin=0,genAC=0,genDC=0,dark=0,served=0;const B=SIM.BATT;
  for(let i=0;i<o.min;i++){const sA=S.soc,cap=SIM.capWh();SIM.step();const L=S.live;
   const P=L.mOut-L.wire.cb-L.invDC-L.wire.bi-L.heatW+L.genDC;const sf=sA+(P>0?P*B.eta:P*L.dm/B.eta)/60/cap;let s=sf-B.selfM/(30*1440);s=Math.max(0,Math.min(1,s));maxErr=Math.max(maxErr,Math.abs(s-S.soc));
@@ -118,7 +118,7 @@ async def run_v8_winters(pg, DEFAULT):
     for label, gen in (('snow_on', False), ('snow_on_generator', True)):
         await pg.evaluate(DEFAULT)
         await pg.evaluate("()=>document.getElementById('resetLoads').click()")
-        r = await pg.evaluate('''(o)=>new Promise(res=>{SIM.useMyLongi();const c=SIM.S.cfg;c.bifOn=false;c.snowRec=true;c.genOn=o.gen;c.genStart=20;c.genStop=80;SIM.cfgChanged(true,true);const t0=performance.now();
+        r = await pg.evaluate('''(o)=>new Promise(res=>{SIM.useMyLongi();const c=SIM.S.cfg;c.bifOn=false;c.snowRec=true;c.genOn=o.gen;c.genMode='attended';c.genFuel=500;SIM.S.genFuelLeft=500;c.genStart=20;c.genStop=80;SIM.cfgChanged(true,true);const t0=performance.now();
           SIM.runFailureRates(o.pats,()=>{},(out,why)=>res({why,ms:performance.now()-t0,sums:out.map(x=>({p:x.p,fails:x.fails,n:x.n,ci:x.ci,medH:x.medH,minH:x.minH,maxH:x.maxH,worst:[x.worst.y,x.worst.black],snowDaysMed:x.snowDaysMed,snowDaysMin:x.snowDaysMin,snowDaysMax:x.snowDaysMax,genGalMed:x.genGalMed,genGalMin:x.genGalMin,genGalMax:x.genGalMax,genHMed:x.genHMed}))}));})''', {'gen': gen, 'pats': ['food', 'furnace']})
         out[label] = r
     return out

@@ -267,14 +267,14 @@ function dateStr(t){t=((t%YEARMIN)+YEARMIN)%YEARMIN;const d=Math.floor(t/1440);l
 
 // ---------- State ----------
 const S={
- cfg:{panel:'r200',batt:'bb100',other:0,sysV:24,ser:3,par:2,shade:0,mppt:'150/35',nMppt:1,bpar:2,bloc:'in',inv:'m24-3000',coldF:-20,tilt:40,az:180,mount:'auto',bifOn:false,pvMat:'cu',pvG:'10',pvFt:50,cbMat:'cu',cbG:'6',cbFt:5,biMat:'cu',biG:'2/0',biFt:5,soh:100,heatSpeed:'mid',ambF:null,ccc:null,insC:null,termC:null,hor:[0,0,0,0,0,0,0,0],snowRec:true,reserve:0,genOn:false,genStart:20,genStop:80,ageOn:false,ageYears:0},
+ cfg:{panel:'r200',batt:'bb100',other:0,sysV:24,ser:3,par:2,shade:0,mppt:'150/35',nMppt:1,bpar:2,bloc:'in',inv:'m24-3000',coldF:-20,tilt:40,az:180,mount:'auto',bifOn:false,pvMat:'cu',pvG:'10',pvFt:50,cbMat:'cu',cbG:'6',cbFt:5,biMat:'cu',biG:'2/0',biFt:5,soh:100,heatSpeed:'mid',ambF:null,ccc:null,insC:null,termC:null,hor:[0,0,0,0,0,0,0,0],snowRec:true,reserve:0,genOn:false,genMode:'manual',genFuel:0.95,genStart:20,genStop:80,ageOn:false,ageYears:0},
  loads:DEFAULT_LOADS.map(cloneLoad),savedLoads:null,pvOpen:false,
  t:(302*1440)+6*60, soc:1, battT:18, snow:0, blastUntil:-1, randomSnow:false,
- mpptDead:false, mpptRun:false, invOn:true, invTrip:false, invLow:false, bmsTrip:false, overMin:0, ovl:0, coldLock:false, coldDis:false, coldWarnDay:-1, prevOn:{},
+ mpptDead:false, mpptRun:false, invOn:true, invTrip:false, invLow:false, bmsTrip:false, overMin:0, ovl:0, coldLock:false, coldDis:false, coldWarnDay:-1, genRun:false, genFuelLeft:0.95, prevOn:{},
  lastI:0, vbat:0, absMin:0, absDay:-1, live:{}, stats:null, day:null, hist:[], log:[], mission:null, missionEnd:null, playing:false, warnedIsc:false
 };
 const SNOW_COVER_MM=1, SNOW_RATIO=10, SNOW_M=-80, SNOW_SLIDE=0.197; // cover trigger: >= 1 mm/day water equivalent (about 1 cm of snow at an assumed 10:1 ratio): an estimate adapted from pvlib's 1 cm/hour trigger, because NASA POWER gives daily totals
-function newStats(){return {startT:S.t,mins:0,served:0,unserved:0,blackMin:0,pvIn:0,pvWaste:0,minSoc:S.soc,faults:0,tripInv:0,tripBms:0,lowV:0,dead:0,heat:0,wirePv:0,wireCb:0,wireBi:0,invLoss:0,ctlLoss:0,coldChg:0,coldDis:0};}
+function newStats(){return {startT:S.t,mins:0,served:0,unserved:0,requested:0,unfitWh:0,unfitMin:0,blackMin:0,pvIn:0,pvWaste:0,minSoc:S.soc,faults:0,tripInv:0,tripBms:0,lowV:0,dead:0,heat:0,wirePv:0,wireCb:0,wireBi:0,invLoss:0,ctlLoss:0,coldChg:0,coldDis:0};}
 function newDay(){return {pv:0,load:0,d:Math.floor(S.t/1440)};}
 S.stats=newStats();S.day=newDay();
 
@@ -336,9 +336,9 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  const coldRisk=!BATT.bms&&S.battT<BATT.chgMinC;
  if(BATT.disMinC!=null&&BATT.bms){if(S.battT<BATT.disMinC){if(!S.coldDis){S.coldDis=true;S.stats.coldDis++;log('Battery too cold to power anything: its BMS cut discharging at '+Math.round(cToF(S.battT))+'°F (rated down to '+Math.round(cToF(BATT.disMinC))+'°F).',true);}}else if(S.coldDis&&S.battT>BATT.disMinC+2){S.coldDis=false;log('Battery warmed up: discharging allowed again.');}}
  // loads
- let demand=0,surge=0,unfit=0;const on={},legD=[0,0],legS=[0,0];
- for(const l of S.loads){let o=loadOn(l,t,taF);if(o&&!loadFits(l,I)){unfit+=loadW(l);o=false;}on[l.id]=o;if(o){const w=loadW(l),sh=legShare(l),su=!S.prevOn[l.id]?w*(l.surge-1):0;demand+=w;surge+=su;legD[0]+=w*sh[0];legD[1]+=w*sh[1];legS[0]+=su*sh[0];legS[1]+=su*sh[1];}}
- S.unfitW=unfit;if(unfit>0)S.stats.unfitWh=(S.stats.unfitWh||0)+unfit/60;
+ let demand=0,surge=0,unfit=0;const on={},unfitOn={},legD=[0,0],legS=[0,0];
+ for(const l of S.loads){let o=loadOn(l,t,taF);if(o&&!loadFits(l,I)){unfit+=loadW(l);unfitOn[l.id]=true;o=false;}on[l.id]=o;if(o){const w=loadW(l),sh=legShare(l),su=!S.prevOn[l.id]?w*(l.surge-1):0;demand+=w;surge+=su;legD[0]+=w*sh[0];legD[1]+=w*sh[1];legS[0]+=su*sh[0];legS[1]+=su*sh[1];}}
+ S.unfitW=unfit; // Incompatible requests remain unmet household demand, not a successful blackout-free minute.
  // per-unit view: a single inverter sees everything; a split-phase pair is judged on its busier leg
  const uD=I.split?Math.max(legD[0],legD[1]):demand, uS=I.split?Math.max(legD[0]+legS[0],legD[1]+legS[1])-uD:surge;
  S.prevOn=on;
@@ -361,8 +361,21 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
   }else{S.overMin=0;S.ovl=Math.max(0,S.ovl-(I.tl?1/I.tl.min:1));}
  }
  // generator backup (MultiPlus PowerControl: house loads pass through, whatever is left charges the battery)
- const gOK=c.genOn&&chgA(I)>0;if(!gOK)S.genRun=false;else{if(!S.genRun&&S.soc<=c.genStart/100){S.genRun=true;S.stats.genStarts=(S.stats.genStarts||0)+1;log('Generator started at '+Math.round(S.soc*100)+'% battery.',true);}else if(S.genRun&&S.soc>=c.genStop/100){S.genRun=false;log('Generator stopped at '+Math.round(S.soc*100)+'% battery.');}}
- const genAC=S.genRun&&invRun?Math.min(I.split?legD[0]:demand,GEN_DS.w):0; // a 120 V generator feeds one unit of a split-phase pair
+ // The EU2200i is recoil-started: manual mode NEVER silently starts it. Attended
+ // mode explicitly assumes a person is present to operate it at the thresholds.
+ const gOK=c.genOn&&chgA(I)>0;
+ if(!gOK||S.genFuelLeft<genGph(0)/60){
+  if(S.genRun&&S.genFuelLeft<genGph(0)/60)log('Generator stopped: not enough fuel for another full simulated minute.',true);
+  S.genRun=false;
+ }else if(c.genMode==='attended'){
+  if(!S.genRun&&S.soc<=c.genStart/100){S.genRun=true;S.stats.genStarts=(S.stats.genStarts||0)+1;log('Attended operator assumed: generator manually started at '+Math.round(S.soc*100)+'% battery.');}
+  else if(S.genRun&&S.soc>=c.genStop/100){S.genRun=false;log('Attended operator assumed: generator manually stopped.');}
+ }
+ // Available fuel bounds output within each minute, not just after the simulation.
+ const minGph=genGph(0),ratedGph=genGph(GEN_DS.w);
+ const fuelPower=S.genFuelLeft>=ratedGph/60?GEN_DS.w:Math.max(0,GEN_DS.w/4+(S.genFuelLeft*60-minGph)*(GEN_DS.w*0.75)/(ratedGph-minGph));
+ const genLimit=S.genRun?Math.min(GEN_DS.w,fuelPower):0;
+ const genAC=S.genRun&&invRun?Math.min(I.split?legD[0]:demand,genLimit):0; // 120 V input is only on L1
  const invD=demand-genAC,invLeg=I.split?[legD[0]-genAC,legD[1]]:legD;
  let invLossW=invRun?invLossT(I,invD,invLeg):0;
  let invDC=invRun?invD+invLossW:0; // at the inverter's DC terminals
@@ -401,7 +414,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  const absA=BATTMODEL.ABS[BATT.chem==='agm'?'agm':'lfp'];
  if(S.soc<absA.absStart-0.05||Math.floor(t/1440)!==S.absDay){S.absMin=0;S.absDay=Math.floor(t/1440);} // re-bulk point (assumed) and daily reset
  const ab=BATTMODEL.absorption(BATT.chem,S.soc,S.absMin,bankAh(),null);
- if(!coldBlock&&!S.coldDis&&S.soc<1&&ab.mult>0){const a=bp*BATT.chargeA*Math.min(1,ab.mult);chargeLim=Math.min(a*vb,(1-S.soc)*cap*60/BATT.eta);}
+ if(!S.bmsTrip&&!coldBlock&&!S.coldDis&&S.soc<1&&ab.mult>0){const a=bp*BATT.chargeA*Math.min(1,ab.mult);chargeLim=Math.min(a*vb,(1-S.soc)*cap*60/BATT.eta);}
  const possible=Math.min(harvestable,maxOut);
  // controller-to-battery cable(s)
  const cbAt=out=>{if(out<=0)return {W:0,V:0};const sh=SH.map(k=>Math.min(harvestable*k/c.par,M.amps*vb));const tot=sh.reduce((a,b)=>a+b,0)||1;let Wt=0,Vm=0;for(const x of sh){if(x<=0)continue;const r=PHYS.runLoss(c.cbMat,c.cbG,c.cbFt,envT,out*x/tot/vb);Wt+=r.W;Vm=Math.max(Vm,r.V);}return {W:Wt,V:Vm};};
@@ -418,7 +431,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  if(S.mpptRun){if(heatW>0&&coldBlock)state='Heating battery before charging';else if(coldBlock&&mOut<possible-1)state='Battery too cold to charge (BMS)';else if(S.soc>=0.999&&mOut<possible-1)state='Float: battery full';else if(ab.phase==='float'&&mOut<possible-1)state='Float: absorption time done';else if(ab.phase==='absorption')state='Absorption';else if(mOut>=maxOut-1&&harvestable>maxOut)state='Bulk, at current limit';else state='Bulk';}
  // battery
  let P=mOut-cb.W-invDC-bi.W-heatW;
- let genDC=0;const genCharge=()=>{if(!S.genRun)return 0;const room=Math.max(0,chargeLim-P);return Math.min(chgA(I)*vb,Math.max(0,GEN_DS.w-genAC)*CHG_EFF_EST,room);};
+ let genDC=0;const genCharge=()=>{if(!S.genRun||S.bmsTrip)return 0;const room=Math.max(0,chargeLim-P);return Math.min(chgA(I)*vb,Math.max(0,genLimit-genAC)*CHG_EFF_EST,room);};
  genDC=genCharge();P+=genDC;
  const dropHouse=()=>{invRun=false;invDC=0;bi={I:0,R:0,W:0,V:0};mOut=Math.min(possible,withCb(chargeLim+heatW));cb=cbAt(mOut);P=mOut-cb.W-heatW;genDC=genCharge();P+=genDC;};
  if(P<0&&S.soc<=FL+1e-9){ // empty: BMS low cut (AGM: sim stops at 50%)
@@ -428,7 +441,7 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  let Ibank=P/vb;
  // BMS current check
  if(!S.bmsTrip&&invRun){const peakI=(invDC+bi.W+surge+invLossT(I,demand+surge,[legD[0]+legS[0],legD[1]+legS[1]])-invLossW)/vb;
-  if(BATT.cont>0&&(peakI>bp*BATT.surge||(-Ibank)>bankCont(bp))){S.bmsTrip=true;S.stats.tripBms++;S.stats.faults++;log('Battery BMS tripped: '+Math.round(Math.max(peakI,-Ibank))+' A draw beat '+bankCont(bp)+' A continuous / '+bp*BATT.surge+' A surge for this bank.',true);invRun=false;invDC=0;bi={I:0,R:0,W:0,V:0};mOut=0;cb={W:0,V:0};P=0;Ibank=0;heatW=0;S.heatOn=false;}}
+  if(BATT.cont>0&&(peakI>bp*BATT.surge||(-Ibank)>bankCont(bp))){S.bmsTrip=true;S.stats.tripBms++;S.stats.faults++;log('Battery BMS tripped: '+Math.round(Math.max(peakI,-Ibank))+' A draw beat '+bankCont(bp)+' A continuous / '+bp*BATT.surge+' A surge for this bank.',true);invRun=false;invDC=0;bi={I:0,R:0,W:0,V:0};mOut=0;cb={W:0,V:0};P=0;Ibank=0;genDC=0;heatW=0;S.heatOn=false;}}
  // low-voltage inverter shutdown: judged at the inverter's own terminals, after the cable drop
  let vInv=0;
  if(invRun){const vLoad=ns*(bv(S.soc)+(Ibank/bp)*BATT.r); vInv=vLoad-bi.V; if(bi.collapse||vInv<I.low*(c.sysV/I.v)){S.invLow=true;S.stats.lowV++;log('Inverter low-battery shutdown at '+Math.max(0,vInv).toFixed(1)+' V at its terminals'+(bi.V>0.2?' ('+bi.V.toFixed(1)+' V lost in the battery cable)':'')+'.',true);dropHouse();Ibank=P/vb;}}
@@ -443,16 +456,26 @@ function step(){const FL=Math.max(BATT.floor,(S.cfg.reserve||0)/100); // empty p
  if(fServe<1)S.soc=Math.max(S.soc,FL);
  S.soc-=BATT.selfM/(30*1440); S.soc=Math.max(0,Math.min(1,S.soc));
  S.lastI=Ibank;
- const served=invRun?genAC+invD*fServe:0, unserved=invRun?invD*(1-fServe):demand;
- if(S.genRun){const gl=genAC+genDC/CHG_EFF_EST;S.stats.genMin=(S.stats.genMin||0)+1;S.stats.genGal=(S.stats.genGal||0)+genGph(gl)/60;S.stats.genACWh=(S.stats.genACWh||0)+genAC/60;S.stats.genDCWh=(S.stats.genDCWh||0)+genDC/60;}
+ const served=invRun?genAC+invD*fServe:0, unservedSupply=invRun?invD*(1-fServe):demand, unserved=unservedSupply+unfit, requested=demand+unfit;
+ if(S.genRun){
+  const acDelivered=invRun?genAC:0;
+  const gl=acDelivered+genDC/CHG_EFF_EST;
+  const fuelUsed=Math.min(S.genFuelLeft,genGph(gl)/60);
+  S.genFuelLeft=Math.max(0,S.genFuelLeft-fuelUsed);
+  S.stats.genMin=(S.stats.genMin||0)+1;
+  S.stats.genGal=(S.stats.genGal||0)+fuelUsed;
+  S.stats.genACWh=(S.stats.genACWh||0)+acDelivered/60;
+  S.stats.genDCWh=(S.stats.genDCWh||0)+genDC/60;
+  if(S.genFuelLeft<genGph(0)/60){S.genRun=false;log('Generator fuel exhausted for continuous full-minute operation.',true);}
+ }
  // PV cable loss at the power actually drawn
  const pIn=M.eff>0?mOut/M.eff:0; const pvRun=pvRunAt(pIn);
  // stats
- const st=S.stats;st.served+=served/60;st.unserved+=unserved/60;if(unserved>0)st.blackMin++;st.pvIn+=mOut/60;st.heat+=heatW/60;st.pvWaste+=Math.max(0,harvestable-mOut)/60;st.minSoc=Math.min(st.minSoc,S.soc);
+ const st=S.stats;st.served+=served/60;st.unserved+=unserved/60;st.requested+=requested/60;st.unfitWh+=unfit/60;if(unfit>0)st.unfitMin++;if(unserved>1e-6)st.blackMin++;st.pvIn+=mOut/60;st.heat+=heatW/60;st.pvWaste+=Math.max(0,harvestable-mOut)/60;st.minSoc=Math.min(st.minSoc,S.soc);
  st.wirePv+=pvRun.W/60;st.wireCb+=cb.W/60;st.wireBi+=bi.W/60;st.invLoss+=(invRun?invLossW:0)/60;st.ctlLoss+=pIn*(1-M.eff)/60;
  if(P>0&&coldRisk){st.coldChg++;if(S.coldWarnDay!==Math.floor(t/1440)){S.coldWarnDay=Math.floor(t/1440);log(BATT.coldMsg,true);}}
  const d=Math.floor(t/1440);if(d!==S.day.d)S.day=newDay();S.day.pv+=mOut/60;S.day.load+=served/60;
- S.live={legD,unfit,genAC:invRun?genAC:0,genDC,genRun:!!S.genRun,ghi:lerpArr(GHI,tw),ta,taF,poa,geff,tcell,pPanel,pvAvail,harvestable,mOut,invDC,invLossW,contNow,heatW,demand,served,unserved,on,voc,vmp,state,Ibank,vb,vInv,invRun,coldBlock,coldRisk,maxOut,dm,absPhase:ab.phase,absMin:S.absMin,absLimit:ab.limit,wire:{pv:pvRun.W,cb:cb.W,bi:bi.W,biV:bi.V}};
+ S.live={legD,requested,unservedSupply,unfit,unfitOn,genFuelLeft:S.genFuelLeft,genAC:invRun?genAC:0,genDC,genRun:!!S.genRun,ghi:lerpArr(GHI,tw),ta,taF,poa,geff,tcell,pPanel,pvAvail,harvestable,mOut,invDC,invLossW,contNow,heatW,demand,served,unserved,on,voc,vmp,state,Ibank,vb,vInv,invRun,coldBlock,coldRisk,maxOut,dm,absPhase:ab.phase,absMin:S.absMin,absLimit:ab.limit,wire:{pv:pvRun.W,cb:cb.W,bi:bi.W,biV:bi.V}};
  if(t%10===0){S.hist.push([t,mOut,served,S.soc]);if(S.hist.length>288)S.hist.shift();}
  S.t++; if(S.t>=YEARMIN)S.t-=YEARMIN; S.stats.mins=(S.stats.mins||0)+1; // elapsed minutes: never wraps at the year end
  if(S.mission&&S.missionEnd!==null&&((S.t-S.missionEnd+YEARMIN)%YEARMIN)<1)endMission();
@@ -556,9 +579,9 @@ function checks(){
  if(!BATT.bms)out.push(['warn',BATT.name+': nothing in the battery stops charging below '+Math.round(cToF(BATT.chgMinC))+'\u00b0F. '+(c.bloc==='shed'?'In an unheated shed this will happen.':'Keep it indoors.')]);
  return out.filter(Boolean);
 }
-function dayProfile(){const I=inv();const d=Math.floor(S.t/1440);const per={};S.loads.forEach(l=>per[l.id]=0);const hourW=new Array(24).fill(0);let peak=0,peakAt=0,wh=0;
- for(let m=0;m<1440;m++){const tt=d*1440+m;const tF=cToF(lerpArr(WX.ta,wxT(tt)));let w=0;for(const l of S.loads){if(loadOn(l,tt,tF)){const x=loadW(l);w+=x;per[l.id]+=x/60;}}hourW[Math.floor(m/60)]+=w/60;if(w>peak){peak=w;peakAt=m;}wh+=(w+invLossT(I,w))/60;}
- return {wh,per,hourW,peak,peakAt};}
+function dayProfile(){const I=inv();const d=Math.floor(S.t/1440);const per={};S.loads.forEach(l=>per[l.id]=0);const hourW=new Array(24).fill(0);let peak=0,peakAt=0,wh=0,requestedWh=0,compatibleWh=0,incompatibleWh=0,overheadWh=0;
+ for(let m=0;m<1440;m++){const tt=d*1440+m;const tF=cToF(lerpArr(WX.ta,wxT(tt)));let w=0,good=0;const leg=[0,0];for(const l of S.loads){if(loadOn(l,tt,tF)){const x=loadW(l);w+=x;per[l.id]+=x/60;if(loadFits(l,I)){good+=x;const sh=legShare(l);leg[0]+=x*sh[0];leg[1]+=x*sh[1];}else incompatibleWh+=x/60;}}hourW[Math.floor(m/60)]+=w/60;if(w>peak){peak=w;peakAt=m;}const idle=invLossT(I,good,leg);requestedWh+=w/60;compatibleWh+=good/60;overheadWh+=idle/60;wh+=(w+idle)/60;}
+ return {wh,requestedWh,compatibleWh,incompatibleWh,overheadWh,per,hourW,peak,peakAt};}
 function dailyLoadWh(){return dayProfile().wh;}
 
 // ---------- Missions ----------
@@ -597,7 +620,7 @@ function startMission(m){
  if(!setWeather(m.wx||'tmy')){log('That winter\u2019s weather isn\u2019t in this page.',true);return;}
  if(m.modes){if(!S.savedLoads)S.savedLoads=S.loads.map(cloneLoad);S.loads=missionLoads(m.modes);buildAppl();}
  else if(S.savedLoads)restoreLoads(true);
- REMAP=m.remap?worstWeekMap(m.startDay,m.days):null;S.mission=m;S.t=m.startDay*1440;S.missionEnd=(S.t+m.days*1440)%YEARMIN;S.soc=m.startSoc!=null?m.startSoc:1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[Math.floor(wxT(m.startDay*1440)/60)];S.snow=0;S.genRun=false;S.blastUntil=-1;
+ REMAP=m.remap?worstWeekMap(m.startDay,m.days):null;S.mission=m;S.t=m.startDay*1440;S.missionEnd=(S.t+m.days*1440)%YEARMIN;S.soc=m.startSoc!=null?m.startSoc:1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[Math.floor(wxT(m.startDay*1440)/60)];S.snow=0;S.genRun=false;S.genFuelLeft=S.cfg.genFuel;S.blastUntil=-1;
  S.mpptDead=false;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.overMin=0;S.ovl=0;S.coldLock=false;S.coldDis=false;S.lastI=0;S.absMin=0;S.absDay=-1;S.heatOn=false;S.hist=[];
  S.stats=newStats();S.day=newDay();
  hideBanner();log('Mission started: '+m.name+'. Battery '+Math.round(S.soc*100)+'%.'+(m.observed?' Weather: '+wxLabel()+'.':'')+(m.modes?' It uses the mission\'s appliance list; yours come back when it ends.':' Using your own appliances.'));renderLoads();renderAll();setPlaying(true);
@@ -648,7 +671,7 @@ function buildBank(){
    el('rect',{x:xx,y:yy,width:bw,height:bh,rx:4,class:'box'},g);
    el('rect',{x:xx+bw*0.18,y:yy-3,width:6,height:3,fill:'var(--si)'},g);el('rect',{x:xx+bw*0.72,y:yy-3,width:6,height:3,fill:'var(--si)'},g);
    const f=el('rect',{x:xx+3,y:yy+3,width:0,height:bh-6,rx:2,fill:'#2e7d32',opacity:.75},g);battEls.push({f,w:bw-6});
-   if(bh>22)el('text',{x:xx+bw/2,y:yy+bh/2+4,'font-size':Math.min(12,bw/5.5),'text-anchor':'middle'},g).textContent='100Ah';
+   if(bh>22)el('text',{x:xx+bw/2,y:yy+bh/2+4,'font-size':Math.min(12,bw/5.5),'text-anchor':'middle'},g).textContent=BATT.ah+'Ah';
    if(s<ns-1)el('line',{x1:xx+bw,y1:yy+bh/2,x2:xx+bw+10,y2:yy+bh/2,stroke:'var(--si)','stroke-width':1.5},g);
   }
   el('line',{x1:12,y1:yy+bh/2,x2:x0,y2:yy+bh/2,stroke:'var(--sm)','stroke-width':1.2},g);
@@ -705,7 +728,7 @@ function render(){
  $('busText').textContent=L.vb.toFixed(1)+' V  '+(L.Ibank>=0?'+':'')+L.Ibank.toFixed(0)+' A';
  $('fuseText').textContent='Class T fuse: '+Math.abs(L.Ibank).toFixed(0)+' A through it';
  const ns=nSer();
- $('bankTitle').textContent=ns+'S × '+c.bpar+'P Battle Born, '+(capWh()/1000).toFixed(2)+' kWh';
+ $('bankTitle').textContent=ns+'S × '+c.bpar+'P '+BATT.short+', '+(capWh()/1000).toFixed(2)+' kWh';
  $('bankText').textContent=L.vb.toFixed(1)+' V  '+(L.Ibank>=0?'+':'')+L.Ibank.toFixed(0)+' A  '+W(Math.abs(L.Ibank*L.vb))+(L.Ibank>0.5?' in':L.Ibank<-0.5?' out':'');
  $('bankState').textContent=S.bmsTrip?'BMS tripped: battery disconnected':L.coldBlock?'Too cold to charge ('+Math.round(cToF(S.battT))+'°F)':S.soc<=0.001?'Empty':L.Ibank>0.5?'Charging':L.Ibank<-0.5?'Discharging':'Idle';
  $('bankState').setAttribute('class',(S.bmsTrip||L.coldBlock||S.soc<=0.001)?'fault':'mut');
@@ -716,17 +739,17 @@ function render(){
  $('socText').textContent=Math.round(S.soc*100)+'% charged, '+(S.soc*capWh()/1000).toFixed(2)+' kWh left'+(hrsLeft!==null?', about '+(hrsLeft<48?hrsLeft.toFixed(1)+' h':Math.round(hrsLeft/24)+' days')+' at this draw':'');
  // inverter
  $('invName').textContent=I.name;$('invRating').textContent=I.cont+' W continuous, '+I.peak+' W peak';
- $('invAC').textContent='AC out '+W(L.served)+(L.served<L.demand-0.5?' / '+W(L.demand):'');
+ $('invAC').textContent='AC delivered '+W(L.served)+(L.requested>L.served+0.5?' / '+W(L.requested)+' requested':'');
  $('invDC').textContent='DC in '+W(L.invDC)+'  '+(L.invDC/L.vb).toFixed(0)+' A';
- const ist=!S.invOn?'Switched off':S.bmsTrip?'No DC: battery disconnected':S.invTrip?'Overload trip: reset it':S.invLow?'Low-battery shutdown':L.demand>I.cont?'Overloaded!':'Running, '+Math.round(L.demand/I.cont*100)+'% load';
+ const ist=!S.invOn?'Switched off':S.bmsTrip?'No DC: battery disconnected':S.invTrip?'Overload trip: reset it':S.invLow?'Low-battery shutdown':L.demand>I.cont?'Overloaded!':'Running, '+Math.round(L.demand/I.cont*100)+'% compatible load'+(L.unfit>0.01?'; '+W(L.unfit)+' incompatible':'');
  $('invState').textContent=ist;$('invState').setAttribute('class',(S.invTrip||S.invLow||S.bmsTrip||L.demand>I.cont)?'fault':'mut');$('invBox').style.stroke=(S.invTrip||S.invLow)?'#c62828':'';
  $('discTxt').textContent=S.pvOpen?'OPEN':'ON';$('discTxt').style.fill=S.pvOpen?'#c62828':'';$('discRect').setAttribute('stroke',S.pvOpen?'#c62828':'');
- $('houseW').textContent=L.invRun?W(L.served)+' in use':(L.demand>0?'DARK, '+W(L.demand)+' not served':'Off');
- for(const l of S.loads){const e=applEls[l.id];if(!e)continue;const o=L.on[l.id];const lit=o&&L.invRun;e.r.setAttribute('fill',lit?'#f6c443':o?'#c62828':'var(--sg)');e.r.setAttribute('opacity',lit||o?0.9:1);e.r.setAttribute('stroke',l.mode==='on'?'var(--si)':'var(--sr)');e.r.setAttribute('stroke-dasharray',l.mode==='off'?'4 3':'none');e.t.style.fill=lit?'#13202f':o?'#fff':l.mode==='off'?'var(--sm)':'var(--si)';e.t.style.opacity=l.mode==='off'?0.55:1;}
+ $('houseW').textContent=L.unserved>0.5?W(L.served)+' delivered, '+W(L.unserved)+' unserved':(L.requested>0.5?W(L.served)+' in use':'Off');
+ for(const l of S.loads){const e=applEls[l.id];if(!e)continue;const o=L.on[l.id],unfit=!!(L.unfitOn&&L.unfitOn[l.id]);const lit=o&&L.invRun;e.r.setAttribute('fill',lit?'#f6c443':(o||unfit)?'#c62828':'var(--sg)');e.r.setAttribute('opacity',lit||o||unfit?0.9:1);e.r.setAttribute('stroke',l.mode==='on'?'var(--si)':'var(--sr)');e.r.setAttribute('stroke-dasharray',l.mode==='off'?'4 3':'none');e.t.style.fill=lit?'#13202f':(o||unfit)?'#fff':l.mode==='off'?'var(--sm)':'var(--si)';e.t.style.opacity=l.mode==='off'?0.55:1;}
  $('todayText').textContent='Today solar in: '+(S.day.pv/1000).toFixed(2)+' kWh';$('todayText2').textContent='Today house used: '+(S.day.load/1000).toFixed(2)+' kWh';
  $('todayText3').textContent='Solar going unused now: '+W(Math.max(0,L.harvestable-L.mOut));
- $('bigMsg').textContent=S.mpptDead?'Controller burned out!':(!L.invRun&&L.demand>0)?'Blackout: house is dark':'';
- $('bigMsg').setAttribute('class',(S.mpptDead||(!L.invRun&&L.demand>0))?'fault':'');
+ $('bigMsg').textContent=S.mpptDead?'Controller burned out!':(L.unserved>0.01?'Unmet demand: '+W(L.unserved)+' (including incompatible loads)':'');
+ $('bigMsg').setAttribute('class',(S.mpptDead||L.unserved>0.01)?'fault':'');
  setFlow('fPV',L.mOut>0?L.pvAvail:0,1500);setFlow('fMB',L.mOut,1500);setFlow('fBat',L.Ibank*L.vb,1500);setFlow('fInv',L.invDC,1500);setFlow('fAC',L.served,1500);
  $('fBat').setAttribute('stroke',L.Ibank>=0?'#2e7d32':'#b26a00');
  renderFaults();
@@ -747,7 +770,7 @@ const CHECK_TAGS={spec:'Within spec',est:'Estimate',tbl:'Table math',nv:'Not ver
 function renderChecks(){const ul=$('checks');ul.innerHTML='';for(const [k,m] of checks()){const li=document.createElement('li');li.innerHTML='<span class="tag '+k+'">'+CHECK_TAGS[k]+'</span><span></span>';li.lastChild.textContent=m;ul.appendChild(li);}}
 function renderScore(){
  const st=S.stats;const el_=$('score');const days=(st.mins!=null?st.mins:(((S.t-st.startT)+YEARMIN)%YEARMIN))/1440;
- const items=[[days.toFixed(1),'days simulated'],[(st.pvIn/1000).toFixed(1)+' kWh','solar used'],[(st.pvWaste/1000).toFixed(1)+' kWh','solar wasted (full, clipped, off)'],[(st.served/1000).toFixed(1)+' kWh','power delivered'],[(st.unserved/1000).toFixed(1)+' kWh','power you needed, not delivered'],[fmtH(st.blackMin),'blackout time'],[Math.round(st.minSoc*100)+'%','lowest battery'],[st.faults,'faults (trips, burnouts)']];
+ const items=[[days.toFixed(1),'days simulated'],[(st.pvIn/1000).toFixed(1)+' kWh','solar used'],[(st.pvWaste/1000).toFixed(1)+' kWh','solar wasted (full, clipped, off)'],[(st.served/1000).toFixed(1)+' kWh','power delivered'],[(st.requested/1000).toFixed(1)+' kWh','requested appliance energy'],[(st.unserved/1000).toFixed(1)+' kWh','power you needed, not delivered'],[(st.unfitWh/1000).toFixed(1)+' kWh','of which incompatible with inverter'],[fmtH(st.unfitMin),'minutes with an incompatible load'],[fmtH(st.blackMin),'blackout time'],[Math.round(st.minSoc*100)+'%','lowest battery'],[st.faults,'faults (trips, burnouts)']];
  el_.innerHTML=items.map(i=>'<div><b>'+i[0]+'</b><span>'+i[1]+'</span></div>').join('');
 }
 function renderLog(){const ul=$('log');if(!ul)return;ul.innerHTML='';for(const e of S.log.slice(0,60)){const li=document.createElement('li');if(e.bad)li.className='bad';li.innerHTML='<span></span>';li.firstChild.textContent=dateStr(e.t);li.appendChild(document.createTextNode(e.msg));ul.appendChild(li);}}
@@ -848,10 +871,10 @@ function afterLoadChange(quiet){
  const P=dayProfile();const I=inv();const n=S.loads.filter(l=>l.mode!=='off').length;
  const top=S.loads.filter(l=>P.per[l.id]>0).sort((a,b)=>P.per[b.id]-P.per[a.id]).slice(0,3).map(l=>l.name+' '+(P.per[l.id]/1000).toFixed(2));
  $('loadSum').innerHTML='<b></b><span></span>';
- $('loadSum').firstChild.textContent=n+' of '+S.loads.length+' appliances switched on. About '+(P.wh/1000).toFixed(2)+' kWh a day.';
+ $('loadSum').firstChild.textContent=n+' of '+S.loads.length+' appliances switched on. About '+(P.wh/1000).toFixed(2)+' kWh/day requested including estimated inverter overhead.';
  $('loadSum').lastChild.textContent='Busiest moment '+Math.round(P.peak)+' W at '+fmtClock(P.peakAt)+(P.peak>I.cont?', over the inverter\'s '+I.cont+' W: it will trip':', inverter limit '+I.cont+' W')+'. '+(top.length?'Biggest users, kWh a day: '+top.join(', ')+'.':'');
  S.loads.forEach(l=>{const d=document.querySelector('#loadRows .load[data-id="'+l.id+'"] .lk');if(d)d.textContent=l.mode==='off'?'':(P.per[l.id]/1000).toFixed(2)+' kWh today';});
- $('loadEst').textContent='Daily totals use today\'s date and temperatures in the weather file, and include the inverter\'s own idle draw of '+I.idle+' W.';
+ $('loadEst').textContent='Today: '+(P.requestedWh/1000).toFixed(2)+' kWh appliance demand; '+(P.compatibleWh/1000).toFixed(2)+' kWh electrically compatible; '+(P.incompatibleWh/1000).toFixed(2)+' kWh incompatible/unserved before any battery shortage; '+(P.overheadWh/1000).toFixed(2)+' kWh estimated inverter overhead. Incompatible demand is NOT delivered.';
  const q=$('qLoads');if(q)q.textContent='What\'s powered: '+n+' of '+S.loads.length;
  drawDay(P);renderChecks();if(!S.playing)refreshLive();}
 function drawDay(P){
@@ -926,7 +949,7 @@ function findWorstStretch(n,prog,done){const typ=poaDaily(WX_TMY);let best=null,
   for(let k=0;k+n<=120;k++){let a=0,t=0;for(let j=0;j<n;j++){a+=d[k+j];t+=typ[k+j];}if(!best||a<best.kwh)best={y,k,n,kwh:a,pctTyp:t>0?a/t*100:0};}
   prog(i,HIST_YEARS.length);setTimeout(next,0);};next();}
 // ---------- Failure-rate runs ----------
-const STATE_KEYS=['t','soc','battT','snow','blastUntil','randomSnow','mpptDead','mpptRun','invOn','invTrip','invLow','bmsTrip','overMin','ovl','coldLock','coldDis','coldWarnDay','prevOn','lastI','vbat','absMin','absDay','heatOn','stats','day','hist','log','mission','missionEnd','warnedIsc','loads','savedLoads','live'];
+const STATE_KEYS=['t','soc','battT','snow','blastUntil','randomSnow','mpptDead','mpptRun','invOn','invTrip','invLow','bmsTrip','overMin','ovl','coldLock','coldDis','coldWarnDay','prevOn','lastI','vbat','absMin','absDay','heatOn','genRun','genFuelLeft','stats','day','hist','log','mission','missionEnd','warnedIsc','loads','savedLoads','live'];
 function grabState(){const o={};for(const k of STATE_KEYS)o[k]=S[k];o.REMAP=REMAP;o.WXID=WXID;return o;}
 function putState(o){for(const k of STATE_KEYS)S[k]=o[k];REMAP=o.REMAP;if(WXID!==o.WXID)setWeather(o.WXID);}
 let RATE_RUN=null;
@@ -945,7 +968,7 @@ function runFailureRates(pats,prog,done,sohOv){
   const user=grabState();
   try{
    if(!cur){const jb=jobs[j];setWeather('w'+jb.y);REMAP=null;S.mission=null;S.missionEnd=null;S.loads=loadsFor[jb.p].map(cloneLoad);S.savedLoads=null;S.prevOn={};S.log=[];S.hist=[];
-    S.t=HIST_DAY0*1440;S.soc=1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[HIST_DAY0*24];S.snow=0;S.genRun=false;S.blastUntil=-1;S.randomSnow=false;S.mpptDead=false;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.overMin=0;S.ovl=0;S.coldLock=false;S.coldDis=false;S.lastI=0;S.absMin=0;S.absDay=-1;S.heatOn=false;S.invOn=true;S.live={};
+    S.t=HIST_DAY0*1440;S.soc=1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[HIST_DAY0*24];S.snow=0;S.genRun=false;S.genFuelLeft=S.cfg.genFuel;S.blastUntil=-1;S.randomSnow=false;S.mpptDead=false;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.overMin=0;S.ovl=0;S.coldLock=false;S.coldDis=false;S.lastI=0;S.absMin=0;S.absDay=-1;S.heatOn=false;S.invOn=true;S.live={};
     S.stats=newStats();S.day=newDay();cur=grabState();cur.WXID=WXID;left=PER;}
    else putState(cur);
    S.quiet=true;AGE_SOH=sohOv||null;const n=Math.min(CHUNK,left);for(let i=0;i<n;i++)step();left-=n;S.quiet=false;AGE_SOH=null;
@@ -981,7 +1004,7 @@ function runAging(pat,prog,done){
   const user=grabState();
   try{
    if(!cur){setWeather('tmy');REMAP=null;S.mission=null;S.missionEnd=null;S.loads=loads.map(cloneLoad);S.savedLoads=null;S.prevOn={};S.log=[];S.hist=[];
-    S.t=0;S.soc=1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[0];S.snow=0;S.genRun=false;S.blastUntil=-1;S.randomSnow=false;S.mpptDead=false;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.overMin=0;S.ovl=0;S.coldLock=false;S.coldDis=false;S.lastI=0;S.absMin=0;S.absDay=-1;S.heatOn=false;S.invOn=true;S.live={};
+    S.t=0;S.soc=1;S.battT=S.cfg.bloc==='in'?INDOOR_C:WX.ta[0];S.snow=0;S.genRun=false;S.genFuelLeft=S.cfg.genFuel;S.blastUntil=-1;S.randomSnow=false;S.mpptDead=false;S.invTrip=false;S.invLow=false;S.bmsTrip=false;S.overMin=0;S.ovl=0;S.coldLock=false;S.coldDis=false;S.lastI=0;S.absMin=0;S.absDay=-1;S.heatOn=false;S.invOn=true;S.live={};
     S.stats=newStats();S.day=newDay();cur=grabState();cur.WXID=WXID;}
    else putState(cur);
    S.quiet=true;AGE_SOH=1;const n=Math.min(60000,left);
@@ -1034,7 +1057,7 @@ function wireChanged(k){const c=S.cfg;const mat=$(k+'Mat').value==='al'?'al':'cu
  else{const g=$(k+'G').value;if(WIRE[mat][g])c[k+'G']=g;}
  c[k+'Ft']=clampInt($(k+'Ft').value,1,k==='pv'?500:100);cfgChanged(false);}
 const SAVE_KEY='solarSandboxBuild.v4';
-const CFG_NUM={other:[0,10000],sysV:[12,48],ser:[1,20],par:[1,20],shade:[0,90],nMppt:[1,8],bpar:[1,16],coldF:[-40,50],tilt:[0,90],az:[90,270],pvFt:[1,500],cbFt:[1,100],biFt:[1,100],soh:[50,100],reserve:[0,80],genStart:[5,90],genStop:[10,100],ageYears:[0,20]};
+const CFG_NUM={other:[0,10000],sysV:[12,48],ser:[1,20],par:[1,20],shade:[0,90],nMppt:[1,8],bpar:[1,16],coldF:[-40,50],tilt:[0,90],az:[90,270],pvFt:[1,500],cbFt:[1,100],biFt:[1,100],soh:[50,100],reserve:[0,80],genStart:[5,90],genStop:[10,100],genFuel:[0,500],ageYears:[0,20]};
 function buildPayload(){return {app:'solar-battery-sandbox',kind:'design',version:5,saved:new Date().toISOString(),cfg:JSON.parse(JSON.stringify(S.cfg)),loads:S.loads.map(cloneLoad)};}
 function num(v,a,b,d){v=Number(v);if(!isFinite(v))return d;return Math.max(a,Math.min(b,v));}
 function cleanWins(w){if(!Array.isArray(w)||!w.length)return null;const o=[];for(const x of w.slice(0,6)){if(!Array.isArray(x)||x.length!==2)return null;o.push([Math.round(num(x[0],0,1439,0)),Math.round(num(x[1],0,1439,0))]);}return o;}
@@ -1062,12 +1085,12 @@ function applyPayload(p){
  n.soh=c.soh===undefined?100:Math.round(num(c.soh,50,100,100));n.heatSpeed=['fast','mid','slow'].includes(c.heatSpeed)?c.heatSpeed:'mid';
  n.ambF=oN(c.ambF,-40,160);n.ccc=oN(c.ccc,1,50);if(n.ambF===undefined||n.ccc===undefined)return 'The wiring inputs in the file are damaged, so nothing was changed.';
  n.insC=[60,75,90].includes(c.insC)?c.insC:null;n.termC=[60,75,90].includes(c.termC)?c.termC:null;
- n.hor=Array.isArray(c.hor)&&c.hor.length===8?c.hor.map(x=>Math.round(num(x,0,60,0))):[0,0,0,0,0,0,0,0];n.snowRec=c.snowRec===undefined?true:!!c.snowRec;n.genOn=!!c.genOn;n.ageOn=!!c.ageOn;
+ n.hor=Array.isArray(c.hor)&&c.hor.length===8?c.hor.map(x=>Math.round(num(x,0,60,0))):[0,0,0,0,0,0,0,0];n.snowRec=c.snowRec===undefined?true:!!c.snowRec;n.genOn=!!c.genOn;n.genMode=c.genMode==='attended'?'attended':'manual';n.genFuel=num(c.genFuel,0,500,0.95);n.ageOn=!!c.ageOn;
  for(const k of ['reserve','genStart','genStop','ageYears'])n[k]=Math.round(num(c[k],CFG_NUM[k][0],CFG_NUM[k][1],n[k]));if(n.genStop<=n.genStart)n.genStop=Math.min(100,n.genStart+10);
  for(const k of ['pv','cb','bi']){const mat=c[k+'Mat']==='al'?'al':'cu';n[k+'Mat']=mat;n[k+'G']=WIRE[mat][c[k+'G']]?c[k+'G']:n[k+'G'];if(!WIRE[mat][n[k+'G']])n[k+'G']=Object.keys(WIRE[mat])[3];}
  const used=new Set(),loads=[];for(const l of p.loads.slice(0,24)){const o=cleanLoad(l,used);if(!o)return 'An appliance in the file is incomplete or damaged, so nothing was changed.';loads.push(o);}
  if(S.mission){S.mission=null;S.missionEnd=null;REMAP=null;hideBanner();leaveMissionWeather();log('Build replaced: mission abandoned.');}
- S.cfg=n;PANEL=pan;BATT=bat;S.loads=loads;S.savedLoads=null;S.mpptDead=false;
+ S.cfg=n;PANEL=pan;BATT=bat;S.genFuelLeft=n.genFuel;S.genRun=false;S.loads=loads;S.savedLoads=null;S.mpptDead=false;
  buildAppl();renderLoads();cfgChanged(true,true);return null;}
 function saveNote(t,bad){const e=$('saveNote');e.textContent=t;e.style.color=bad?'var(--warn,#c0392b)':'';}
 function saveLocal(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(buildPayload()));saveNote('Saved in this browser at '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'.');log('Build saved in this browser.');}catch(e){saveNote('This browser blocked saving. Use Export design file instead.',true);}}
@@ -1082,7 +1105,7 @@ function importBuild(file){if(!file)return;if(file.size>500000){saveNote('That f
 const STATE_KEY='solarSandboxState.v1';
 function buildStatePayload(){const L=x=>x?x.map(cloneLoad):null;
  return {app:'solar-battery-sandbox',kind:'state',version:1,saved:new Date().toISOString(),design:buildPayload(),
-  state:{t:S.t,soc:S.soc,battT:S.battT,snow:S.snow,blastUntil:S.blastUntil,randomSnow:S.randomSnow,mpptDead:S.mpptDead,invOn:S.invOn,invTrip:S.invTrip,invLow:S.invLow,bmsTrip:S.bmsTrip,overMin:S.overMin,ovl:S.ovl,coldLock:S.coldLock,coldDis:S.coldDis,coldWarnDay:S.coldWarnDay,lastI:S.lastI,absMin:S.absMin,absDay:S.absDay,heatOn:!!S.heatOn,genRun:!!S.genRun,
+  state:{t:S.t,soc:S.soc,battT:S.battT,snow:S.snow,blastUntil:S.blastUntil,randomSnow:S.randomSnow,mpptDead:S.mpptDead,invOn:S.invOn,invTrip:S.invTrip,invLow:S.invLow,bmsTrip:S.bmsTrip,overMin:S.overMin,ovl:S.ovl,coldLock:S.coldLock,coldDis:S.coldDis,coldWarnDay:S.coldWarnDay,lastI:S.lastI,absMin:S.absMin,absDay:S.absDay,heatOn:!!S.heatOn,genRun:!!S.genRun,genFuelLeft:S.genFuelLeft,
    prevOn:Object.assign({},S.prevOn),stats:Object.assign({},S.stats),day:Object.assign({},S.day),hist:S.hist.map(h=>h.slice()),log:S.log.map(e=>({t:e.t,msg:e.msg,bad:!!e.bad})),
    wx:WXID,wxBefore:S.wxBefore||null,mission:S.mission?S.mission.spec:null,missionEnd:S.mission?S.missionEnd:null,savedLoads:L(S.savedLoads)}};}
 // Returns {err} or {st} with every field checked. Nothing is changed here.
@@ -1097,7 +1120,7 @@ function cleanState(p){
  for(const k of ['randomSnow','mpptDead','invOn','invTrip','invLow','bmsTrip','coldLock','coldDis','heatOn'])if(!B(x[k]))return bad();
  if(!x.prevOn||typeof x.prevOn!=='object'||Array.isArray(x.prevOn)||Object.keys(x.prevOn).length>60)return bad();
  const prevOn={};for(const k in x.prevOn){if(!/^[A-Za-z0-9_-]{1,24}$/.test(k)||!B(x.prevOn[k]))return bad();prevOn[k]=x.prevOn[k];}
- const tmpl=newStats();if(!x.stats||typeof x.stats!=='object')return bad();const stats={};for(const k in tmpl){if(!N(x.stats[k],-1e13,1e13))return bad();stats[k]=x.stats[k];}
+ const tmpl=newStats();if(!x.stats||typeof x.stats!=='object')return bad();const stats={};for(const k in tmpl){const v=x.stats[k]===undefined&&['requested','unfitWh','unfitMin'].includes(k)?0:x.stats[k];if(!N(v,-1e13,1e13))return bad();stats[k]=v;}
  if(!x.day||!N(x.day.pv,0,1e9)||!N(x.day.load,0,1e9)||!N(x.day.d,0,1e6))return bad();
  if(!Array.isArray(x.hist)||x.hist.length>288)return bad();for(const h of x.hist)if(!Array.isArray(h)||h.length!==4||!h.every(v=>N(v,-1e9,1e9)))return bad();
  if(!Array.isArray(x.log)||x.log.length>80)return bad();for(const e of x.log)if(!e||!N(e.t,-1e9,1e9)||typeof e.msg!=='string'||e.msg.length>600||!B(e.bad))return bad();
@@ -1105,7 +1128,7 @@ function cleanState(p){
  if(!wxOk(x.wx)||(x.wxBefore!==null&&!wxOk(x.wxBefore)))return bad();
  let mission=null;if(x.mission!==null){mission=makeMission(x.mission);if(!mission||!N(x.missionEnd,0,YEARMIN-1)||mission.wx!==x.wx)return bad();}
  let savedLoads=null;if(x.savedLoads!==null){if(!Array.isArray(x.savedLoads)||x.savedLoads.length>24)return bad();const used=new Set();savedLoads=[];for(const l of x.savedLoads){const o=cleanLoad(l,used);if(!o)return bad();savedLoads.push(o);}}
- return {st:{t:x.t,soc:x.soc,battT:x.battT,snow:x.snow,blastUntil:x.blastUntil,randomSnow:x.randomSnow,mpptDead:x.mpptDead,invOn:x.invOn,invTrip:x.invTrip,invLow:x.invLow,bmsTrip:x.bmsTrip,overMin:x.overMin,ovl:x.ovl,coldLock:x.coldLock,coldDis:x.coldDis,coldWarnDay:x.coldWarnDay,lastI:x.lastI,absMin:x.absMin,absDay:x.absDay,heatOn:x.heatOn,genRun:!!x.genRun,
+ return {st:{t:x.t,soc:x.soc,battT:x.battT,snow:x.snow,blastUntil:x.blastUntil,randomSnow:x.randomSnow,mpptDead:x.mpptDead,invOn:x.invOn,invTrip:x.invTrip,invLow:x.invLow,bmsTrip:x.bmsTrip,overMin:x.overMin,ovl:x.ovl,coldLock:x.coldLock,coldDis:x.coldDis,coldWarnDay:x.coldWarnDay,lastI:x.lastI,absMin:x.absMin,absDay:x.absDay,heatOn:x.heatOn,genRun:!!x.genRun,genFuelLeft:N(x.genFuelLeft,0,500)?x.genFuelLeft:0,
   prevOn,stats,day:{pv:x.day.pv,load:x.day.load,d:x.day.d},hist:x.hist.map(h=>h.slice()),log:x.log.map(e=>({t:e.t,msg:e.msg,bad:e.bad})),wx:x.wx,wxBefore:x.wxBefore,mission,missionEnd:x.missionEnd,savedLoads}};}
 function applyState(p){
  if(RATE_RUN)return 'Wait for the failure-rate run to finish first.';
@@ -1115,7 +1138,7 @@ function applyState(p){
  const err=applyPayload(p.design);if(err)return err;
  const st=c.st;setPlaying(false);
  if(!setWeather(st.wx)){applyPayload(before.design);return 'The state file names weather this page doesn\u2019t have.';}
- for(const k of ['t','soc','battT','snow','blastUntil','randomSnow','mpptDead','invOn','invTrip','invLow','bmsTrip','overMin','ovl','coldLock','coldDis','coldWarnDay','lastI','absMin','absDay','heatOn','genRun','prevOn','stats','day','hist','log'])S[k]=st[k];
+ for(const k of ['t','soc','battT','snow','blastUntil','randomSnow','mpptDead','invOn','invTrip','invLow','bmsTrip','overMin','ovl','coldLock','coldDis','coldWarnDay','lastI','absMin','absDay','heatOn','genRun','genFuelLeft','prevOn','stats','day','hist','log'])S[k]=st[k];
  S.wxBefore=st.wxBefore;S.mission=st.mission;S.missionEnd=st.mission?st.missionEnd:null;REMAP=(st.mission&&st.mission.remap)?worstWeekMap(st.mission.startDay,st.mission.days):null;
  S.savedLoads=st.savedLoads;hideBanner();buildAppl();renderLoads();renderMissions();syncWxSelect();renderLog();renderAll();return null;}
 function saveStateLocal(){try{localStorage.setItem(STATE_KEY,JSON.stringify(buildStatePayload()));saveNote('Simulation state saved in this browser at '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'.');log('Simulation state saved in this browser.');}catch(e){saveNote('This browser blocked saving. Use Export state file instead.',true);}}
@@ -1287,18 +1310,21 @@ function cfgChanged(rebuild,layoutChange){
 function renderV8Controls(c){
  document.querySelectorAll('.hor').forEach(el=>{el.value=c.hor[+el.dataset.i];});
  $('snowRec').value=c.snowRec?'1':'0';$('reserve').value=c.reserve;$('reserveV').textContent=c.reserve+'%';
- $('genOn').value=c.genOn?'1':'0';$('genStart').value=c.genStart;$('genStartV').textContent=c.genStart+'%';$('genStop').value=c.genStop;$('genStopV').textContent=c.genStop+'%';
+ $('genOn').value=c.genOn?'1':'0';$('genMode').value=c.genMode; $('genFuel').value=c.genFuel;$('genFuelLeft').textContent=S.genFuelLeft.toFixed(2)+' gal remaining';$('genManual').textContent=S.genRun?'Stop generator':'Start generator (recoil)';$('genManual').disabled=!c.genOn||c.genMode!=='manual'||chgA(inv())<=0||S.genFuelLeft<genGph(0)/60;$('genStart').value=c.genStart;$('genStartV').textContent=c.genStart+'%';$('genStop').value=c.genStop;$('genStopV').textContent=c.genStop+'%';
  document.querySelectorAll('.genRow').forEach(el=>{el.style.display=c.genOn?'':'none';});
  const I=inv(),ok=chgA(I)>0;
  $('genNote').textContent=!c.genOn?'':(!ok?'This inverter has no charger or AC input, so the generator can\'t connect. Pick a MultiPlus-II.':
-  'Honda\'s page: 1,800 W rated, 2,200 W maximum, 0.95-gallon tank, 3.2 hours at rated load and 8.1 hours at quarter load. Fuel use between those two points is a straight line, an estimate. It charges at up to '+chgA(I)+' A, the MultiPlus-II charger\'s datasheet current; 90% charger efficiency is an estimate.'+(I.split?' A 120 V generator feeds one unit of the split-phase pair, so it covers leg L1 only and can\'t run 240 V loads.':''));
+  'Honda EU2200i: recoil start, not automatic. Manual mode requires you to press Start. Attended mode assumes a person always starts/stops it at the selected thresholds; this is NOT unattended backup. Up to '+c.genFuel+' gallons are available for this run; actual fuel remaining '+S.genFuelLeft.toFixed(2)+' gallons. 0.95-gallon physical tank requires refills. Model assumes refueling is possible without stopping; delays, maintenance and transfer wiring are NOT simulated. Fuel curve is estimated from Honda runtimes. Charger up to '+chgA(I)+' A with assumed 90% efficiency.'+(I.split?' A 120 V generator feeds one unit of the split-phase pair, so it covers leg L1 only and can\'t run 240 V loads.':''));
 }
 function wireV8Controls(){
  document.querySelectorAll('.hor').forEach(el=>{el.onchange=e=>{const i=+e.target.dataset.i;const v=clampInt(e.target.value,0,60);S.cfg.hor=S.cfg.hor.slice();S.cfg.hor[i]=v;e.target.value=v;log('Horizon toward '+['N','NE','E','SE','S','SW','W','NW'][i]+' set to '+v+'°.');cfgChanged(true);};});
  $('snowRec').onchange=e=>{S.cfg.snowRec=e.target.value==='1';log('Recorded snow on the panels '+(S.cfg.snowRec?'on':'off')+'.');cfgChanged(true);};
  $('reserve').oninput=e=>{$('reserveV').textContent=e.target.value+'%';};
  $('reserve').onchange=e=>{S.cfg.reserve=clampInt(e.target.value,0,80);log('Battery reserve set to '+S.cfg.reserve+'%.');cfgChanged(true);};
- $('genOn').onchange=e=>{S.cfg.genOn=e.target.value==='1';if(!S.cfg.genOn)S.genRun=false;log(S.cfg.genOn?'Generator backup added.':'Generator backup removed.');cfgChanged(true);};
+ $('genOn').onchange=e=>{S.cfg.genOn=e.target.value==='1';S.genRun=false;S.genFuelLeft=S.cfg.genFuel;log(S.cfg.genOn?'Generator enabled: manual start and finite fuel.':'Generator removed.');cfgChanged(true);};
+ $('genMode').onchange=e=>{S.cfg.genMode=e.target.value==='attended'?'attended':'manual';S.genRun=false;log(S.cfg.genMode==='attended'?'Operator-attended start/stop assumed for the scenario.':'Manual recoil start required.');cfgChanged(true);};
+ $('genFuel').onchange=e=>{S.cfg.genFuel=Math.max(0,Math.min(500,Number(e.target.value)||0));S.genFuelLeft=S.cfg.genFuel;S.genRun=false;log('Fuel inventory reset to '+S.genFuelLeft.toFixed(2)+' gal; current generator run stopped.');cfgChanged(true);};
+ $('genManual').onclick=()=>{if(S.cfg.genMode!=='manual'||!S.cfg.genOn||chgA(inv())<=0)return;if(S.genRun){S.genRun=false;log('Manual generator stop simulated.');}else if(S.genFuelLeft>=genGph(0)/60){S.genRun=true;S.stats.genStarts=(S.stats.genStarts||0)+1;log('Manual recoil start simulated.');}cfgChanged(true);};
  $('genStart').oninput=e=>{$('genStartV').textContent=e.target.value+'%';};$('genStop').oninput=e=>{$('genStopV').textContent=e.target.value+'%';};
  $('genStart').onchange=e=>{S.cfg.genStart=clampInt(e.target.value,5,90);if(S.cfg.genStop<=S.cfg.genStart)S.cfg.genStop=Math.min(100,S.cfg.genStart+10);cfgChanged(true);};
  $('genStop').onchange=e=>{S.cfg.genStop=clampInt(e.target.value,10,100);if(S.cfg.genStop<=S.cfg.genStart)S.cfg.genStart=Math.max(5,S.cfg.genStop-10);cfgChanged(true);};
