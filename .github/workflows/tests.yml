@@ -28,6 +28,8 @@ jobs:
         run: python tests/test_correctness_gate.py
       - name: Async analysis input-integrity regressions
         run: python tests/test_batch_input_isolation.py
+      - name: Independent published-specification and circuit-reference fixtures
+        run: python tests/test_reference_fixtures.py
       - name: Solar check against pvlib
         run: python tests/check_solar.py
       - name: Offline install check

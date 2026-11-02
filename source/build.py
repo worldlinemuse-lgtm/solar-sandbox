@@ -10,7 +10,7 @@ __BATT__ battery.js (battery models), __ELEC__ elec.js (wires, fuses, inverter),
 __SNOW__ snowhist.js (recorded daily snowfall), __SIMJS__ sim.js (the simulator and the page logic), and
 __AUDIO_SRC__ guide.mp3 (the voice guide, put in as base64 so the page needs no other file).
 Needs only Python 3, no other packages."""
-import base64, os, sys
+import base64, hashlib, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PARTS = {'__TMY__': 'tmy.js', '__PHYS__': 'physics.js', '__BATT__': 'battery.js', '__ELEC__': 'elec.js',
@@ -21,7 +21,24 @@ def build():
     t = open(os.path.join(HERE, 'template.html'), encoding='utf-8', newline='').read()
     for k in list(PARTS) + ['__AUDIO_SRC__']:
         assert t.count(k) == 1, f'{k} should appear once in template.html, found {t.count(k)}'
-    out = t
+    # Deterministic provenance. Do not insert wall-clock build times: identical inputs must
+    # generate byte-for-byte identical offline apps and machine-verifiable source digests.
+    manifest_files = sorted(set(PARTS.values()) | {'guide.mp3', 'template.html', 'build.py'})
+    source_sha256 = {
+        f: hashlib.sha256(open(os.path.join(HERE, f), 'rb').read()).hexdigest()
+        for f in manifest_files
+    }
+    revision_sha256 = hashlib.sha256(json.dumps(source_sha256, sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()
+    manifest = {
+        'schema': 1, 'revision_sha256': revision_sha256, 'source_sha256': source_sha256,
+        'validation': 'Internal invariants and independent manufacturer/table reference fixtures; not field-calibrated',
+        'weather_provenance': 'Read the bundled README for PVWatts/NSRDB typical-year and NASA POWER modeled historical inputs',
+        'assumptions': ['Load schedules are estimated', 'Motor startup VA and short time-scale behavior not validated',
+                        'Battery taper and aging contain estimated coefficients', 'Generator refueling downtime omitted',
+                        'Site-level shade and meteorology not calibrated']
+    }
+    assert t.count('__PROVENANCE__') == 1
+    out = t.replace('__PROVENANCE__', 'window.SIM_PROVENANCE=' + json.dumps(manifest, sort_keys=True, separators=(',', ':')) + ';')
     for k, f in PARTS.items():
         out = out.replace(k, open(os.path.join(HERE, f), encoding='utf-8', newline='').read())
     aud = 'data:audio/mpeg;base64,' + base64.b64encode(open(os.path.join(HERE, 'guide.mp3'), 'rb').read()).decode()
