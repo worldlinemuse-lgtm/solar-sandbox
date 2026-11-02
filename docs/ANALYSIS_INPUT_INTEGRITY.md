@@ -24,3 +24,7 @@ The aging estimate had the same gap both during the simulated typical year and i
 A display refresh must not consume the pseudo-random event stream. Previously, displaying a winter midnight while the optional random-snow game mode was enabled could call `Math.random()` despite rolling the simulated state back. That made subsequent snow events depend on UI refreshes. The step's random-snow branch now runs only during actual simulated time, and `tests/test_integrity.py` asserts that two previews consume zero random samples while a real minute consumes one.
 
 **Remaining limitation:** normal game-mode snowfall still uses an unseeded `Math.random()` stream. Replay of that optional game mode is not deterministic across browser sessions. The historical and aging validation tests disable random game events.
+
+## Worst historical low-sun stretch
+
+The multi-winter worst-stretch finder also runs asynchronously. It could mix old typical-year panel orientation with new historical-year orientation if tilt, azimuth, mount, panel, or horizon changed during the search. It now snapshots these inputs and rejects a changed-input search. The previous "Run this stretch" result is invalidated by configuration changes. A browser regression modifies tilt between the first two search iterations and verifies that no result is returned.

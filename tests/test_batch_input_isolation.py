@@ -53,6 +53,19 @@ def main():
         assert aging["changed"] and not aging["hasOutput"], aging
         assert "appliance" in (aging["reason"] or "").lower(), aging
 
+        worst = page.evaluate("""()=>new Promise(resolve=>{
+          const S=SIM.S,oldTilt=S.cfg.tilt;
+          let changed=false;
+          SIM.findWorstStretch(7,(i,total)=>{
+            if(i===1&&!changed){S.cfg.tilt=oldTilt+1;changed=true;}
+          },(result,reason)=>{
+            S.cfg.tilt=oldTilt;
+            resolve({changed,hasResult:!!result,reason});
+          });
+        })""")
+        assert worst["changed"] and not worst["hasResult"], worst
+        assert "changed" in (worst["reason"] or "").lower(), worst
+
         stale = page.evaluate("""()=>{
           document.getElementById('rOut').innerHTML='<div>old historical outcome</div>';
           document.getElementById('ageOut').innerHTML='<div>old aging outcome</div>';
