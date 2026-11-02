@@ -1669,6 +1669,7 @@ function invalidateBatchReports(){
   if(out&&out.children.length){out.replaceChildren();if(status)status.textContent='Inputs changed. Run this analysis again.';}
  }
  AGE_LAST=null;
+ if(FOUND){FOUND=null;const run=$('fRun'),status=$('fOut');if(run)run.hidden=true;if(status)status.textContent='Inputs changed. Find the worst stretch again.';}
 }
 function afterLoadChange(quiet){
  invalidateBatchReports();
@@ -1722,7 +1723,7 @@ function renderMissions(){const box=$('missionList');box.innerHTML='';
   wf.innerHTML='<b>Find the worst recorded low-sun stretch</b><small>Searches all '+HIST_YEARS.length+' winters for the run of days with the least sun on your panels, at your tilt and direction.</small><div class="ownrow"><label>Days<input type="number" id="fN" min="1" max="30" value="7"></label><label>Battery at<select id="fS">'+SOC_OPTS+'</select></label><label>Appliances<select id="fL">'+LOAD_OPTS+'</select></label></div><button id="fGo">Find it</button><small id="fOut" aria-live="polite"></small><button id="fRun" hidden>Run this stretch</button>';
   box.appendChild(wf);
   wf.querySelector('#fGo').onclick=()=>{const n=clampInt($('fN').value,1,30);$('fN').value=n;$('fGo').disabled=true;$('fRun').hidden=true;$('fOut').textContent='Searching\u2026';
-   findWorstStretch(n,(i,tot)=>{$('fOut').textContent='Searching winter '+i+' of '+tot+'\u2026';},r=>{$('fGo').disabled=false;FOUND=r;
+   findWorstStretch(n,(i,tot)=>{$('fOut').textContent='Searching winter '+i+' of '+tot+'\u2026';},(r,why)=>{$('fGo').disabled=false;if(!r){FOUND=null;$('fRun').hidden=true;$('fOut').textContent=why||'Search interrupted. Try again.';return;}FOUND=r;
     $('fOut').textContent='Worst recorded '+n+'-day stretch for your panels: '+dayLabel(histDayToYearDay(r.k))+' to '+dayLabel(histDayToYearDay(r.k+n-1))+', winter '+winterName(r.y)+'. Sun on the panels: '+r.kwh.toFixed(2)+' kWh per square meter over the '+n+' days, '+Math.round(r.pctTyp)+'% of the same dates in the typical year. These days happened in this order.';$('fRun').hidden=false;});};
   wf.querySelector('#fRun').onclick=()=>{if(!FOUND)return;startMission(makeMission({type:'stretch',y:FOUND.y,k:FOUND.k,n:FOUND.n,soc:Number($('fS').value),own:$('fL').value==='1'}));};
   grp(box,'Observed-winter stress test','Runs your current design through every recorded winter at full speed, from a full battery on Nov 1. It counts past winters with any unmet appliance demand. The fraction among '+HIST_YEARS.length+' modeled histories is not an estimate of future outage probability.');
@@ -1748,8 +1749,10 @@ let FOUND=null,AGE_LAST=null;
 // Ranks runs of days by plane-of-array sun (your tilt, direction and mount) from the observed NASA POWER winters.
 function mountUsed(){const c=S.cfg;return (c.mount&&c.mount!=='auto')?c.mount:PANEL.mount;}
 function poaDaily(wx){const c=S.cfg;const mount=mountUsed();const h=PHYS.hourly(wx,{tilt:+c.tilt,az:+c.az,mount,bif:0,rearLoss:0,hor:c.hor});const out=new Float64Array(120);for(let k=0;k<120;k++){const yd=histDayToYearDay(k);let sum=0;for(let i=0;i<24;i++)sum+=h.poa[yd*24+i];out[k]=sum/1000;}return out;}
-function findWorstStretch(n,prog,done){const typ=poaDaily(WX_TMY);let best=null,i=0;
- const next=()=>{if(i>=HIST_YEARS.length){done(best);return;}const y=HIST_YEARS[i++];const d=poaDaily(buildHistWX(y));
+function worstSearchKey(){const c=S.cfg;return JSON.stringify([c.panel,c.tilt,c.az,c.mount,c.hor]);}
+function findWorstStretch(n,prog,done){const key=worstSearchKey(),typ=poaDaily(WX_TMY);let best=null,i=0;
+ const next=()=>{if(worstSearchKey()!==key){done(null,'Panel or horizon inputs changed. Run the search again.');return;}
+  if(i>=HIST_YEARS.length){done(best);return;}const y=HIST_YEARS[i++];const d=poaDaily(buildHistWX(y));
   for(let k=0;k+n<=120;k++){let a=0,t=0;for(let j=0;j<n;j++){a+=d[k+j];t+=typ[k+j];}if(!best||a<best.kwh)best={y,k,n,kwh:a,pctTyp:t>0?a/t*100:0};}
   prog(i,HIST_YEARS.length);setTimeout(next,0);};next();}
 // ---------- Failure-rate runs ----------
