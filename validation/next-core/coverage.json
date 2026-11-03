@@ -3,16 +3,20 @@
   "asOf": "2026-11-03",
   "repo": "worldlinemuse-lgtm/solar-sandbox",
   "branch": "engine/typed-physical-core-2026-11-03",
-  "phase": "read_only_browser_shadow_integrated_live_replacement_blocked",
+  "phase": "math_first_registry_connected_to_read_only_reference_core",
   "releaseGates": {
     "nextCoreCanReplaceLiveEngine": false,
     "householdPlannerEnabled": false,
     "optimizerEnabled": false,
-    "reason": "Published PVsyst and pvlib reference fixtures pass; actual site/equipment measurements and transfer/startup/thermal validation remain missing; only diagnostics may execute",
+    "reason": "Mathematical registry and typed equipment topology introduced; several physical subsystems and instrument comparisons remain unvalidated",
     "shadowModeIntegrated": true,
     "physicalHardwareDatasetCount": 0,
     "externalPvsystPvCurvePoints": 5,
-    "independentWeatherClockConfirmed": false
+    "independentWeatherClockConfirmed": false,
+    "mathAuthorityPresent": true,
+    "mathsCoverage": "partial: wire, PV/DC, battery, AC PF and AC service",
+    "topologyGraphPresent": true,
+    "networkCodeCompliant": false
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -289,8 +293,32 @@
       "category": "product_and_future",
       "status": "blocked",
       "description": "No globally optimality claims until defined objective and search coverage"
+    },
+    {
+      "id": "math_authority_registry",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Five declarative equation graphs compile, evaluate, capture stages and propagate provenance; not all legacy equations have migrated"
+    },
+    {
+      "id": "physical_product_wiring_graph",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Explicit product terminals, PV/DC/AC rails, conductor voltage loss and junction KCL; not installer-ready or complete NEC/ground/transfer validation"
+    },
+    {
+      "id": "mathematical_output_provenance",
+      "category": "controls_and_reporting",
+      "status": "partial",
+      "description": "Battery/PV and AC service captures now include equation AST, revision, source tiers and invariants; complete live engine has not migrated"
+    },
+    {
+      "id": "implicit_physics_solver_contracts",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "The nonlinear solver equations are not yet registered as first-class residuals with a general physical root-solver contract"
     }
   ],
   "completedCount": 8,
-  "totalCount": 45
+  "totalCount": 49
 }
