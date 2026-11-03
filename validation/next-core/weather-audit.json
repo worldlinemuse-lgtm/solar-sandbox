@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "latestVerification": "2026-11-03",
+  "legacyHistorical": {
+    "source": "NASA POWER hourly API v2",
+    "file": "source/hist.js",
+    "lat": 41.577,
+    "lon": -75.258,
+    "reportedTz": -5,
+    "firstWinter": 2001,
+    "lastWinter": 2025,
+    "hoursPerWinter": 2880,
+    "apiTimeStandard": "UNKNOWN",
+    "requestUrl": "MISSING",
+    "judgement": "BLOCKED_FOR_CLOCK_SENSITIVE_CALIBRATION",
+    "rationale": "The saved raw dataset metadata does not preserve original NASA POWER request parameters, and the API defaults to LST; tz:-5 alone does not verify civil-time alignment. Do not silently convert it.",
+    "sourceDocs": "https://power.larc.nasa.gov/docs/services/api/temporal/hourly/"
+  },
+  "legacyTypicalYear": {
+    "source": "PVWatts V8 API NSRDB PSM V3 typical-year",
+    "file": "source/tmy.js",
+    "lat": 41.57,
+    "lon": -75.26,
+    "reportedTz": -5,
+    "timeStandard": "LOCAL_STANDARD_REPORTED",
+    "requestParametersEmbedded": true,
+    "caveat": "Typical-year synthesis is not a chronological weather history and must not be interpreted as a particular past winter."
+  },
+  "testsRequired": [
+    "Original request URL and processing revision preserved for each future weather import",
+    "One-hour mean irradiance integrated without artificial linear interpolation",
+    "No mixing of UTC, local solar time and civil local time without explicit conversion",
+    "Leap-day deletion and 120-day winter boundaries validated as deliberate sampling transforms",
+    "SHA256 of original source response and normalized arrays in provenance records"
+  ]
+}

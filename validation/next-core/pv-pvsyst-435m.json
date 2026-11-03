@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "evidenceTier": "R1_published_model",
+  "source": "PVsyst V6.80, LONGi Solar LR4-72HBD-435M-glaze-new, 20 February 2020",
+  "sourceUrl": "https://greensun.ro/wp-content/uploads/2021/05/LR4_72HBD-435M-Glass_Glass_435W.pdf",
+  "device": {
+    "manufacturer": "LONGi Solar",
+    "model": "LR4-72HBD-435M",
+    "nominalW": 435,
+    "construction": "dual glass, half-cut 144 cells, equivalent 72-cell series diode model"
+  },
+  "conditions": {
+    "cellTemperatureC": 25,
+    "spectrum": "AM1.5 reference",
+    "note": "PVsyst modeled curve, not independent field measurements"
+  },
+  "referencePoints": [
+    {
+      "irradianceWm2": 200,
+      "maximumPowerW": 85.7
+    },
+    {
+      "irradianceWm2": 400,
+      "maximumPowerW": 174.6
+    },
+    {
+      "irradianceWm2": 600,
+      "maximumPowerW": 263.2
+    },
+    {
+      "irradianceWm2": 800,
+      "maximumPowerW": 350.6
+    },
+    {
+      "irradianceWm2": 1000,
+      "maximumPowerW": 436.1
+    }
+  ],
+  "acceptance": {
+    "maximumRelativeDeviation": 0.02,
+    "reason": "2% benchmark tolerance covers reconstruction of PVsyst from rounded published diode parameters; not a physical accuracy certificate"
+  },
+  "measuredHardwareEvidence": {
+    "samples": 0,
+    "validated": false,
+    "reason": "No instrumented device data uploaded or independently acquired for the installed household system"
+  }
+}

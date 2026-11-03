@@ -5,6 +5,16 @@ An interactive solar and house-battery simulator, with a built-in voice guide to
 The whole app is one self-contained file, `index.html`. The voice guide, weather data, scripts and styles are built in, and nothing needs to be installed or built to use it. The same page is also kept as separate source files in `source/`, with a build script that puts them back together (see "Source files and building").
 
 
+## Independent physical-engine validation (read-only integration)
+
+A second, strictly type-checked TypeScript physics engine is now **bundled offline** with this website and available through the diagnostic JavaScript APIs `SolarNextCore.shadowPv(...)` and `SIM.nextCoreShadow()`. They do not alter the live simulator's dispatch decisions, energy totals, generator fuel or battery state. The current interface is unchanged.
+
+The separate PV reference engine reconstructs the LONGi LR4-72HBD-435M single-diode model and checks against five independently published PVsyst curve points, with manufacturer/specification and pvlib regression tests. Unsupported models and missing measurements remain explicitly unsupported or estimated. An independent mathematical conservation error in battery charge-efficiency bookkeeping and unverified AC generator/inverter PowerAssist summation have also been corrected in the new core.
+
+**This is a mathematical/published-reference milestone, not an instrument-calibrated home electrical system.** Only zero field-instrument datasets are currently available, so the new power dispatcher is NOT the live production solver. Live-engine replacement, household planner and automatic optimizer remain blocked pending measurements and topology verification.
+
+See [reference hardware and physical evidence](docs/PHYSICAL_BENCHMARK_EVIDENCE.md), [engine design contract](docs/NEXT_CORE_ENGINE_CONTRACT.md), and [validation coverage and release gates](validation/next-core/coverage.json).
+
 ## Auditable analysis exports and version compatibility
 
 Completed historical-winter and battery-aging calculations now provide **Export auditable results (JSON)** controls. Reports contain the exact system configuration, appliance patterns, model source SHA-256 digests, historical weather years, initial conditions, output summaries and explicit calibration limits. Change the modeled system or appliance pattern and the prior result is invalidated; repeat the calculation to obtain a new report.
