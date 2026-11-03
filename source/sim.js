@@ -874,7 +874,8 @@ function invalidateBatchReports(){
   const out=$(outId),status=$(progressId);
   if(out&&out.children.length){out.replaceChildren();if(status)status.textContent='Inputs changed. Run this analysis again.';}
  }
- AGE_LAST=null;
+ AGE_LAST=null;LAST_RATE_RECORD=null;LAST_AGE_RECORD=null;
+ for(const id of ['rExport','ageExport']){const btn=$(id);if(btn)btn.disabled=true;}
  if(FOUND){FOUND=null;const run=$('fRun'),status=$('fOut');if(run)run.hidden=true;if(status)status.textContent='Inputs changed. Find the worst stretch again.';}
 }
 function afterLoadChange(quiet){
@@ -934,23 +935,40 @@ function renderMissions(){const box=$('missionList');box.innerHTML='';
   wf.querySelector('#fRun').onclick=()=>{if(!FOUND)return;startMission(makeMission({type:'stretch',y:FOUND.y,k:FOUND.k,n:FOUND.n,soc:Number($('fS').value),own:$('fL').value==='1'}));};
   grp(box,'Observed-winter stress test','Runs your current design through every recorded winter at full speed, from a full battery on Nov 1. It counts past winters with any unmet appliance demand. The fraction among '+HIST_YEARS.length+' modeled histories is not an estimate of future outage probability.');
   const fr=document.createElement('div');fr.className='mission';
-  fr.innerHTML='<b>Failure rate across all winters</b><small>Appliance use: the keep-the-food-cold list, the same plus the furnace blower on its thermostat, and your own list as set now.</small><div class="ownrow"><label>Appliance use<select id="rP" aria-label="Appliance use"><option value="all">All three</option><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="rGo">Run '+HIST_YEARS.length+' winters</button><small>About 15 seconds per appliance set on a computer; longer on a phone. You can keep reading while it runs.</small><small id="rProg" aria-live="polite"></small><div id="rOut"></div>';
+  fr.innerHTML='<b>Failure rate across all winters</b><small>Appliance use: the keep-the-food-cold list, the same plus the furnace blower on its thermostat, and your own list as set now.</small><div class="ownrow"><label>Appliance use<select id="rP" aria-label="Appliance use"><option value="all">All three</option><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="rGo">Run '+HIST_YEARS.length+' winters</button><small>About 15 seconds per appliance set on a computer; longer on a phone. You can keep reading while it runs.</small><small id="rProg" aria-live="polite"></small><div id="rOut"></div><button type="button" id="rExport" disabled>Export auditable winter results (JSON)</button>';
   box.appendChild(fr);
-  fr.querySelector('#rGo').onclick=()=>{if(AGE_RUN){$('rProg').textContent='Wait for the battery-aging calculation to finish, or stop it.';return;}if(RATE_RUN){RATE_RUN.cancel=true;return;}const sel=$('rP').value;const pats=sel==='all'?['food','furnace','mine']:[sel];$('rOut').innerHTML='';$('rGo').textContent='Stop';
-   runFailureRates(pats,(txt)=>{$('rProg').textContent=txt;},(res,why)=>{$('rGo').textContent='Run '+HIST_YEARS.length+' winters';$('rProg').textContent=why||'Done.';if(res.length)$('rOut').innerHTML=res.map(rateHtml).join('');});};
+  fr.querySelector('#rGo').onclick=()=>{if(AGE_RUN){$('rProg').textContent='Wait for the battery-aging calculation to finish, or stop it.';return;}if(RATE_RUN){RATE_RUN.cancel=true;return;}const sel=$('rP').value;const pats=sel==='all'?['food','furnace','mine']:[sel];
+   LAST_RATE_RECORD=null;$('rExport').disabled=true;
+   const design=buildPayload(),patterns=Object.fromEntries(pats.map(p=>[p,patternLoads(p)]));
+   $('rOut').innerHTML='';$('rGo').textContent='Stop';
+   runFailureRates(pats,(txt)=>{$('rProg').textContent=txt;},(res,why)=>{
+    $('rGo').textContent='Run '+HIST_YEARS.length+' winters';$('rProg').textContent=why||'Done.';
+    if(res.length){LAST_RATE_RECORD=makeAnalysisRecord('historical_winter_stress',design,patterns,res);
+     $('rOut').innerHTML=res.map(rateHtml).join('');$('rExport').disabled=false;}
+   });};
+  fr.querySelector('#rExport').onclick=()=>downloadAnalysis(LAST_RATE_RECORD,'solar-winter-analysis.json');
+  fr.querySelector('#rP').onchange=()=>{LAST_RATE_RECORD=null;$('rOut').replaceChildren();$('rExport').disabled=true;$('rProg').textContent='Appliance pattern changed. Run again.';};
   const ag=document.createElement('div');ag.className='mission';
-  ag.innerHTML='<b>Battery aging: after 1, 5 and 10 years</b><small>Estimates the capacity your batteries keep, from the maker\'s published cycle life and how hard a typical year cycles them in your design, then runs all '+HIST_YEARS.length+' recorded winters at each age. The aging itself is an estimate; the details show with the results.</small><div class="ownrow"><label>Appliance use<select id="ageP" aria-label="Appliance use for aging"><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="ageGo">Run aging estimate</button><small>About as long as four failure-rate runs.</small><small id="ageProg" aria-live="polite"></small><div id="ageOut"></div>';
+  ag.innerHTML='<b>Battery aging: after 1, 5 and 10 years</b><small>Estimates the capacity your batteries keep, from the maker\'s published cycle life and how hard a typical year cycles them in your design, then runs all '+HIST_YEARS.length+' recorded winters at each age. The aging itself is an estimate; the details show with the results.</small><div class="ownrow"><label>Appliance use<select id="ageP" aria-label="Appliance use for aging"><option value="food">Keep-the-food-cold list</option><option value="furnace">Food list plus furnace</option><option value="mine">My own appliances</option></select></label></div><button id="ageGo">Run aging estimate</button><small>About as long as four failure-rate runs.</small><small id="ageProg" aria-live="polite"></small><div id="ageOut"></div><button type="button" id="ageExport" disabled>Export auditable battery-aging results (JSON)</button>';
   box.appendChild(ag);
   ag.querySelector('#ageGo').onclick=()=>{if(AGE_RUN){AGE_RUN.cancel=true;if(RATE_RUN)RATE_RUN.cancel=true;return;}if(RATE_RUN){$('ageProg').textContent='Wait for the failure-rate run to finish, or stop it.';return;}
+   LAST_AGE_RECORD=null;$('ageExport').disabled=true;
+   const pattern=$('ageP').value,design=buildPayload(),patterns={[pattern]:patternLoads(pattern)};
    $('ageOut').innerHTML='';$('ageGo').textContent='Stop';
-   runAging($('ageP').value,txt=>{$('ageProg').textContent=txt;},(out,why)=>{$('ageGo').textContent='Run aging estimate';$('ageProg').textContent=why||'Done.';if(out){AGE_LAST=out;$('ageOut').innerHTML=ageHtml(out);}});};
+   runAging(pattern,txt=>{$('ageProg').textContent=txt;},(out,why)=>{
+    $('ageGo').textContent='Run aging estimate';$('ageProg').textContent=why||'Done.';
+    if(out){AGE_LAST=out;LAST_AGE_RECORD=makeAnalysisRecord('battery_aging',design,patterns,out);
+     $('ageOut').innerHTML=ageHtml(out);$('ageExport').disabled=false;}
+   });};
+  ag.querySelector('#ageExport').onclick=()=>downloadAnalysis(LAST_AGE_RECORD,'solar-battery-aging-analysis.json');
+  ag.querySelector('#ageP').onchange=()=>{AGE_LAST=null;LAST_AGE_RECORD=null;$('ageOut').replaceChildren();$('ageExport').disabled=true;$('ageProg').textContent='Appliance pattern changed. Run again.';};
   ag.querySelector('#ageOut').onclick=e=>{const b=e.target.closest('.ageUse');if(!b)return;const v=clampInt(b.dataset.soh,50,100);S.cfg.soh=v;$('soh').value=v;$('sohV').textContent=v+'%';log('Battery health set to '+v+'% from the aging estimate.');cfgChanged(true);};
  }
  const rs=document.createElement('div');rs.className='row';rs.innerHTML='<label>Random winter snow<small>Game event: some cold nights Nov–Mar bury the panels</small></label><input type="checkbox" id="rsnow">';box.appendChild(rs);$('rsnow').checked=S.randomSnow;$('rsnow').onchange=e=>{S.randomSnow=e.target.checked;};
  syncWxSelect();wxNoteText();
 }
 function wxNoteText(){const e=$('wxNote');if(e)e.textContent=WXID==='tmy'?'Typical year: the national typical-weather file for Honesdale.':'Observed '+winterName(+WXID.slice(1))+' from NASA POWER, Nov 1 to Feb 28 only; other months use the typical year.';}
-let FOUND=null,AGE_LAST=null;
+let FOUND=null,AGE_LAST=null,LAST_RATE_RECORD=null,LAST_AGE_RECORD=null;
 // ---------- Worst recorded stretch ----------
 // Ranks runs of days by plane-of-array sun (your tilt, direction and mount) from the observed NASA POWER winters.
 function mountUsed(){const c=S.cfg;return (c.mount&&c.mount!=='auto')?c.mount:PANEL.mount;}
@@ -962,6 +980,36 @@ function findWorstStretch(n,prog,done){const key=worstSearchKey(),typ=poaDaily(W
   for(let k=0;k+n<=120;k++){let a=0,t=0;for(let j=0;j<n;j++){a+=d[k+j];t+=typ[k+j];}if(!best||a<best.kwh)best={y,k,n,kwh:a,pctTyp:t>0?a/t*100:0};}
   prog(i,HIST_YEARS.length);setTimeout(next,0);};next();}
 // ---------- Failure-rate runs ----------
+// A downloadable report must contain the exact configuration, appliances and model revision
+// used for its calculation. It is NOT a field-calibrated performance guarantee.
+function makeAnalysisRecord(analysis,design,patterns,results){
+ if(!['historical_winter_stress','battery_aging'].includes(analysis))throw Error('Unsupported analysis type');
+ return {app:'solar-battery-sandbox',kind:'analysis',schema:1,analysis,
+  generated_at:new Date().toISOString(),
+  model_provenance:window.SIM_PROVENANCE||null,
+  design:JSON.parse(JSON.stringify(design)),
+  appliance_patterns:JSON.parse(JSON.stringify(patterns)),
+  weather:{source:'NASA POWER modeled gridded historical solar/meteorology, not site instrument observations',
+   historical_winters:HIST_YEARS.slice(),window:'November 1 to February 28 (120 modeled days)',
+   rest_of_year:'Typical meteorological year only, for annual battery aging simulation'},
+  initial_conditions:analysis==='historical_winter_stress'?
+   {battery_soc:1,random_snow_events:false,generator_fuel_gallons:design.cfg.genFuel,
+    generator_mode:design.cfg.genMode}:
+   {battery_soc:1,annual_weather:'typical',aging_model:'estimated capacity-loss heuristic'},
+  calibration:'Engineering simulation; no independent field calibration of the entire power system',
+  limitations:['PV and load schedules depend on modeled or assumed data',
+   'Inverter surge VA/power factor and sub-minute starting not independently validated',
+   'Battery charge taper, aging, temperature and BMS dynamics are partly estimated',
+   'Generator refueling delays and site-specific irradiance are not modeled'],
+  results:JSON.parse(JSON.stringify(results))};
+}
+function downloadAnalysis(record,name){
+ if(!record||record.kind!=='analysis')return false;
+ const a=document.createElement('a'),blob=new Blob([JSON.stringify(record,null,2)+'\n'],{type:'application/json'});
+ a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);return true;
+}
+
 const STATE_KEYS=['t','soc','battT','snow','blastUntil','randomSnow','mpptDead','mpptRun','invOn','invTrip','invLow','bmsTrip','overMin','ovl','coldLock','coldDis','coldWarnDay','prevOn','lastI','vbat','absMin','absDay','heatOn','genRun','genFuelLeft','stats','day','hist','log','mission','missionEnd','warnedIsc','loads','savedLoads','live'];
 function grabState(){const o={};for(const k of STATE_KEYS)o[k]=S[k];o.REMAP=REMAP;o.WXID=WXID;return o;}
 function putState(o){for(const k of STATE_KEYS)S[k]=o[k];REMAP=o.REMAP;if(WXID!==o.WXID)setWeather(o.WXID);}
@@ -1435,6 +1483,6 @@ function init(){
  requestAnimationFrame(frame);
 }
 // test hooks
-window.SIM={runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
+window.SIM={makeAnalysisRecord,downloadAnalysis,get LAST_RATE_RECORD(){return LAST_RATE_RECORD;},get LAST_AGE_RECORD(){return LAST_AGE_RECORD;},runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
 init();
 })();
