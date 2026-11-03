@@ -31,7 +31,7 @@ export interface AcAssessment {
   readonly requestedW:number;
   readonly requestedVA:number;
   readonly legs:readonly {readonly w:number;readonly var:number;readonly va:number}[];
-  readonly peakLegs:readonly {readonly w:number|null;readonly va:number}[];
+  readonly peakLegs:readonly {readonly w:number|null;readonly va:number;readonly vaIsLowerBound:boolean}[];
   readonly estimatedInverterDcW:number|null;
   readonly estimatedInverterLossW:number|null;
   readonly validation:"source_limits_with_estimated_conversion_efficiency";
@@ -51,7 +51,8 @@ export function assessAcLoads(loads:readonly AcDemand[], i:Readonly<InverterLimi
   const count=i.phases==="split120_240V"?2:1;
   if(i.inverterUnits!==count)throw new ModelFailure("INVALID_INPUT","Inverter unit count does not match topology");
   const legs=Array.from({length:count},()=>({w:0,var:0}));
-  const peak=Array.from({length:count},()=>({w:0 as number|null,var:0,known:true}));
+  const peak=Array.from({length:count},()=>({w:0 as number|null,var:0,known:true,
+    unknownVA:[] as number[],unknownSteadyP:0,unknownSteadyQ:0}));
   const reasons:string[]=[];let indeterminate=false,fail=false;
   for(const l of loads){
     nonnegative("load watts",l.watts);
@@ -71,6 +72,9 @@ export function assessAcLoads(loads:readonly AcDemand[], i:Readonly<InverterLimi
           indeterminate=true;
           reasons.push(l.id+": startup PF and/or duration missing; no certified startup pass");
           peak[n].known=false;peak[n].w=null;
+          peak[n].unknownVA.push(l.starting.apparentVA*share);
+          peak[n].unknownSteadyP+=l.watts*share;
+          peak[n].unknownSteadyQ+=q*share;
         }else{
           inRange("startup PF",l.starting.powerFactor,0.000001,1);
           nonnegative("starting duration",l.starting.durationSeconds);
@@ -86,10 +90,19 @@ export function assessAcLoads(loads:readonly AcDemand[], i:Readonly<InverterLimi
     }
   }
   const steady=legs.map(v=>({w:v.w,var:v.var,va:Math.hypot(v.w,v.var)}));
-  const started=legs.map((v,n)=>({
-    w:peak[n].w===null?null:v.w+peak[n].w,
-    va:Math.hypot(v.w+(peak[n].w??0),v.var+peak[n].var)
-  }));
+  const started=legs.map((v,n)=>{
+    const u=peak[n],isUnknown=u.unknownVA.length>0;
+    const knownP=v.w-u.unknownSteadyP+(u.w??0);
+    const knownQ=v.var-u.unknownSteadyQ+u.var;
+    const knownVA=Math.hypot(knownP,knownQ);
+    if(!isUnknown)return {w:knownP,va:knownVA,vaIsLowerBound:false};
+    // Reverse triangle inequality: a conservative lower bound on apparent
+    // demand when starting PF is unknown. No assumed phasor angle.
+    const total=u.unknownVA.reduce((x,y)=>x+y,0);
+    const largest=Math.max(...u.unknownVA);
+    const lower=Math.max(0,knownVA-total,largest-(total-largest)-knownVA);
+    return {w:null,va:lower,vaIsLowerBound:true};
+  });
   for(let n=0;n<count;n++){
     if(steady[n].w>i.continuousWPerLeg+1e-9||steady[n].va>i.continuousVAPerLeg+1e-9){
       fail=true;reasons.push("L"+(n+1)+": continuous W/VA limit exceeded");
@@ -99,7 +112,8 @@ export function assessAcLoads(loads:readonly AcDemand[], i:Readonly<InverterLimi
     }
     if(i.peakVAPerLeg!==null){
       if(started[n].va>i.peakVAPerLeg+1e-9){
-        fail=true;reasons.push("L"+(n+1)+": verified peak VA limit exceeded");
+        fail=true;reasons.push("L"+(n+1)+": peak VA limit exceeded"+
+          (started[n].vaIsLowerBound?" even at the rigorous minimum apparent demand":""));
       }
     }else if(started[n].va>i.continuousVAPerLeg+1e-9){
       indeterminate=true;reasons.push("L"+(n+1)+": peak VA not published");
