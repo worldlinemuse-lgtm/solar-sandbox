@@ -6,7 +6,7 @@
  * No eval(), Function(), executable model-formula strings or hidden outputs.
  * Equation text is for human audit; the typed expression tree is executable law.
  */
-import {ModelFailure,finite} from "../contracts";
+import {ModelFailure,finite,EvidenceTier} from "../contracts";
 import {Expr,Unit,references,unitOf,evaluate} from "./expressions";
 
 export type FormulaAuthority =
@@ -22,6 +22,7 @@ export interface InputDefinition {
  readonly role:"parameter"|"state"|"disturbance"|"observation";
  readonly bounds?:Interval;
  readonly evidenceIds:readonly string[];
+ readonly evidenceTier:EvidenceTier;
  readonly description:string;
 }
 export interface EquationDefinition {
@@ -35,6 +36,7 @@ export interface EquationDefinition {
  readonly dependsOn:readonly string[];
  readonly math:string;
  readonly authority:FormulaAuthority;
+ readonly evidenceTier:EvidenceTier;
  readonly evidenceIds:readonly string[];
  readonly bounds?:Interval;
  readonly assumptions:readonly string[];
@@ -71,6 +73,7 @@ export interface EquationCapture {
  readonly math:string;
  readonly expression:Expr;
  readonly authority:FormulaAuthority;
+ readonly effectiveEvidenceTier:EvidenceTier;
  readonly assumptions:readonly string[];
  readonly evidenceIds:readonly string[];
  readonly falsifier:string;
@@ -198,6 +201,11 @@ export class FormulaRegistry {
    values[input.name]=x;
   }
   const captures:EquationCapture[]=[];
+  const evidence:Record<string,{tier:EvidenceTier;ids:readonly string[]}>=
+    Object.fromEntries(this.declaredInputs.map(x=>[x.name,{tier:x.evidenceTier,ids:x.evidenceIds}]));
+  const tierRank:Record<EvidenceTier,number>={
+    R0_measured:0,R1_published:1,R2_derived:2,R3_assumed:3
+  };
   for(const eq of this.ordered){
    const inputs:Record<string,{value:number;unit:Unit}>={};
    for(const ref of references(eq.expression))
@@ -205,11 +213,21 @@ export class FormulaRegistry {
    const result=evaluate(eq.expression,values);
    boundsCheck(eq.output,result,eq.bounds);
    values[eq.output]=result;
+   let tier=eq.evidenceTier;
+   const provenance=new Set<string>(eq.evidenceIds);
+   for(const dep of references(eq.expression)){
+     const information=evidence[dep];
+     if(tierRank[information.tier]>tierRank[tier])tier=information.tier;
+     for(const id of information.ids)provenance.add(id);
+   }
+   evidence[eq.output]={tier,ids:[...provenance].sort()};
    captures.push(Object.freeze({
      id:eq.id,revision:eq.revision,stage:eq.stage,
      output:eq.output,unit:eq.unit,value:result,inputs:Object.freeze(inputs),
      math:eq.math,expression:eq.expression,authority:eq.authority,
-     assumptions:eq.assumptions,evidenceIds:eq.evidenceIds,falsifier:eq.falsifier
+     effectiveEvidenceTier:tier,
+     assumptions:eq.assumptions,evidenceIds:Object.freeze([...provenance].sort()),
+     falsifier:eq.falsifier
    }));
   }
   const checks:InvariantCapture[]=[];
