@@ -33,3 +33,7 @@ Run `python tests/test_analysis_exports.py` after `python source/build.py` and a
 ## Saved-file model revision compatibility
 
 Imported **design files** retain their component and load specifications, but the app warns when the recorded model revision differs from the running simulator or is absent. Existing historical results must not be treated as comparable without rerunning. For **saved dynamic simulation states**, a known revision mismatch is rejected *before any state/configuration mutation*. Import the saved design instead. Legacy state files without revision information remain importable for backward compatibility; their reproducibility cannot be confirmed.
+
+## Immutable provenance snapshots
+
+The provenance manifest is deep-copied into each exported design and completed analysis report. A caller modifying its own copy does **not** alter `window.SIM_PROVENANCE`, which is used to check version compatibility when restoring saved simulation states. The dedicated browser test deliberately edits a copied fingerprint and requires the running fingerprint to remain unchanged.
