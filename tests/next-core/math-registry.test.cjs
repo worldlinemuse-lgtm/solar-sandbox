@@ -157,3 +157,27 @@ test("production new-core PV and battery outputs carry exact equation captures",
  near(battery.chemicalPowerW,battery.mathTrace.values["battery.netChemicalW"]);
  assert.ok(battery.mathTrace.invariants.every(x=>x.passed));
 });
+
+test("compiled mathematical laws and captured inputs cannot be mutated by presentation code",()=>{
+ const compiled=MATHEMATICS.battery;
+ const expr=compiled.spec.equations[0].expression;
+ assert.ok(Object.isFrozen(compiled.spec));
+ assert.ok(Object.isFrozen(expr));
+ const a=compiled.evaluate({
+  "battery.ocvV":12,"battery.currentA":4,"battery.internalOhm":.02,
+  "battery.chargeEfficiency":.98,"battery.capacityAh":100,
+  "battery.soc":.6,"interval.seconds":60
+ });
+ assert.ok(Object.isFrozen(a.values));
+ assert.ok(Object.isFrozen(a.captures[0].inputs));
+ const firstValue=a.captures[0].inputs["battery.currentA"];
+ if(firstValue)assert.ok(Object.isFrozen(firstValue));
+ assert.throws(()=>{compiled.spec.revision=999;},TypeError);
+ assert.throws(()=>{a.values["battery.terminalW"]=1234;},TypeError);
+ assert.throws(()=>{a.captures[0].expression.op="literal";},TypeError);
+ near(compiled.evaluate({
+  "battery.ocvV":12,"battery.currentA":4,"battery.internalOhm":.02,
+  "battery.chargeEfficiency":.98,"battery.capacityAh":100,
+  "battery.soc":.6,"interval.seconds":60
+ }).values["battery.terminalW"],4*(12-.08));
+});
