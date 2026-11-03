@@ -986,7 +986,7 @@ function makeAnalysisRecord(analysis,design,patterns,results){
  if(!['historical_winter_stress','battery_aging'].includes(analysis))throw Error('Unsupported analysis type');
  return {app:'solar-battery-sandbox',kind:'analysis',schema:1,analysis,
   generated_at:new Date().toISOString(),
-  model_provenance:window.SIM_PROVENANCE||null,
+  model_provenance:window.SIM_PROVENANCE?JSON.parse(JSON.stringify(window.SIM_PROVENANCE)):null,
   design:JSON.parse(JSON.stringify(design)),
   appliance_patterns:JSON.parse(JSON.stringify(patterns)),
   weather:{source:'NASA POWER modeled gridded historical solar/meteorology, not site instrument observations',
@@ -1131,7 +1131,7 @@ function wireChanged(k){const c=S.cfg;const mat=$(k+'Mat').value==='al'?'al':'cu
  c[k+'Ft']=clampInt($(k+'Ft').value,1,k==='pv'?500:100);cfgChanged(false);}
 const SAVE_KEY='solarSandboxBuild.v4';
 const CFG_NUM={other:[0,10000],sysV:[12,48],ser:[1,20],par:[1,20],shade:[0,90],nMppt:[1,8],bpar:[1,16],coldF:[-40,50],tilt:[0,90],az:[90,270],pvFt:[1,500],cbFt:[1,100],biFt:[1,100],soh:[50,100],reserve:[0,80],genStart:[5,90],genStop:[10,100],genFuel:[0,500],ageYears:[0,20]};
-function buildPayload(){return {app:'solar-battery-sandbox',kind:'design',version:5,model_provenance:window.SIM_PROVENANCE||null,saved:new Date().toISOString(),cfg:JSON.parse(JSON.stringify(S.cfg)),loads:S.loads.map(cloneLoad)};}
+function buildPayload(){return {app:'solar-battery-sandbox',kind:'design',version:5,model_provenance:window.SIM_PROVENANCE?JSON.parse(JSON.stringify(window.SIM_PROVENANCE)):null,saved:new Date().toISOString(),cfg:JSON.parse(JSON.stringify(S.cfg)),loads:S.loads.map(cloneLoad)};}
 function num(v,a,b,d){v=Number(v);if(!isFinite(v))return d;return Math.max(a,Math.min(b,v));}
 function cleanWins(w){if(!Array.isArray(w)||!w.length)return null;const o=[];for(const x of w.slice(0,6)){if(!Array.isArray(x)||x.length!==2)return null;o.push([Math.round(num(x[0],0,1439,0)),Math.round(num(x[1],0,1439,0))]);}return o;}
 function cleanLoad(l,used){if(!l||typeof l!=='object')return null;const w=num(l.w,0,20000,NaN);if(!isFinite(w)||typeof l.name!=='string')return null;

@@ -81,12 +81,14 @@ def main():
           const st=SIM.buildStatePayload();
           st.design.model_provenance.revision_sha256='0'.repeat(64);
           const previous=JSON.stringify(SIM.S.cfg);
+          const runningRevision=window.SIM_PROVENANCE.revision_sha256;
           const rejection=SIM.applyState(st);
+          const independent=window.SIM_PROVENANCE.revision_sha256===runningRevision;
           return {same,missingWarning:!!missingWarning,warn:!!warn,
-            rejection,unchanged:JSON.stringify(SIM.S.cfg)===previous};
+            rejection,independent,unchanged:JSON.stringify(SIM.S.cfg)===previous};
         }""")
         assert provenance["same"] == "" and provenance["missingWarning"], provenance
-        assert provenance["warn"] and provenance["unchanged"], provenance
+        assert provenance["warn"] and provenance["unchanged"] and provenance["independent"], provenance
         assert "another model revision" in provenance["rejection"], provenance
 
         # A changing system invalidates previously displayed results and keeps exports disabled.
