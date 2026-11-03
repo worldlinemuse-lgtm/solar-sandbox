@@ -21,6 +21,7 @@ export interface BmsState {
  readonly dischargeConnected:boolean;
  readonly overcurrentSeconds:number;
  readonly trippedOvercurrent:boolean;
+ readonly trippedPort:"none"|"charge"|"discharge"|"both";
 }
 export interface BmsPoint {
  readonly temperatureC:number;
@@ -51,11 +52,15 @@ export function advanceBms(p:Readonly<BmsProtectionSpec>,s:Readonly<BmsState>,
   nonnegative("dischargeOvercurrentA",p.dischargeOvercurrentA);
   nonnegative("overcurrentSeconds",s.overcurrentSeconds);
   const events:string[]=[];
-  let trip=s.trippedOvercurrent;
+  let trip=s.trippedOvercurrent, trippedPort=s.trippedPort;
+  if(trip&&trippedPort==="none")
+    throw new ModelFailure("INVALID_INPUT","Latched fault has no recorded affected port");
+  if(!trip&&trippedPort!=="none")
+    throw new ModelFailure("INVALID_INPUT","Unlatched fault has a stale affected port");
   if(trip&&x.manualResetRequested&&p.resetPolicy==="manual"){
-    trip=false;events.push("Manual overcurrent reset requested");
+    trip=false;trippedPort="none";events.push("Manual overcurrent reset requested");
   } else if(trip&&p.resetPolicy==="automatic"&&x.batteryCurrentA===0) {
-    trip=false;events.push("Automatic overcurrent reset under verified zero-current condition");
+    trip=false;trippedPort="none";events.push("Automatic overcurrent reset under verified zero-current condition");
   }
   let charge=s.chargeConnected,discharge=s.dischargeConnected;
   if(x.temperatureC<p.chargeCutoffColdC)charge=false;
@@ -63,13 +68,12 @@ export function advanceBms(p:Readonly<BmsProtectionSpec>,s:Readonly<BmsState>,
   if(x.temperatureC<p.dischargeCutoffColdC)discharge=false;
   else if(x.temperatureC>=p.dischargeResumeC)discharge=true;
   if(trip){
-    if(p.tripDisconnects==="both"){charge=false;discharge=false;}
-    else if(x.batteryCurrentA<0)charge=false;
-    else discharge=false;
+    if(trippedPort==="both"||trippedPort==="charge")charge=false;
+    if(trippedPort==="both"||trippedPort==="discharge")discharge=false;
   }
   if(!charge&&x.batteryCurrentA<0||!discharge&&x.batteryCurrentA>0){
     return {next:{chargeConnected:charge,dischargeConnected:discharge,
-      overcurrentSeconds:s.overcurrentSeconds,trippedOvercurrent:trip},
+      overcurrentSeconds:s.overcurrentSeconds,trippedOvercurrent:trip,trippedPort},
       currentSupportedSeconds:0,events:events.concat(["Requested port disconnected"]),
       validation:"parameterized_protection_not_manufacturer_verified"};
   }
@@ -83,14 +87,14 @@ export function advanceBms(p:Readonly<BmsProtectionSpec>,s:Readonly<BmsState>,
     accum+=supported;
     if(supported<x.dtSeconds-1e-10||accum>=p.overcurrentHoldSeconds-1e-10){
       trip=true;
-      if(p.tripDisconnects==="both"){charge=false;discharge=false;}
-      else if(x.batteryCurrentA<0)charge=false;
-      else discharge=false;
-      events.push("Timed BMS current protection tripped");
+      trippedPort=p.tripDisconnects==="both"?"both":x.batteryCurrentA<0?"charge":"discharge";
+      if(trippedPort==="both"||trippedPort==="charge")charge=false;
+      if(trippedPort==="both"||trippedPort==="discharge")discharge=false;
+      events.push("Timed BMS current protection tripped: "+trippedPort);
     }
   }
   return {next:{chargeConnected:charge,dischargeConnected:discharge,
-      overcurrentSeconds:accum,trippedOvercurrent:trip},
+      overcurrentSeconds:accum,trippedOvercurrent:trip,trippedPort},
     currentSupportedSeconds:supported,events,
     validation:"parameterized_protection_not_manufacturer_verified"};
 }
