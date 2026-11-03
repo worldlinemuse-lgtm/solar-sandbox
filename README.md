@@ -1,13 +1,24 @@
 # Solar and House-Battery Sandbox
 
-An interactive solar and house-battery simulator, with a built-in voice guide to every control. You build a system from real panels, charge controllers, batteries, an inverter and the cables between them, then run it minute by minute through Honesdale, PA weather: the typical weather year, or any of 25 recorded winters.
+An interactive solar and house-battery simulator, with a built-in voice guide to every control. You build a system from real panels, charge controllers, batteries, an inverter and the cables between them, then run it minute by minute through Honesdale, PA weather: the typical weather year, or any of 25 NASA POWER modeled historical winters.
 
 The whole app is one self-contained file, `index.html`. The voice guide, weather data, scripts and styles are built in, and nothing needs to be installed or built to use it. The same page is also kept as separate source files in `source/`, with a build script that puts them back together (see "Source files and building").
+
+
+## Auditable analysis exports and version compatibility
+
+Completed historical-winter and battery-aging calculations now provide **Export auditable results (JSON)** controls. Reports contain the exact system configuration, appliance patterns, model source SHA-256 digests, historical weather years, initial conditions, output summaries and explicit calibration limits. Change the modeled system or appliance pattern and the prior result is invalidated; repeat the calculation to obtain a new report.
+
+Older design files can still be imported, but the app warns when the model revision differs or is missing. Simulation state files saved with a known, different model revision are not resumed as if equivalent; import their design and calculate again.
+
+See [Analysis exports and report schema](docs/ANALYSIS_RESULT_EXPORTS.md) and [Reference validation/provenance](docs/REFERENCE_VALIDATION_AND_PROVENANCE.md).
+
+**Validation scope:** The engineering model passes internal energy-accounting tests and selected manufacturer/reference benchmarks. Real battery, motor surge, inverter transient and location-specific irradiance calibration remains an open task. Do not use simulation results as certified wiring designs or guaranteed backup runtimes.
 
 ## What it models
 
 - Sun on the panels for any tilt and direction, from hour-by-hour typical-year weather (NSRDB, served through PVWatts), with the Perez sky model and glass reflection loss. Checked against pvlib within 0.1% a year, and against PVWatts with widely spaced rows within 0.2% at 40° to 90° tilt.
-- 25 recorded winters (Nov 1 to Feb 28, 2001–02 through 2025–26) from NASA POWER hourly data, a worst-recorded-stretch finder, and failure rates across all 25 winters.
+- 25 NASA POWER modeled historical winter weather sets (Nov 1 to Feb 28, 2001–02 through 2025–26), a least-sun historical-stretch finder, and historical stress-test outcomes. These are gridded satellite/weather-model estimates, **not ground-station observations or a forecast probability**.
 - Panel temperature from the Sandia model for your mount type, with each panel's own datasheet coefficients where published.
 - Wire loss and voltage drop for copper or aluminum cable on each of the three runs. Wire and fuse checks use NEC ampacity tables with temperature and bundling corrections, and are labeled "Within spec", "Table math", "Estimate" or "Not verified". None of these is an approval, and no fuse is ever marked as suitable, because no battery maker here publishes a short-circuit current.
 - Each battery's own cold limits from its maker's documents, AGM capacity loss at high current and in the cold from Renogy's spec sheet, the lithium absorption timer from Battle Born's data sheet, a battery health setting, and the self-heating battery's warm-up.

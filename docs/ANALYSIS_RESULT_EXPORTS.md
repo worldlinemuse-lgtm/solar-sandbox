@@ -29,3 +29,7 @@ Run `python tests/test_analysis_exports.py` after `python source/build.py` and a
 - No claim is made that these recorded outcomes are future probabilities or guaranteed runtime.
 
 **Release gate for optimizer/planner remains open:** actual or trusted independent physical performance fixtures must be incorporated with documented tolerances before sizing hardware for reliable household backup.
+
+## Saved-file model revision compatibility
+
+Imported **design files** retain their component and load specifications, but the app warns when the recorded model revision differs from the running simulator or is absent. Existing historical results must not be treated as comparable without rerunning. For **saved dynamic simulation states**, a known revision mismatch is rejected *before any state/configuration mutation*. Import the saved design instead. Legacy state files without revision information remain importable for backward compatibility; their reproducibility cannot be confirmed.
