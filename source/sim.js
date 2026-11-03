@@ -1143,6 +1143,14 @@ function cleanLoad(l,used){if(!l||typeof l!=='object')return null;const w=num(l.
  if(l.chg){const wh=num(l.chg.wh,0.5,5000,NaN);if(!isFinite(wh))return null;o.chg={wh:wh,per:Math.round(num(l.chg.per,1,10,1)),eff:num(l.chg.eff,0.5,1,0.85)};o.wins=[[o.wins[0][0],o.wins[0][0]]];}
  if(o.src===undefined)delete o.src;
  let id=typeof l.id==='string'&&/^[A-Za-z0-9_-]{1,24}$/.test(l.id)?l.id:'';if(!id||used.has(id))id='c'+(++loadSeq);used.add(id);o.id=id;return o;}
+// A design file is portable across model revisions, but its old simulation results are not.
+function modelRevisionWarning(p){
+ const old=p&&p.model_provenance&&p.model_provenance.revision_sha256;
+ const current=window.SIM_PROVENANCE&&window.SIM_PROVENANCE.revision_sha256;
+ if(!old)return 'This saved design has no recorded model revision. Any results must be recalculated.';
+ if(old!==current)return 'This design was saved by a different simulation revision. Re-run all calculations; old results are not comparable.';
+ return '';
+}
 // Returns an error string, or null after applying the build.
 function applyPayload(p){
  if(p&&typeof p==='object'&&p.app==='solar-battery-sandbox'&&p.kind==='state')return 'That is a simulation state file. Use Import state file instead.';
@@ -1170,10 +1178,10 @@ function saveLocal(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(buildPaylo
 function loadLocal(){let raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){}
  if(!raw){saveNote('Nothing saved in this browser yet.',true);return;}
  let p;try{p=JSON.parse(raw);}catch(e){saveNote('The saved build is damaged.',true);return;}
- const err=applyPayload(p);if(err)saveNote(err,true);else{saveNote('Loaded the build saved '+(p.saved?new Date(p.saved).toLocaleString():'earlier')+'.');log('Saved build loaded.');}}
+ const err=applyPayload(p);if(err)saveNote(err,true);else{const warning=modelRevisionWarning(p);saveNote('Loaded the build saved '+(p.saved?new Date(p.saved).toLocaleString():'earlier')+'. '+warning,!!warning);log('Saved build loaded.'+(warning?' '+warning:''),!!warning);}}
 function exportBuild(){const blob=new Blob([JSON.stringify(buildPayload(),null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='solar-build.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);saveNote('Exported solar-build.json.');}
 function importBuild(file){if(!file)return;if(file.size>500000){saveNote('That file is too big to be a build.',true);return;}
- const r=new FileReader();r.onload=()=>{let p;try{p=JSON.parse(r.result);}catch(e){saveNote('That file isn\u2019t valid JSON.',true);return;}const err=applyPayload(p);if(err)saveNote(err,true);else{saveNote('Imported '+file.name+'.');log('Build imported from '+file.name+'.');}};r.onerror=()=>saveNote('The file could not be read.',true);r.readAsText(file);}
+ const r=new FileReader();r.onload=()=>{let p;try{p=JSON.parse(r.result);}catch(e){saveNote('That file isn\u2019t valid JSON.',true);return;}const err=applyPayload(p);if(err)saveNote(err,true);else{const warning=modelRevisionWarning(p);saveNote('Imported '+file.name+'. '+warning,!!warning);log('Build imported from '+file.name+'.'+(warning?' '+warning:''),!!warning);}};r.onerror=()=>saveNote('The file could not be read.',true);r.readAsText(file);}
 // ---------- Save simulation state ----------
 const STATE_KEY='solarSandboxState.v1';
 function buildStatePayload(){const L=x=>x?x.map(cloneLoad):null;
@@ -1207,6 +1215,10 @@ function applyState(p){
  if(RATE_RUN)return 'Wait for the failure-rate run to finish first.';
  const c=cleanState(p);if(c.err)return c.err;
  if(p.design&&p.design.kind==='state')return 'The state file is damaged, so nothing was changed.';
+ const importedRevision=p.design&&p.design.model_provenance&&p.design.model_provenance.revision_sha256;
+ const currentRevision=window.SIM_PROVENANCE&&window.SIM_PROVENANCE.revision_sha256;
+ if(importedRevision&&importedRevision!==currentRevision)
+  return 'This saved simulation state was created by another model revision and cannot be resumed reproducibly. Import the design instead and rerun it.';
  const before=buildStatePayload();
  const err=applyPayload(p.design);if(err)return err;
  const st=c.st;setPlaying(false);
@@ -1483,6 +1495,6 @@ function init(){
  requestAnimationFrame(frame);
 }
 // test hooks
-window.SIM={makeAnalysisRecord,downloadAnalysis,get LAST_RATE_RECORD(){return LAST_RATE_RECORD;},get LAST_AGE_RECORD(){return LAST_AGE_RECORD;},runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
+window.SIM={makeAnalysisRecord,downloadAnalysis,modelRevisionWarning,get LAST_RATE_RECORD(){return LAST_RATE_RECORD;},get LAST_AGE_RECORD(){return LAST_AGE_RECORD;},runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
 init();
 })();

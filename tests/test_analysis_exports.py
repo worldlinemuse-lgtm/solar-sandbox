@@ -69,6 +69,26 @@ def main():
         assert aging["initial"]["aging_model"] == "estimated capacity-loss heuristic"
         assert len(aging["results"]["rows"]) == 1
 
+        # Designs may be imported across model revisions, with a mismatch warning.
+        provenance = page.evaluate("""()=>{
+          const old=SIM.buildPayload();
+          const same=SIM.modelRevisionWarning(old);
+          const missing=JSON.parse(JSON.stringify(old));delete missing.model_provenance;
+          const missingWarning=SIM.modelRevisionWarning(missing);
+          const mismatch=JSON.parse(JSON.stringify(old));
+          mismatch.model_provenance.revision_sha256='0'.repeat(64);
+          const warn=SIM.modelRevisionWarning(mismatch);
+          const st=SIM.buildStatePayload();
+          st.design.model_provenance.revision_sha256='0'.repeat(64);
+          const previous=JSON.stringify(SIM.S.cfg);
+          const rejection=SIM.applyState(st);
+          return {same,missingWarning:!!missingWarning,warn:!!warn,
+            rejection,unchanged:JSON.stringify(SIM.S.cfg)===previous};
+        }""")
+        assert provenance["same"] == "" and provenance["missingWarning"], provenance
+        assert provenance["warn"] and provenance["unchanged"], provenance
+        assert "another model revision" in provenance["rejection"], provenance
+
         # A changing system invalidates previously displayed results and keeps exports disabled.
         stale = page.evaluate("""()=>{
           document.querySelector('#rOut').innerHTML='<div>outdated winter</div>';
