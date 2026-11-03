@@ -33,8 +33,21 @@ def main():
             mpptAbsoluteVocV:150,mpptOperatingVocV:145,mpptIscLimitA:50,
             mpptEfficiency:.98,pvCableLoopOhm:.1,controllerCableLoopOhm:.03,
             busVoltageV:26.4,legacyControllerOutputW:null,legacySnowFraction:0});
+          const definitions=a.getMathematicalDefinitions();
+          const wire=a.evaluateMathematics('wire',{
+            'wire.currentA':10,'wire.loopOhm':.1,'interval.seconds':60
+          });
+          // The consumer may edit its descriptive COPY, not the canonical law.
+          definitions.wire.equations[0].revision=999;
+          const again=a.getMathematicalDefinitions();
           const legacy=SIM.nextCoreShadow();
           return {status,bundle:typeof a.runReferenceIsland,
+            mathModels:Object.keys(definitions).length,
+            mathRevisionUnaffected:again.wire.equations[0].revision!==999,
+            wireLossW:wire.values['wire.heatW'],
+            wireHeatWh:wire.values['wire.heatWh'],
+            wireConservation:wire.invariants.every(v=>v.passed),
+            topologyApi:typeof a.inspectInstallation,
             g,unsupported:unsupported.status,legacy:legacy.status,
             unchanged:first===JSON.stringify({cfg:src.cfg,loads:src.loads,soc:src.soc,
               generatorFuel:src.genFuelLeft,weather:SIM.wxId()}),
@@ -43,6 +56,10 @@ def main():
         assert x["bundle"]=="function" and x["unchanged"],x
         assert x["status"]["canReplaceProductionSolver"] is False
         assert x["status"]["physicalCalibration"] is False
+        assert x["mathModels"] >= 5 and x["mathRevisionUnaffected"],x
+        assert abs(x["wireLossW"] - 10)<1e-9,x
+        assert abs(x["wireHeatWh"] - 10/60)<1e-9,x
+        assert x["wireConservation"] and x["topologyApi"]=="function",x
         assert x["g"]["status"]=="estimated",x
         assert 0 < x["g"]["controllerMaximumEnvelopeW"] < 1750,x
         assert x["unsupported"]=="unsupported"
