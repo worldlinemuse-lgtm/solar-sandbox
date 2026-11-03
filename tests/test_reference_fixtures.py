@@ -32,10 +32,12 @@ def main():
         manifest = page.evaluate("window.SIM_PROVENANCE")
         assert manifest["schema"] == 1 and len(manifest["revision_sha256"]) == 64
         files = manifest["source_sha256"]
-        assert set(files) == {
+        expected_core = {"next-core/" + path.name for path in
+                         (ROOT / "source" / "next-core").glob("*.ts")}
+        assert set(files) == ({
             "build.py", "template.html", "sim.js", "physics.js", "elec.js", "battery.js",
             "tmy.js", "hist.js", "snowhist.js", "guide.mp3", "next-core-browser.js"
-        }
+        } | expected_core)
         assert all("next-core/" + filename in files for filename in [
             "entry.ts", "pv-diode.ts", "island.ts", "battery.ts", "generator.ts", "ac.ts"
         ])
