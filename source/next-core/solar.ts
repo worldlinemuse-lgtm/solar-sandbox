@@ -1,5 +1,7 @@
 import {ModelFailure,finite,inRange,nonnegative} from "./contracts";
-import {deliveryCurrentA,extractionCurrentA,assertPowerBalance} from "./numerical";
+import {deliveryCurrentA,extractionCurrentA} from "./numerical";
+import {MATHEMATICS} from "./math/models";
+import type {MathEvaluation} from "./math/registry";
 
 /** Fixed-Vmp constrained maximum-power proxy.
  * Uses the actual extracted current for PV and controller-to-bus I²R losses.
@@ -28,6 +30,8 @@ export interface PvBusResult {
   readonly busCurrentA:number;
   readonly busPowerW:number;
   readonly powerResidualW:number;
+  /** Equation-registered values and provenance for the accepted operating point. */
+  readonly mathTrace:MathEvaluation;
   readonly validation:"estimated_operating_point";
 }
 
@@ -56,17 +60,22 @@ export function solvePvBus(x:Readonly<PvBusInput>):PvBusResult {
   const iPv=extractionCurrentA(v,rp,controllerIn);
   if(iPv>maxCurrent+1e-7*Math.max(1,maxCurrent))
     throw new ModelFailure("SOLVER_DID_NOT_CONVERGE","PV operating current outside admissible branch");
-  const panelExtract=v*iPv;
-  const pvLoss=iPv*iPv*rp;
-  const controllerLoss=controllerIn-controllerOut;
-  const curtailed=Math.max(0,p-panelExtract);
-  const residual=assertPowerBalance("PV/DC", [p],
-    [curtailed,pvLoss,controllerLoss,cableW,busW]);
-  return {maximumPanelPowerW:p,curtailedPanelW:curtailed,
-    extractedPanelW:panelExtract,panelCurrentA:iPv,
-    pvCableLossW:pvLoss,controllerInputW:controllerIn,
-    mpptLossW:controllerLoss,controllerOutputW:controllerOut,
-    controllerCableLossW:cableW,busCurrentA:iBus,
-    busPowerW:busW,powerResidualW:residual,
-    validation:"estimated_operating_point"};
+  // The operating-point solver supplies only Ipv and Ibus. Every reported
+  // physical transformation now comes from the canonical equation registry,
+  // which independently checks both MPPT and whole-PV conservation identities.
+  const mathTrace=MATHEMATICS.pv.evaluate({
+    "panel.availableW":p,"panel.operatingV":v,"panel.currentA":iPv,
+    "pv.loopOhm":rp,"mppt.efficiency":eff,
+    "bus.voltageV":vb,"bus.currentA":iBus,
+    "controller.loopOhm":rc,"interval.seconds":1
+  });
+  const m=mathTrace.values;
+  const residual=mathTrace.invariants.find(x=>x.id==="pv.global_conservation")!.value;
+  return {maximumPanelPowerW:p,curtailedPanelW:m["pv.curtailedW"],
+    extractedPanelW:m["pv.extractedW"],panelCurrentA:iPv,
+    pvCableLossW:m["pv.cableLossW"],controllerInputW:m["mppt.inputW"],
+    mpptLossW:m["mppt.heatW"],controllerOutputW:m["mppt.outputW"],
+    controllerCableLossW:m["controller.cableLossW"],busCurrentA:iBus,
+    busPowerW:m["bus.deliveredW"],powerResidualW:residual,
+    mathTrace,validation:"estimated_operating_point"};
 }
