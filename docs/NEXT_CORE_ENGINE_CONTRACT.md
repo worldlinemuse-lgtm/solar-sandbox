@@ -47,3 +47,15 @@ Manufacturer and NASA evidence, R0–R3 evidence classification, unverified assu
 7. Household planner, optimizer and product UX migration are **not started**, per physical-validation gate.
 
 The new numerical code is not permission to use the live site for certification, installer design or guaranteed backup runtime.
+
+## November 3 integration milestone: read-only browser shadow
+
+The project now embeds the TypeScript engine in the standalone webpage using an explicitly pinned esbuild IIFE. The Python `source/build.py` deterministic build records SHA-256 digests for **each TypeScript source and browser bundle**, as well as all existing weather and model files. Recompiling the bundle differently fails CI. Standalone operation remains offline-compatible; the browser bundle is an inline script.
+
+`window.SolarNextCore.shadowPv()` supplies an R1-referenced PV maximum-power **envelope**. `SIM.nextCoreShadow()` supplies the selected legacy configuration/last completed timestep for read-only comparison. Neither method updates current load, battery SoC, generator state, fuel supply or existing result displays. The implementation only accepts a documented matching LONGi LR4-72HBD-435M and Victron 150/70; all other equipment is unsupported until independently benchmarked. Missing/unknown physical observations continue to produce indeterminate results, not a fabricated equipment certificate.
+
+The Longi module now has a separate 72-equivalent-cell single-diode model based on PVsyst V6.80 published parameters (0.087 nA I₀, 0.27 Ω Rs, 1000 Ω Rsh, n=1.04), with benchmarked DC MPPs across 200–1,000 W/m² at 25 °C. The original PVsyst five-point reference, source URL and maximum 2% reconstruction deviation are versioned in `validation/next-core/pv-pvsyst-435m.json`. This **is not measured roof-level performance**. See `docs/PHYSICAL_BENCHMARK_EVIDENCE.md`.
+
+A separate numerical defect has also been corrected: the reference generator pass-through path no longer adds inverter and generator power unless validated PowerAssist/parallel behavior exists. In conservative pass-through mode, any generator overload is unserved, not silently topped up by the inverter. MultiPlus PowerAssist capability is published, but its operational constraints depend on configuration, generator quality and BMS state; a generic automatic assumption is not permitted.
+
+Production calculation migration is intentionally gated: `nextCoreCanReplaceLiveEngine=false`. The house planner and optimizer remain disabled. Actual device- and site-specific physical test data are required to change those conditions.

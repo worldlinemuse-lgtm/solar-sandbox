@@ -3,12 +3,16 @@
   "asOf": "2026-11-03",
   "repo": "worldlinemuse-lgtm/solar-sandbox",
   "branch": "engine/typed-physical-core-2026-11-03",
-  "phase": "independent_verification_core_not_live_activated",
+  "phase": "read_only_browser_shadow_integrated_live_replacement_blocked",
   "releaseGates": {
     "nextCoreCanReplaceLiveEngine": false,
     "householdPlannerEnabled": false,
     "optimizerEnabled": false,
-    "reason": "Insufficient physical equipment calibration and complete topology coverage"
+    "reason": "Published PVsyst and pvlib reference fixtures pass; actual site/equipment measurements and transfer/startup/thermal validation remain missing; only diagnostics may execute",
+    "shadowModeIntegrated": true,
+    "physicalHardwareDatasetCount": 0,
+    "externalPvsystPvCurvePoints": 5,
+    "independentWeatherClockConfirmed": false
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",

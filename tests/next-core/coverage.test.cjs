@@ -25,4 +25,8 @@ test("planner/optimizer and live engine cannot be enabled while core physical ga
  assert.equal(doc.releaseGates.nextCoreCanReplaceLiveEngine,false);
  assert.equal(doc.releaseGates.householdPlannerEnabled,false);
  assert.equal(doc.releaseGates.optimizerEnabled,false);
+ assert.equal(doc.releaseGates.shadowModeIntegrated,true);
+ assert.equal(doc.releaseGates.physicalHardwareDatasetCount,0);
+ assert.equal(doc.releaseGates.externalPvsystPvCurvePoints,5);
+ assert.equal(doc.releaseGates.independentWeatherClockConfirmed,false);
 });
