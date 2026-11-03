@@ -22,6 +22,7 @@ export interface ImplicitLaw {
  readonly relativeTolerance:number;
  readonly absoluteTolerance:number;
  readonly branchPolicy:string;
+ readonly branchKind:"battery_low_current"|"pv_low_current"|"controller_positive";
  readonly evidenceIds:readonly string[];
  readonly assumptions:readonly string[];
 }
@@ -67,6 +68,25 @@ export function verifyImplicitRoot(
  const values:Record<string,number>={};
  for(const key of names)values[key]=finite(key,inputs[key]);
  values[law.unknown.name]=finite("candidate root",candidate);
+ // A zero residual alone is insufficient for a nonlinear electrical device:
+ // a quadratic can have a second mathematically correct but unphysical root.
+ // The admissible branch must be specified and verified independently.
+ const upperTol=1e-9*Math.max(1,Math.abs(candidate));
+ if(law.branchKind==="battery_low_current"){
+  const voc=values["battery.ocvV"],r=values["battery.internalOhm"];
+  if(r>0&&candidate>voc/(2*r)+upperTol)
+   throw new ModelFailure("PHYSICAL_INFEASIBILITY",
+     "Battery operating point selected unstable/high-current quadratic branch");
+ }else if(law.branchKind==="pv_low_current"){
+  const v=values["wire.sourceV"],r=values["wire.loopOhm"];
+  if(candidate<0||r>0&&candidate>v/(2*r)+upperTol)
+   throw new ModelFailure("PHYSICAL_INFEASIBILITY",
+     "PV operating point not on nonnegative lower-current branch");
+ }else if(law.branchKind==="controller_positive"){
+  if(candidate<0)
+   throw new ModelFailure("PHYSICAL_INFEASIBILITY",
+     "Controller output current must be nonnegative");
+ }
  const residual=evaluate(law.residual,values);
  const scale=Math.max(1,...Object.values(inputs).map(Math.abs));
  const tolerance=law.absoluteTolerance+law.relativeTolerance*scale;
@@ -93,6 +113,7 @@ export const BATTERY_TERMINAL_CURRENT:ImplicitLaw={
    "battery.internalOhm","battery.requiredW"],
  relativeTolerance:1e-10,absoluteTolerance:1e-9,
  branchPolicy:"Lower-current branch continuous as R→0; reject negative discriminant",
+ branchKind:"battery_low_current",
  evidenceIds:["physics:ohm-law","physics:terminal-power"],
  assumptions:["Single-point OCV/R approximation", "No dynamic polarization or battery capacitance"]
 };
@@ -108,6 +129,7 @@ export const PV_INPUT_CABLE_CURRENT:ImplicitLaw={
  declaredVariables:["wire.currentA","wire.sourceV","wire.loopOhm","wire.acceptedW"],
  relativeTolerance:1e-10,absoluteTolerance:1e-9,
  branchPolicy:"Small positive current root, I <= V/(2R); Vmp assumed constant",
+ branchKind:"pv_low_current",
  evidenceIds:["physics:ohm-law","physics:dc-power"],
  assumptions:["Fixed Vmp model; complete module I-V root is a later migration"]
 };
@@ -123,6 +145,7 @@ export const CONTROLLER_OUTPUT_CABLE_CURRENT:ImplicitLaw={
  declaredVariables:["wire.currentA","wire.busV","wire.loopOhm","wire.sourceW"],
  relativeTolerance:1e-10,absoluteTolerance:1e-9,
  branchPolicy:"Nonnegative solution of V*I + I²R = accepted output power",
+ branchKind:"controller_positive",
  evidenceIds:["physics:ohm-law","physics:dc-power"],
  assumptions:["Steady DC bus voltage; no controller dynamics or transient reactance"]
 };
