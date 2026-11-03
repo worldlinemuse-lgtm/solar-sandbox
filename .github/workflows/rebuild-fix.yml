@@ -5,6 +5,7 @@ on:
       - fix/model-integrity-2026-11-02
       - milestone/simulation-correctness-2026-11-02
       - fix/result-integrity-2026-11-02
+      - release/result-provenance-2026-11-02
       - milestone/reference-validation-provenance-2026-11-02
     paths:
       - 'source/**'
