@@ -12,6 +12,8 @@ import {integrateBatteryElectrical,BatteryElectricalSpec,BatteryElectricalState,
 import {assessAcLoads,AcDemand,InverterLimits} from "./ac";
 import {advanceGenerator,GeneratorSpec,GeneratorState,GeneratorCommand,GeneratorAdvance} from "./generator";
 import {assertPowerBalance} from "./numerical";
+import {MATHEMATICS} from "./math/models";
+import type {MathEvaluation} from "./math/registry";
 
 export interface IslandSpec {
   readonly inverter:InverterLimits;
@@ -41,7 +43,15 @@ export interface IslandLedgerWh {
   pvBus:number;batteryTerminal:number;batteryChemical:number;
   batteryHeat:number;batteryChargeCoulombicLoss:number;
 }
+export interface IslandMathFrame {
+  readonly durationSeconds:number;
+  readonly pv:MathEvaluation;
+  readonly battery:MathEvaluation;
+  readonly acService:MathEvaluation;
+}
 export interface IslandResult {
+  /** Only committed, accepted physical substeps are captured. */
+  readonly mathFrames?:readonly IslandMathFrame[];
   readonly status:"complete"|"unserved"|"indeterminate";
   readonly nextState:IslandState;
   readonly ledgerWh:IslandLedgerWh;
@@ -97,10 +107,19 @@ function recoverable(e:unknown):boolean{
     ["BMS_DISCONNECTED","SOC_BOUND","CURRENT_LIMIT","VOLTAGE_LIMIT",
       "PHYSICAL_INFEASIBILITY"].includes(e.code);
 }
-function collect(ledger:IslandLedgerWh,p:OperatingPoint,dt:number,requestedW:number):void {
+function collect(ledger:IslandLedgerWh,p:OperatingPoint,dt:number,
+ requestedW:number,frames:IslandMathFrame[]):void {
   const h=dt/3600;
-  ledger.requestedAc+=requestedW*h;ledger.servedAc+=p.servedW*h;
-  ledger.unservedAc+=p.unservedW*h;ledger.generatorAc+=p.genW*h;
+  const acService=MATHEMATICS.acService.evaluate({
+    "ac.requestedW":requestedW,"ac.servedW":p.servedW,
+    "interval.seconds":dt
+  });
+  ledger.requestedAc+=acService.values["ac.requestedWh"];
+  ledger.servedAc+=acService.values["ac.servedWh"];
+  ledger.unservedAc+=acService.values["ac.unservedWh"];
+  ledger.generatorAc+=p.genW*h;
+  frames.push({durationSeconds:dt,pv:p.pv.mathTrace,
+    battery:p.battery.mathTrace,acService});
   ledger.inverterAc+=p.invAcW*h;ledger.inverterDc+=p.invDcW*h;ledger.inverterLoss+=p.invLossW*h;
   ledger.pvPotential+=p.pv.maximumPanelPowerW*h;
   ledger.pvCurtailed+=p.pv.curtailedPanelW*h;
@@ -159,6 +178,7 @@ export function advanceReferenceIsland(
     segments=generator.segments.map(s=>({durationSeconds:s.durationSeconds,deliveredW:s.deliveredW}));
   }
   let battery=old.battery,substeps=0;
+  const mathFrames:IslandMathFrame[]=[];
   for(const segment of segments){
     let left=segment.durationSeconds;
     while(left>1e-9){
@@ -182,12 +202,12 @@ export function advanceReferenceIsland(
         point=operatingPoint(spec,battery,ac.requestedW,segment.deliveredW,dt,runInv);
         if(point.battery.supportedSeconds<dt-1e-6)
           throw new ModelFailure("SOLVER_DID_NOT_CONVERGE","Battery boundary did not converge on split interval");
-        collect(ledger,point,dt,ac.requestedW);
+        collect(ledger,point,dt,ac.requestedW,mathFrames);
         battery={...battery,soc:point.battery.nextSoc};
         left-=dt;
         reasons.push("Battery reached charge/discharge boundary within an operating interval");
       }else{
-        collect(ledger,point,left,ac.requestedW);
+        collect(ledger,point,left,ac.requestedW,mathFrames);
         battery={...battery,soc:point.battery.nextSoc};
         left=0;
       }
@@ -205,5 +225,5 @@ export function advanceReferenceIsland(
     generator:generator?generator.state:old.generator};
   return {status:ledger.unservedAc>1e-10?"unserved":"complete",
     nextState,ledgerWh:ledger,generator,reasons,substeps,
-    validation:"mathematical_only_not_field_calibrated"};
+    mathFrames,validation:"mathematical_only_not_field_calibrated"};
 }
