@@ -200,7 +200,7 @@ export function advanceReferenceIsland(
   assertPowerBalance("Integrated solar potential",[ledger.pvPotential],
     [ledger.pvCurtailed,ledger.pvWireLoss,ledger.mpptLoss,ledger.controllerWireLoss,ledger.pvBus]);
   assertPowerBalance("Integrated battery terminals",[ledger.batteryChemical],
-    [ledger.batteryTerminal,ledger.batteryHeat]);
+    [ledger.batteryTerminal,ledger.batteryHeat,ledger.batteryChargeCoulombicLoss]);
   const nextState:IslandState={elapsedSeconds:old.elapsedSeconds+seconds,battery,
     generator:generator?generator.state:old.generator};
   return {status:ledger.unservedAc>1e-10?"unserved":"complete",

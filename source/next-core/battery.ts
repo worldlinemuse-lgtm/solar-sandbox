@@ -70,12 +70,17 @@ export function integrateBatteryElectrical(
   const nextSoc=inRange("new battery SOC",s.soc-effectiveA*seconds/(3600*p.capacityAh),
     Math.max(0,p.socFloor-1e-10),Math.min(1,p.socCeiling+1e-10));
   const heat=current*current*p.internalResistanceOhm;
-  const chemical=p.openCircuitVoltageV*current;
-  const coulombicLoss=current<0?(-chemical)*(1-p.coulombicChargeEfficiency):0;
-  const residual=assertPowerBalance("Battery terminals", [chemical],[terminalPowerW,heat]);
+  // Gross electrochemical conversion equals Voc*I. During charging,
+  // coulombic inefficiency reduces chemical energy actually retained. Treat
+  // the shortfall as positive loss, not as extra stored energy.
+  const electrochemical=p.openCircuitVoltageV*current;
+  const coulombicLoss=current<0?(-electrochemical)*(1-p.coulombicChargeEfficiency):0;
+  const chemicalStored=electrochemical+coulombicLoss;
+  const residual=assertPowerBalance("Battery terminals",
+    [chemicalStored],[terminalPowerW,heat,coulombicLoss]);
   return {
     currentA:current,terminalVoltageV:terminalV,terminalPowerW,
-    batteryInternalHeatW:heat,chemicalPowerW:chemical,
+    batteryInternalHeatW:heat,chemicalPowerW:chemicalStored,
     coulombicChargeLossW:coulombicLoss,supportedSeconds:seconds,
     nextSoc:Math.max(p.socFloor,Math.min(p.socCeiling,nextSoc)),
     boundaryReached:seconds<dtSec-1e-10,chemicalBalanceResidualW:residual

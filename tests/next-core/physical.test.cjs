@@ -88,7 +88,9 @@ test("battery has correct signed current, I²R heat, coulombic balance and bound
   const c=integrateBatteryElectrical(battSpec(),batteryState(0.8),-100,60);
   assert.ok(c.currentA<0&&c.nextSoc>0.8);
   close(c.terminalVoltageV*c.currentA,-100);
-  close(c.coulombicChargeLossW,(-c.chemicalPowerW)*0.02);
+  close(c.coulombicChargeLossW,(-c.currentA*12)*0.02);
+  close(c.chemicalPowerW,
+    c.terminalPowerW+c.batteryInternalHeatW+c.coulombicChargeLossW);
   close(c.nextSoc,0.8-c.currentA*0.98/6000);
 });
 
@@ -174,7 +176,8 @@ test("seeded property sweep: conservation holds for many PV and battery states",
     assert.ok(pv.busPowerW>=0&&pv.controllerInputW>=0);
     const power=(rnd()-.5)*200;
     const step=integrateBatteryElectrical(battSpec(),batteryState(.3+.6*rnd()),power,60);
-    close(step.chemicalPowerW,step.terminalPowerW+step.batteryInternalHeatW);
+    close(step.chemicalPowerW,step.terminalPowerW+
+      step.batteryInternalHeatW+step.coulombicChargeLossW);
     assert.ok(step.nextSoc>=.2-1e-10&&step.nextSoc<=1+1e-10);
   }
 });

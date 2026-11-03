@@ -117,3 +117,13 @@ test("pure operation: the initial configuration and state are never mutated",()=
   assert.equal(JSON.stringify([s,o,q]),before);
   assert.ok(ans.nextState.elapsedSeconds>0);
 });
+
+test("integrated island battery charging losses are explicit rather than fictional chemical storage",()=>{
+  const s=spec(400);s.battery.coulombicChargeEfficiency=.92;
+  const r=advanceReferenceIsland(s,state(.7),req(0));
+  assert.equal(r.status,"complete");
+  assert.ok(r.ledgerWh.batteryChargeCoulombicLoss>0);
+  near(r.ledgerWh.batteryChemical,r.ledgerWh.batteryTerminal+
+    r.ledgerWh.batteryHeat+r.ledgerWh.batteryChargeCoulombicLoss);
+  near(r.ledgerWh.pvBus+r.ledgerWh.batteryTerminal,r.ledgerWh.inverterDc);
+});

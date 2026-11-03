@@ -59,3 +59,9 @@ The Longi module now has a separate 72-equivalent-cell single-diode model based 
 A separate numerical defect has also been corrected: the reference generator pass-through path no longer adds inverter and generator power unless validated PowerAssist/parallel behavior exists. In conservative pass-through mode, any generator overload is unserved, not silently topped up by the inverter. MultiPlus PowerAssist capability is published, but its operational constraints depend on configuration, generator quality and BMS state; a generic automatic assumption is not permitted.
 
 Production calculation migration is intentionally gated: `nextCoreCanReplaceLiveEngine=false`. The house planner and optimizer remain disabled. Actual device- and site-specific physical test data are required to change those conditions.
+
+### Charge-efficiency energy balance correction
+
+The battery solver distinguishes gross electrical/OCV conversion from energy **actually stored** after coulombic inefficiency. Under positive discharge-current convention, it enforces
+`chemicalStoredPowerW = terminalPowerW + I²R + coulombicChargeLossW`,
+including the signed charging case. The same identity is asserted on the integrated island ledger. This prevents a mathematical error where SoC charging efficiency reduced capacity gain without attributing the unretained energy to a loss channel.
