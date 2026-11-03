@@ -109,6 +109,13 @@ function boundsCheck(id:string,value:number,bounds?:Interval):void{
  if(bounds.max!==undefined&&value>bounds.max+1e-10*Math.max(1,Math.abs(bounds.max)))
   reject(id+" above maximum "+bounds.max+": "+value);
 }
+function immutable<T>(x:T):T{
+ if(x&&typeof x==="object"&&!Object.isFrozen(x)){
+   for(const child of Object.values(x as Record<string,unknown>))immutable(child);
+   Object.freeze(x);
+ }
+ return x;
+}
 function listEqual(a:readonly string[],b:readonly string[]):boolean{
  const sorted=(x:readonly string[])=>[...x].sort().join("\u0000");
  return a.length===new Set(a).size&&sorted(a)===sorted(b);
@@ -120,6 +127,9 @@ export class FormulaRegistry {
  private readonly declaredInputs:readonly InputDefinition[];
 
  constructor(spec:MathDefinition){
+  // The graph owns an immutable, serializable copy. Neither the caller nor a
+  // returned EquationCapture may rewrite a law after compilation.
+  spec=immutable(JSON.parse(JSON.stringify(spec)) as MathDefinition);
   identifier(spec.id);
   if(!Number.isInteger(spec.revision)||spec.revision<1)
    reject("registry revision must be an integer >= 1");
@@ -209,7 +219,7 @@ export class FormulaRegistry {
   for(const eq of this.ordered){
    const inputs:Record<string,{value:number;unit:Unit}>={};
    for(const ref of references(eq.expression))
-    inputs[ref]={value:values[ref],unit:this.symbolUnits[ref]};
+    inputs[ref]=Object.freeze({value:values[ref],unit:this.symbolUnits[ref]});
    const result=evaluate(eq.expression,values);
    boundsCheck(eq.output,result,eq.bounds);
    values[eq.output]=result;
