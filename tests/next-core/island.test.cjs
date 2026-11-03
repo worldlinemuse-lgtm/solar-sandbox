@@ -127,3 +127,21 @@ test("integrated island battery charging losses are explicit rather than fiction
     r.ledgerWh.batteryHeat+r.ledgerWh.batteryChargeCoulombicLoss);
   near(r.ledgerWh.pvBus+r.ledgerWh.batteryTerminal,r.ledgerWh.inverterDc);
 });
+
+test("each committed math frame captures its ACTUAL time interval, never an assumed one second",()=>{
+ const o=advanceReferenceIsland(spec(300),state(.8),req(100,60));
+ assert.equal(o.status,"complete");
+ assert.ok(o.mathFrames.length>=1);
+ near(o.mathFrames.reduce((a,f)=>a+f.durationSeconds,0),60);
+ for(const frame of o.mathFrames){
+  near(frame.pv.values["bus.deliveredWh"],
+    frame.pv.values["bus.deliveredW"]*frame.durationSeconds/3600);
+  near(frame.battery.values["battery.terminalWh"],
+    frame.battery.values["battery.terminalW"]*frame.durationSeconds/3600);
+  near(frame.acService.values["ac.requestedWh"],
+    frame.acService.values["ac.requestedW"]*frame.durationSeconds/3600);
+  assert.ok(frame.pv.invariants.every(v=>v.passed));
+  assert.ok(frame.battery.invariants.every(v=>v.passed));
+  assert.ok(frame.acService.invariants.every(v=>v.passed));
+ }
+});
