@@ -16,6 +16,9 @@ import type {InstallationGraph} from "./math/topology";
 export const validationStatus=Object.freeze({
   schema:1,
   runMode:"read_only_shadow",
+  mathRegistryRevision:1,
+  mathematicalModels:Object.keys(MATHEMATICS),
+  wiringValidation:"structural_only_not_code_compliant",
   canReplaceProductionSolver:false,
   physicalCalibration:false,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
