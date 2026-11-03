@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/next-core/*.test.cjs
       - name: Next-core thermal and PV DC benchmarks versus pvlib
         run: python tests/next_core_pvlib.py
+      - name: Run full-day synthetic power-flow reference and energy ledger
+        run: node scripts/next-core-reference.cjs > /dev/null
       - name: Page matches the source build
         run: python source/build.py --check
       - name: Model integrity regressions (battery, loads, generator)
