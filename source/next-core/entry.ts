@@ -9,13 +9,16 @@ import {advanceReferenceIsland} from "./island";
 import {makeSyntheticBenchSpec} from "./catalog";
 import type {IslandSpec,IslandState,IslandRequest} from "./island";
 import {ModelFailure,finite,nonnegative} from "./contracts";
+import {MATHEMATICS} from "./math/models";
+import {evaluateInstallation} from "./math/topology";
+import type {InstallationGraph} from "./math/topology";
 
 export const validationStatus=Object.freeze({
   schema:1,
   runMode:"read_only_shadow",
   canReplaceProductionSolver:false,
   physicalCalibration:false,
-  model:"PVsyst LONGi diode + fixed-Vmp MPPT estimate and synthetic island fixtures",
+  model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
   missing:["whole-system instrument data","measured battery OCV/SoC/temperature",
     "motor transient power factor and duration","generator PowerAssist/transfer calibration",
@@ -93,4 +96,32 @@ export function runReferenceIsland(spec:Readonly<IslandSpec>,state:Readonly<Isla
  request:Readonly<IslandRequest>){
  return advanceReferenceIsland(spec,state,request);
 }
+
+/** Inspect the mathematical authority without updating the simulation state.
+ * Formula definitions, dependency closure, semantics and provenance are
+ * independent from the visual presentation and imperative runtime.
+ */
+type ModelKey=keyof typeof MATHEMATICS;
+function mathModel(name:string){
+ if(!Object.prototype.hasOwnProperty.call(MATHEMATICS,name))
+   throw new ModelFailure("INVALID_INPUT","Unregistered mathematical model "+name);
+ return MATHEMATICS[name as ModelKey];
+}
+export function getMathematicalDefinitions(){
+ return JSON.parse(JSON.stringify(
+  Object.fromEntries(Object.entries(MATHEMATICS).map(([name,model])=>
+    [name,{id:model.spec.id,revision:model.spec.revision,
+      inputs:model.spec.inputs,equations:model.ordered,
+      invariants:model.spec.invariants}]))
+ ));
+}
+export function evaluateMathematics(
+ name:string,variables:Readonly<Record<string,number>>){
+ return mathModel(name).evaluate(variables);
+}
+/** Wiring validity is only structural, NEVER a certified electrical installation. */
+export function inspectInstallation(graph:InstallationGraph,seconds:number){
+ return evaluateInstallation(graph,seconds);
+}
+
 export {makeSyntheticBenchSpec};
