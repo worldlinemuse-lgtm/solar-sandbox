@@ -216,3 +216,13 @@ The implicit law and solver implementation are separate; changing the root algor
 The deterministic website builder includes **every recursively discovered TypeScript source under `source/next-core/`**, including nested mathematical law declarations under `math/`, in the source SHA-256 manifest, in addition to the compiled inline browser bundle. CI reconstructs all hashes from source and verifies the bundled HTML byte for byte. A formula AST mutation therefore changes the model revision, cannot masquerade as a previous release, and must pass the full validation gate again.
 
 Compiler success, a matching SHA-256 digest, and passing simulated fixtures do not elevate an estimated equation to field-validated physics. The digest proves source consistency, not experimental truth.
+
+## 11. Staged integration time is part of the mathematical record
+
+A photovoltaic operating-point inquiry may default to a one-second energy illustration if no duration is provided. An actual island-substep calculation **must supply its accepted substep duration**. `IslandMathFrame.durationSeconds` and each captured PV `bus.deliveredWh`, battery `terminalWh`, and AC `requestedWh` must refer to exactly the same time interval:
+
+[
+E_{Wh}(k)=P_W(k)\,\Delta t_{accepted}(k)/3600.
+]
+
+A regression test checks the equation for every accepted frame, including split events. This removes an earlier inconsistency where instantaneous photovoltaic trace energy could have been labeled with a longer island integration period. The state machine may change time resolution; the mathematical stage cannot silently change its temporal meaning.
