@@ -28,8 +28,6 @@ test("semantic units prohibit W/VA confusion and implicit seconds-to-hours conve
    {real:"W",pf:"1"}),"VA");
  assert.throws(()=>unitOf(M.add(M.ref("real"),M.ref("apparent")),
    {real:"W",apparent:"VA"}),/cannot combine W and VA/);
- assert.throws(()=>unitOf(M.mul(M.ref("apparent"),M.ref("pf")),
-   {apparent:"VA",pf:"1"})==="W"?null:(()=>{throw Error("not real")}),/not real/);
  assert.equal(unitOf(M.mul(M.ref("apparent"),M.ref("pf")),
    {apparent:"VA",pf:"1"}),"VA");
  assert.throws(()=>unitOf(M.dc(M.ref("real"),M.ref("current")),

@@ -192,7 +192,7 @@ export const BATTERY_MATH:MathDefinition={
 export const AC_POWER_MATH:MathDefinition={
  id:"solar.ac.power-factor",revision:1,
  inputs:[
-  input("ac.apparentVA","VA","observation","R1_published",nonneg),
+  input("ac.apparentVA","VA","observation","R3_assumed",nonneg),
   input("ac.powerFactor","1","observation","R3_assumed",fraction),
   input("interval.seconds","s","state","R2_derived",positive)
  ],
@@ -216,9 +216,10 @@ export const AC_SERVICE_MATH:MathDefinition={
   input("interval.seconds","s","state","R2_derived",positive)
  ],
  equations:[
-  equation("ac.unserved_power.v1","energy","ac.unservedW","W",
+  {...equation("ac.unserved_power.v1","energy","ac.unservedW","W",
    M.sub(r("ac.requestedW"),r("ac.servedW")),
    ["ac.requestedW","ac.servedW"],String.raw`P_{unserved}=P_{requested}-P_{served}`),
+   bounds:nonneg},
   equation("ac.requested_energy.v1","energy","ac.requestedWh","Wh",
    M.wh(r("ac.requestedW"),r("interval.seconds")),
    ["ac.requestedW","interval.seconds"],String.raw`E_{requested}=P_{requested}\Delta t/3600`),
