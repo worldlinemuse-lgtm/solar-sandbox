@@ -26,9 +26,9 @@ Definitions and execution are different objects: `MathDefinition !== MathEvaluat
 
 The formal mathematical model is:
 
-[
+$
 \mathcal{M}=\langle X,K,T,I,B,P,F\rangle
-]
+$
 
 - `X`: typed physical variables, equipment parameters and state vectors;
 - `K`: a physical circuit/product/port graph and operating constraints;
@@ -64,18 +64,18 @@ The AST explicitly distinguishes `W`, `VA`, `var`, `Wh`, `Ah`, `V`, `A`, `ohm` a
 
 Examples:
 
-[
+$
 P_{dc}=V_{dc}I_{dc},\qquad P_{loss}=I^2R
-]
+$
 
-[
+$
 P_{ac,real}=S_{ac,apparent}\,PF
-]
+$
 
-[
+$
 E_{Wh}=P_W\,\Delta t_s/3600,\qquad
 \Delta Q_{Ah}=I_A\,\Delta t_s/3600.
-]
+$
 
 Unknown or zero PF cannot automatically confer an inverter startup pass. Dimensionally invalid operations, missing state quantities, nonfinite values, under/overflow, incompatible unit arithmetic, and negative unserved demand are errors rather than display artifacts.
 
@@ -84,62 +84,62 @@ Unknown or zero PF cannot automatically confer an inverter startup pass. Dimensi
 `source/next-core/math/models.ts` currently defines:
 
 **WIRE_LOSS_MATH**:
-[
+$
 \Delta V=IR,\quad P_{wire}=I^2R,\quad
 E_{wire}=P_{wire}\Delta t/3600
-]
+$
 with invariant `I²R = (IR)I`. Wire resistance is the value provided for **one named conductor**, not silently a full circuit loop.
 
 **PV_DC_MATH**:
-[
+$
 P_{panel}=V_{mp}I_{pv}
-]
-[
+$
+$
 P_{mppt,in}=P_{panel}-I_{pv}^2R_{pv}
-]
-[
+$
+$
 P_{mppt,out}=\eta_{mppt}P_{mppt,in}
-]
-[
+$
+$
 P_{bus}=V_{bus}I_{bus}
-]
-[
+$
+$
 P_{potential}=P_{curtailed}+P_{pvwire}+P_{mppt,loss}
  +P_{controllerwire}+P_{bus}.
-]
+$
 
 This graph is now called by `solvePvBus` after the operating-point root solver obtains actual accepted currents. Every returned PV wattage/loss comes from its recorded equation capture; the DC-circuit and MPPT invariants must pass.
 
 **BATTERY_MATH**:
-[
+$
 V_t=V_{OCV}-IR,quad
 P_t=V_tI,quad P_{heat}=I^2R.
-]
+$
 For discharge-positive current, charging-only current is `I_ch=max(0,-I)`. The charging loss and retained chemical power are:
-[
+$
 P_{coulombic}=V_{OCV}I_{ch}(1-\eta_C)
-]
-[
+$
+$
 P_{chemical,net}=V_{OCV}I+P_{coulombic}
 =P_t+P_{heat}+P_{coulombic}.
-]
+$
 Charge movement and SoC:
-[
+$
 I_{effective}=I+I_{ch}(1-\eta_C)
-]
-[
+$
+$
 \Delta Q_{Ah}=I_{effective}\Delta t/3600,\qquad
 SOC'=SOC-\Delta Q_{Ah}/Q_{available}.
-]
+$
 
 `integrateBatteryElectrical` obtains all these physical outputs from the registry, while imperative event logic only determines when to stop at the battery reserve boundary. Battery model parameters are still model-dependent estimates until independently measured.
 
 **AC_POWER_MATH** explicitly converts VA to W via PF and integrates the resulting real energy.
 
 **AC_SERVICE_MATH** enforces:
-[
+$
 E_{requested}=E_{served}+E_{unserved}
-]
+$
 and rejects negative unserved demand.
 
 The reference island engine now records accepted PV, battery and AC-service math frames for each committed substep. Unaccepted trial steps do not become authoritative history.
@@ -221,8 +221,8 @@ Compiler success, a matching SHA-256 digest, and passing simulated fixtures do n
 
 A photovoltaic operating-point inquiry may default to a one-second energy illustration if no duration is provided. An actual island-substep calculation **must supply its accepted substep duration**. `IslandMathFrame.durationSeconds` and each captured PV `bus.deliveredWh`, battery `terminalWh`, and AC `requestedWh` must refer to exactly the same time interval:
 
-[
+$
 E_{Wh}(k)=P_W(k)\,\Delta t_{accepted}(k)/3600.
-]
+$
 
 A regression test checks the equation for every accepted frame, including split events. This removes an earlier inconsistency where instantaneous photovoltaic trace energy could have been labeled with a longer island integration period. The state machine may change time resolution; the mathematical stage cannot silently change its temporal meaning.
