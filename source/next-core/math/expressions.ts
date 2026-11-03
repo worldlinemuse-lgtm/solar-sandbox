@@ -19,6 +19,7 @@ export type Expr =
  | {readonly op:"dcPower";readonly voltage:Expr;readonly current:Expr}
  | {readonly op:"ohmicLoss";readonly current:Expr;readonly resistance:Expr}
  | {readonly op:"energyWh";readonly power:Expr;readonly seconds:Expr}
+ | {readonly op:"chargeAh";readonly current:Expr;readonly seconds:Expr}
  | {readonly op:"realFromVA";readonly apparent:Expr;readonly pf:Expr}
  | {readonly op:"apparentFromReal";readonly real:Expr;readonly pf:Expr};
 
@@ -37,6 +38,7 @@ export const M = {
  dc:(voltage:Expr,current:Expr):Expr=>({op:"dcPower",voltage,current}),
  i2r:(current:Expr,resistance:Expr):Expr=>({op:"ohmicLoss",current,resistance}),
  wh:(power:Expr,seconds:Expr):Expr=>({op:"energyWh",power,seconds}),
+ ah:(current:Expr,seconds:Expr):Expr=>({op:"chargeAh",current,seconds}),
  acW:(apparent:Expr,pf:Expr):Expr=>({op:"realFromVA",apparent,pf}),
  acVA:(real:Expr,pf:Expr):Expr=>({op:"apparentFromReal",real,pf})
 };
@@ -79,6 +81,7 @@ export function references(expr:Expr):readonly string[]{
   if(e.op==="dcPower"){visit(e.voltage);visit(e.current);return;}
   if(e.op==="ohmicLoss"){visit(e.current);visit(e.resistance);return;}
   if(e.op==="energyWh"){visit(e.power);visit(e.seconds);return;}
+  if(e.op==="chargeAh"){visit(e.current);visit(e.seconds);return;}
   if(e.op==="realFromVA"){visit(e.apparent);visit(e.pf);return;}
   if(e.op==="apparentFromReal"){visit(e.real);visit(e.pf);return;}
  };
@@ -118,6 +121,10 @@ export function unitOf(expr:Expr,units:SymbolUnits):Unit{
     if(unitOf(expr.power,units)!=="W"||unitOf(expr.seconds,units)!=="s")
       invalid("energyWh requires W and seconds");
     return "Wh";
+  case "chargeAh":
+    if(unitOf(expr.current,units)!=="A"||unitOf(expr.seconds,units)!=="s")
+      invalid("chargeAh requires signed A and seconds");
+    return "Ah";
   case "realFromVA":
     if(unitOf(expr.apparent,units)!=="VA"||unitOf(expr.pf,units)!=="1")
       invalid("realFromVA requires VA and dimensionless PF");
@@ -153,6 +160,7 @@ export function evaluate(expr:Expr,values:SymbolValues):number{
   case "dcPower":out=val(expr.voltage)*val(expr.current);break;
   case "ohmicLoss":out=val(expr.current)**2*val(expr.resistance);break;
   case "energyWh":out=val(expr.power)*val(expr.seconds)/3600;break;
+  case "chargeAh":out=val(expr.current)*val(expr.seconds)/3600;break;
   case "realFromVA":{
     const pf=val(expr.pf);
     if(pf<0||pf>1)invalid("realFromVA requires 0 <= PF <= 1");
