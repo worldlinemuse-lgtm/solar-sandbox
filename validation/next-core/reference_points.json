@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "purpose": "Independent published limits and analytic reference points for next-core; these are not measurements of the assembled household system",
+  "evidence": [
+    {
+      "id": "victron-mppt-15070",
+      "level": "R1_published",
+      "source": "https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html",
+      "variant": "SmartSolar MPPT 150/70 VE.Can",
+      "parameters": {
+        "maxChargeA": 70,
+        "absoluteVocV": 150,
+        "operatingVocV": 145,
+        "maxPvIscA": 50,
+        "peakEfficiency": 0.98
+      },
+      "limitations": "Peak efficiency does not establish efficiency at every load"
+    },
+    {
+      "id": "victron-multiplus-24-3000",
+      "level": "R1_published",
+      "source": "https://www.victronenergy.com/media/pg/MultiPlus-II_120V/en/technical-specifications-mp-ii-120v.html",
+      "variant": "MultiPlus-II 24/3000/70-50 120V",
+      "parameters": {
+        "steadyW": 2400,
+        "steadyVA": 3000,
+        "peakW": 5500,
+        "peakVA": null,
+        "peakSeconds": null,
+        "maximumEfficiency": 0.94,
+        "idleW": 13
+      },
+      "limitations": "Published peak W does not alone establish a peak VA or a 7.4 kVA motor-start capability"
+    },
+    {
+      "id": "honda-eu2200i",
+      "level": "R1_published",
+      "source": "https://direct.powerequipment.honda.com/generators/models/EU2200i",
+      "variant": "EU2200ITAN",
+      "parameters": {
+        "ratedW": 1800,
+        "peakW": 2200,
+        "tankGal": 0.95,
+        "runtimeRatedHours": 3.2,
+        "runtimeQuarterHours": 8.1
+      },
+      "limitations": "No full fuel curve, actual refuel delay or automated-start hardware published"
+    },
+    {
+      "id": "nasa-power-hourly",
+      "level": "R1_published",
+      "source": "https://power.larc.nasa.gov/docs/services/api/temporal/hourly/",
+      "variant": "POWER hourly API",
+      "parameters": {
+        "defaultTimeStandard": "LST",
+        "alternate": "UTC"
+      },
+      "limitations": "Local solar time is not guaranteed to match US Eastern Standard Time"
+    }
+  ],
+  "assumed_parameters": [
+    {
+      "id": "mppt-conversion-efficiency",
+      "reason": "98% is a published PEAK, not a load-dependent efficiency curve"
+    },
+    {
+      "id": "pv-fixed-vmp-operation",
+      "reason": "Lack of complete manufacturer I-V and MPPT tracking curves"
+    },
+    {
+      "id": "battery-ocv-r-and-coulombic-efficiency",
+      "reason": "Requires measured chemistry-, temperature- and SOC-specific curves"
+    },
+    {
+      "id": "inverter-partload-efficiency",
+      "reason": "Only maximum efficiency and idle watts available, not a complete curve"
+    },
+    {
+      "id": "fuel-below-quarter-load",
+      "reason": "Honda publishes only two runtime anchor points"
+    },
+    {
+      "id": "start-and-refuel-time",
+      "reason": "Operator presence and startup/refuel time depend on situation"
+    }
+  ],
+  "coverage": {
+    "mathematics": "typed equations/invariants and analytic fixtures",
+    "componentPhysics": "partial: PV fixed Vmp, battery single OCV/R point, real/reactive AC limits, finite-fuel generator",
+    "wholeSystem": "blocked pending independent measurement/reference data and integrated event scheduler",
+    "householdOptimizer": "blocked"
+  }
+}

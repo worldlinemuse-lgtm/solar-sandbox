@@ -18,6 +18,12 @@ jobs:
         run: |
           pip install playwright pvlib pandas numpy
           python -m playwright install --with-deps chromium
+      - name: Compile independent typed physics core
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts typescript@5.8.3
+          ./node_modules/.bin/tsc --project tsconfig.next-core.json
+      - name: Next-core external fixtures, invariants and edge cases
+        run: node --test tests/next-core/*.test.cjs
       - name: Page matches the source build
         run: python source/build.py --check
       - name: Model integrity regressions (battery, loads, generator)
