@@ -23,7 +23,6 @@ jobs:
           npm install --no-save --no-package-lock --ignore-scripts typescript@5.8.3 esbuild@0.25.8
           ./node_modules/.bin/tsc --project tsconfig.next-core.json
           ./node_modules/.bin/esbuild source/next-core/entry.ts --bundle --minify --format=iife --global-name=SolarNextCore --target=es2020 --outfile=source/next-core-browser.js
-          git diff --exit-code -- source/next-core-browser.js
       - name: Browser-side reference-only engine bridge
         run: python tests/test_next_core_bridge.py
       - name: Next-core external fixtures, invariants and edge cases
@@ -32,6 +31,8 @@ jobs:
         run: python tests/next_core_pvlib.py
       - name: Run full-day synthetic power-flow reference and energy ledger
         run: node scripts/next-core-reference.cjs > /dev/null
+      - name: Verify pinned browser mathematical bundle is byte-identical to source
+        run: git diff --exit-code -- source/next-core-browser.js
       - name: Page matches the source build
         run: python source/build.py --check
       - name: Model integrity regressions (battery, loads, generator)
