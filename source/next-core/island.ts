@@ -70,8 +70,12 @@ interface OperatingPoint{
 function operatingPoint(spec:IslandSpec, state:BatteryElectricalState,
   requestW:number, generatorW:number,seconds:number,runInverter:boolean):OperatingPoint {
   const generatorDelivered=Math.min(requestW,generatorW);
-  const invAc=runInverter?Math.max(0,requestW-generatorDelivered):0;
-  const invLoss=runInverter?
+  // A generator on the AC input and an inverter output cannot be summed as
+  // concurrent sources without an independently validated PowerAssist/parallel
+  // topology. In pass-through mode, any generator overload is unserved.
+  const inverterEnabled=runInverter&&generatorDelivered===0;
+  const invAc=inverterEnabled?requestW:0;
+  const invLoss=inverterEnabled?
     (spec.inverter.inverterUnits*spec.inverter.idleWPerUnit+
      invAc*(1/spec.inverter.estimatedRunningEfficiency-1)):0;
   const invDc=invAc+invLoss;
@@ -159,8 +163,8 @@ export function advanceReferenceIsland(
     let left=segment.durationSeconds;
     while(left>1e-9){
       if(++substeps>100)throw new ModelFailure("SOLVER_DID_NOT_CONVERGE","Too many island event substeps");
-      let point:OperatingPoint,runInv=true;
-      try{point=operatingPoint(spec,battery,ac.requestedW,segment.deliveredW,left,true);}
+      let point:OperatingPoint,runInv=segment.deliveredW===0;
+      try{point=operatingPoint(spec,battery,ac.requestedW,segment.deliveredW,left,runInv);}
       catch(e){
         if(!recoverable(e))throw e;
         runInv=false;

@@ -77,6 +77,19 @@ test("generator recoil start yields no energy before startup; no fuel is fabrica
   near(r.generator.gallonsConsumed,(.95/8.1)*45/3600);
   assert.ok(r.nextState.generator.tankGallons<.95);
 });
+test("generator overload never uses unverifiable inverter parallel/PowerAssist output",()=>{
+  const model=spec(200,true);
+  // Inverter can carry 1900 W continuously, but the generator is rated 1800 W.
+  const old=state(.8,true);
+  old.generator.mode="running";
+  const over=advanceReferenceIsland(model,old,req(1900,60,"none"));
+  assert.equal(over.status,"unserved");
+  near(over.ledgerWh.generatorAc,1800/60);
+  near(over.ledgerWh.inverterAc,0);
+  near(over.ledgerWh.unservedAc,100/60);
+  near(over.ledgerWh.requestedAc,over.ledgerWh.servedAc+over.ledgerWh.unservedAc);
+  assert.ok(over.nextState.battery.soc>=old.battery.soc);
+});
 test("missing motor startup data or unverified split-phase transfer cannot be silently passed",()=>{
   const p=req();
   p.loads[0].starting={apparentVA:7406,powerFactor:null,durationSeconds:null};
