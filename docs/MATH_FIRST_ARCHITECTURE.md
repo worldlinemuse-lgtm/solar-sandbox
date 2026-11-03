@@ -210,3 +210,9 @@ f_{bus}(I)=V_{bus}I+I^2R-P_{converter,out}=0.
 `source/next-core/numerical.ts` retains stable analytic small-root solutions for numerical conditioning, but every candidate is now verified against its registered residual. **A zero residual is not sufficient**: the quadratic's other branch can be mathematically valid yet physically inadmissible. The registry explicitly enforces the lower-current branch for battery/PV and nonnegative controller output current, and rejects division-by-zero and nonconverged roots.
 
 The implicit law and solver implementation are separate; changing the root algorithm must preserve the law, its branch policy, units, tolerance, evidence, and falsifier. This is a first formal migration step; coupled inverter/AC/network nonlinear behavior remains an unimplemented operating-domain extension.
+
+## 10. Reproducible source identity after migration
+
+The deterministic website builder includes **every recursively discovered TypeScript source under `source/next-core/`**, including nested mathematical law declarations under `math/`, in the source SHA-256 manifest, in addition to the compiled inline browser bundle. CI reconstructs all hashes from source and verifies the bundled HTML byte for byte. A formula AST mutation therefore changes the model revision, cannot masquerade as a previous release, and must pass the full validation gate again.
+
+Compiler success, a matching SHA-256 digest, and passing simulated fixtures do not elevate an estimated equation to field-validated physics. The digest proves source consistency, not experimental truth.
