@@ -39,19 +39,19 @@ function invariant(id:string,unit:Unit,residual:Expr,
 }
 
 export const WIRE_LOSS_MATH:MathDefinition={
- id:"solar.wire.segment",revision:1,
+ id:"solar.wire.segment",revision:2,
  inputs:[
   input("wire.currentA","A","state"),
-  input("wire.loopOhm","ohm","parameter","R3_assumed",nonneg),
+  input("wire.conductorOhm","ohm","parameter","R3_assumed",nonneg),
   input("interval.seconds","s","state","R2_derived",positive)
  ],
  equations:[
   equation("wire.voltage_drop.v1","electrical","wire.voltageDropV","V",
-   M.mul(r("wire.currentA"),r("wire.loopOhm")),
-   ["wire.currentA","wire.loopOhm"],String.raw`\Delta V=IR`),
+   M.mul(r("wire.currentA"),r("wire.conductorOhm")),
+   ["wire.currentA","wire.conductorOhm"],String.raw`\Delta V=IR`),
   equation("wire.ohmic_loss.v1","electrical","wire.heatW","W",
-   M.i2r(r("wire.currentA"),r("wire.loopOhm")),
-   ["wire.currentA","wire.loopOhm"],String.raw`P_{heat}=I^2 R`),
+   M.i2r(r("wire.currentA"),r("wire.conductorOhm")),
+   ["wire.currentA","wire.conductorOhm"],String.raw`P_{heat}=I^2 R`),
   equation("wire.thermal_energy.v1","energy","wire.heatWh","Wh",
    M.wh(r("wire.heatW"),r("interval.seconds")),
    ["wire.heatW","interval.seconds"],String.raw`E_{heat}=I^2 R\Delta t/3600`)

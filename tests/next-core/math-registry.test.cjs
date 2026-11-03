@@ -110,7 +110,7 @@ test("AC service accepts no invented power: request = served + unserved",()=>{
 });
 test("wire I²R invariant handles negative current without negative heat",()=>{
  const t=MATHEMATICS.wire.evaluate({
-  "wire.currentA":-30,"wire.loopOhm":.025,"interval.seconds":45
+  "wire.currentA":-30,"wire.conductorOhm":.025,"interval.seconds":45
  });
  near(t.values["wire.voltageDropV"],-.75);
  near(t.values["wire.heatW"],22.5);

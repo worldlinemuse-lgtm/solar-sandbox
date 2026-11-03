@@ -226,3 +226,7 @@ E_{Wh}(k)=P_W(k)\,\Delta t_{accepted}(k)/3600.
 $
 
 A regression test checks the equation for every accepted frame, including split events. This removes an earlier inconsistency where instantaneous photovoltaic trace energy could have been labeled with a longer island integration period. The state machine may change time resolution; the mathematical stage cannot silently change its temporal meaning.
+
+### Wire semantics (no hidden round-trip multiplication)
+
+The registered `WIRE_LOSS_MATH` input was renamed to **`wire.conductorOhm`** in registry revision 2. It is the resistance of one named conductor segment. Separately, the PV/MPPT root laws retain `wire.loopOhm` for the **full round-trip circuit loop**. These two resistances must never be silently substituted; doing so can overstate or understate cable loss by a factor of two.

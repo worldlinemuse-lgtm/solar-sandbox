@@ -199,7 +199,7 @@ export function evaluateInstallation(
   if(a.kind==="junction")junctions[a.id]=(junctions[a.id]??0)-edge.currentA;
   if(z.kind==="junction")junctions[z.id]=(junctions[z.id]??0)+edge.currentA;
   const math=MATHEMATICS.wire.evaluate({
-    "wire.currentA":edge.currentA,"wire.loopOhm":res,
+    "wire.currentA":edge.currentA,"wire.conductorOhm":res,
     "interval.seconds":durationSeconds
   });
   captures.push({id:edge.id,from:a.id,to:z.id,rail:a.rail,

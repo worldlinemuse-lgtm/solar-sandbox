@@ -35,7 +35,7 @@ def main():
             busVoltageV:26.4,legacyControllerOutputW:null,legacySnowFraction:0});
           const definitions=a.getMathematicalDefinitions();
           const wire=a.evaluateMathematics('wire',{
-            'wire.currentA':10,'wire.loopOhm':.1,'interval.seconds':60
+            'wire.currentA':10,'wire.conductorOhm':.1,'interval.seconds':60
           });
           // The consumer may edit its descriptive COPY, not the canonical law.
           definitions.wire.equations[0].revision=999;
