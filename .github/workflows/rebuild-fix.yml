@@ -7,6 +7,7 @@ on:
       - fix/result-integrity-2026-11-02
       - release/result-provenance-2026-11-02
       - milestone/reference-validation-provenance-2026-11-02
+      - validation/engine-integration-2026-11-03
     paths:
       - 'source/**'
       - '.github/workflows/rebuild-fix.yml'
@@ -28,6 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Generate pinned standalone next-core bundle
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts esbuild@0.25.8
+          ./node_modules/.bin/esbuild source/next-core/entry.ts --bundle --minify --format=iife --global-name=SolarNextCore --target=es2020 --outfile=source/next-core-browser.js
       - name: Validate source JavaScript
         run: node --check source/sim.js
       - name: Rebuild application and check consistency
@@ -36,10 +41,10 @@ jobs:
           python source/build.py --check
       - name: Commit generated HTML for GitHub Pages
         run: |
-          if ! git diff --quiet -- index.html; then
+          if ! git diff --quiet -- index.html source/next-core-browser.js; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add index.html
+            git add index.html source/next-core-browser.js
             git commit -m "build: regenerate site from corrected simulation source"
             git push
           fi

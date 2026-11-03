@@ -14,7 +14,8 @@ import base64, hashlib, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PARTS = {'__TMY__': 'tmy.js', '__PHYS__': 'physics.js', '__BATT__': 'battery.js', '__ELEC__': 'elec.js',
-         '__HIST__': 'hist.js', '__SNOW__': 'snowhist.js', '__SIMJS__': 'sim.js'}
+         '__HIST__': 'hist.js', '__SNOW__': 'snowhist.js',
+         '__NEXTCORE__': 'next-core-browser.js', '__SIMJS__': 'sim.js'}
 
 
 def build():
@@ -23,7 +24,8 @@ def build():
         assert t.count(k) == 1, f'{k} should appear once in template.html, found {t.count(k)}'
     # Deterministic provenance. Do not insert wall-clock build times: identical inputs must
     # generate byte-for-byte identical offline apps and machine-verifiable source digests.
-    manifest_files = sorted(set(PARTS.values()) | {'guide.mp3', 'template.html', 'build.py'})
+    manifest_files = sorted(set(PARTS.values()) | {'guide.mp3', 'template.html', 'build.py'} |
+        {'next-core/' + f for f in os.listdir(os.path.join(HERE, 'next-core')) if f.endswith('.ts')})
     source_sha256 = {
         f: hashlib.sha256(open(os.path.join(HERE, f), 'rb').read()).hexdigest()
         for f in manifest_files

@@ -1495,6 +1495,31 @@ function init(){
  requestAnimationFrame(frame);
 }
 // test hooks
-window.SIM={makeAnalysisRecord,downloadAnalysis,modelRevisionWarning,get LAST_RATE_RECORD(){return LAST_RATE_RECORD;},get LAST_AGE_RECORD(){return LAST_AGE_RECORD;},runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
+// Independent physics engine: read-only shadow inspection.
+ // A calibrated replacement is prohibited until validation/next-core/coverage.json gates pass.
+function nextCoreShadow(){
+ const core=window.SolarNextCore;
+ if(!core)return {status:'unavailable',reason:'Standalone next-core browser bundle unavailable'};
+ const L=S.live||{},c=S.cfg,M=mppt();
+ if(!Number.isFinite(L.geff)||!Number.isFinite(L.tcell)||!Number.isFinite(L.mOut))
+  return {status:'indeterminate',reason:'No completed live model timestep to cross-check'};
+ if(PANEL.id!=='lg435'||M.id!=='150/70')
+  return {status:'unsupported',reason:'Independent single-diode fixtures currently cover LONGi LR4-72HBD-435M and Victron 150/70'};
+ if(c.mpptDead||S.mpptDead)
+  return {status:'indeterminate',reason:'Controller failure state has not been independently modeled'};
+ return core.shadowPv({
+  panelId:PANEL.id,controllerId:M.id,
+  irradianceWm2:L.geff,cellTemperatureC:L.tcell,
+  series:c.ser,stringsByController:ctlShares(c.par,c.nMppt).filter(n=>n>0),
+  mpptCurrentLimitA:M.amps,mpptAbsoluteVocV:M.abs,
+  mpptOperatingVocV:M.op,mpptIscLimitA:M.isc,
+  mpptEfficiency:M.eff,
+  pvCableLoopOhm:PHYS.loopR(c.pvMat,c.pvG,c.pvFt,75),
+  controllerCableLoopOhm:PHYS.loopR(c.cbMat,c.cbG,c.cbFt,75),
+  busVoltageV:Math.max(0.1,L.vb||c.sysV),
+  legacyControllerOutputW:L.mOut,legacySnowFraction:S.snow
+ });
+}
+window.SIM={nextCoreShadow,makeAnalysisRecord,downloadAnalysis,modelRevisionWarning,get LAST_RATE_RECORD(){return LAST_RATE_RECORD;},get LAST_AGE_RECORD(){return LAST_AGE_RECORD;},runAging,ageSoh,ageEfcLife,AGE_DATA,get AGE_LAST(){return AGE_LAST;},sohF,get WXNOW(){return WX;},get PANELNOW(){return PANEL;},mountUsed,poaDaily,buildHistWX,endMission,WX_TMY,S,buildStatePayload,applyState,cleanState,makeMission,setWeather,wxId:()=>WXID,findWorstStretch,runFailureRates,summarizeRuns,grabState,putState,HIST_YEARS,BATTMODEL,ELEC,wiringReport,step,checks,startMission,MISSIONS,MPPTS,INVS,capWh,dailyLoadWh,dayProfile,cfgChanged,syncInputs,refreshLive,setPlaying,loadOn,arrangeFor,stepPanels,stepBatts,addLoad,PRESETS,DEFAULT_LOADS,restoreLoads,togglePv,renderLoads,PANELS,BATTS,buyCost,costLines,totalCost,setPanelType,setBattType,chgMin,chgWh,nSer,usableWh,wiringReport,pvHourly,buildPayload,applyPayload,saveLocal,loadLocal,mountUsed,WX,PHYS,INV_DS:INVS,get REMAP(){return REMAP;},get PANEL(){return PANEL;},get BATT(){return BATT;},useMyLongi,compatRows,ctlShares,HIST_COLD_F,GEN_DS,genGph};
 init();
 })();

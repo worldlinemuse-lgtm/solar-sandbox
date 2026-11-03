@@ -34,8 +34,11 @@ def main():
         files = manifest["source_sha256"]
         assert set(files) == {
             "build.py", "template.html", "sim.js", "physics.js", "elec.js", "battery.js",
-            "tmy.js", "hist.js", "snowhist.js", "guide.mp3"
+            "tmy.js", "hist.js", "snowhist.js", "guide.mp3", "next-core-browser.js"
         }
+        assert all("next-core/" + filename in files for filename in [
+            "entry.ts", "pv-diode.ts", "island.ts", "battery.ts", "generator.ts", "ac.ts"
+        ])
         for filename, digest in files.items():
             actual = hashlib.sha256((ROOT / "source" / filename).read_bytes()).hexdigest()
             assert digest == actual, ("source drift", filename, digest, actual)
