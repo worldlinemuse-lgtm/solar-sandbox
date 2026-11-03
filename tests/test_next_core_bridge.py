@@ -51,7 +51,9 @@ def main():
             g,unsupported:unsupported.status,legacy:legacy.status,
             unchanged:first===JSON.stringify({cfg:src.cfg,loads:src.loads,soc:src.soc,
               generatorFuel:src.genFuelLeft,weather:SIM.wxId()}),
-            modelHash:window.SIM_PROVENANCE.source_sha256['next-core-browser.js']};
+            modelHash:window.SIM_PROVENANCE.source_sha256['next-core-browser.js'],
+            registryHash:window.SIM_PROVENANCE.source_sha256['next-core/math/models.ts'],
+            topologyHash:window.SIM_PROVENANCE.source_sha256['next-core/math/topology.ts']};
         }""")
         assert x["bundle"]=="function" and x["unchanged"],x
         assert x["status"]["canReplaceProductionSolver"] is False
@@ -65,6 +67,7 @@ def main():
         assert x["unsupported"]=="unsupported"
         assert x["legacy"] in ("unsupported","indeterminate","estimated")
         assert len(x["modelHash"])==64
+        assert len(x["registryHash"])==64 and len(x["topologyHash"])==64
         assert not errors,errors
         browser.close()
         print("PASS: read-only offline integration, provenance, selected hardware boundaries and no mutation")
