@@ -181,3 +181,13 @@ test("compiled mathematical laws and captured inputs cannot be mutated by presen
   "battery.soc":.6,"interval.seconds":60
  }).values["battery.terminalW"],4*(12-.08));
 });
+
+test("single-conductor resistance cannot be passed as PV round-trip loop resistance",()=>{
+ assert.equal(MATHEMATICS.wire.spec.revision,2);
+ const inputs={"wire.currentA":10,"wire.conductorOhm":.025,"interval.seconds":60};
+ const output=MATHEMATICS.wire.evaluate(inputs);
+ near(output.values["wire.heatW"],2.5);
+ assert.throws(()=>MATHEMATICS.wire.evaluate({
+   "wire.currentA":10,"wire.loopOhm":.05,"interval.seconds":60
+ }),/unexpected input/);
+});
