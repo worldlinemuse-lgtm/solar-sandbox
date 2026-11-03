@@ -36,8 +36,8 @@ test("semantic units prohibit W/VA confusion and implicit seconds-to-hours conve
    {energy:"Wh",real:"W"}),/requires a factor of 3600/);
  assert.equal(unitOf(M.wh(M.ref("real"),M.c(60,"s")),
    {real:"W"}),"Wh");
- near(evaluate(M.wh(M.c(100,"W"),M.c(60,"s")),(100/60));
- near(evaluate(M.ah(M.c(-10,"A"),M.c(90,"s")),-.25);
+ near(evaluate(M.wh(M.c(100,"W"),M.c(60,"s"))),100/60);
+ near(evaluate(M.ah(M.c(-10,"A"),M.c(90,"s"))),-.25);
  assert.deepEqual(references(M.add(M.ref("a"),M.ref("a"))),["a"]);
 });
 test("PV output is compiled from the equations, not recomputed in report code",()=>{
