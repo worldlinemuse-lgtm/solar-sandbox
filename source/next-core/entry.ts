@@ -76,7 +76,7 @@ export function shadowPv(x:Readonly<ShadowPvRequest>):unknown {
  });
  if(controllers.some(x=>x.status==="fail"))
    return {status:"fail",reason:"Manufacturer input current limit exceeded",controllers};
- const envelope=controllers.reduce((s,c)=>s+("maximumBusW" in c?c.maximumBusW:0),0);
+ const envelope=controllers.reduce((s,c)=>s+(typeof c.maximumBusW==="number"?c.maximumBusW:0),0);
  return {status:"estimated",schema:1,validation:"partial_reference_validation",
    explanation:"Modeled upper-generation envelope, NOT predicted delivered/charged power; legacy can curtail further",
    boundaryConditions:{irradianceWm2:x.irradianceWm2,cellTemperatureC:x.cellTemperatureC,
