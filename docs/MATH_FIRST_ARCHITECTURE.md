@@ -192,3 +192,21 @@ CI compiles the typed engine, tests these registries, bundles them into the exis
 9. Only then consider household planning and optimizer layers.
 
 An internal mathematical test pass is evidence of code/math agreement, **not** evidence that actual hardware matches the assumed model.
+
+## 9. Registered implicit electrical roots (numerical algorithms remain subordinate)
+
+`source/next-core/math/implicit.ts` formalizes three implicit laws as independently inspectable residual ASTs:
+
+\[
+f_b(I)=(V_{OCV}-IR)I-P_{requested}=0
+\]
+\[
+f_{pv}(I)=VI-I^2R-P_{accepted}=0
+\]
+\[
+f_{bus}(I)=V_{bus}I+I^2R-P_{converter,out}=0.
+\]
+
+`source/next-core/numerical.ts` retains stable analytic small-root solutions for numerical conditioning, but every candidate is now verified against its registered residual. **A zero residual is not sufficient**: the quadratic's other branch can be mathematically valid yet physically inadmissible. The registry explicitly enforces the lower-current branch for battery/PV and nonnegative controller output current, and rejects division-by-zero and nonconverged roots.
+
+The implicit law and solver implementation are separate; changing the root algorithm must preserve the law, its branch policy, units, tolerance, evidence, and falsifier. This is a first formal migration step; coupled inverter/AC/network nonlinear behavior remains an unimplemented operating-domain extension.

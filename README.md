@@ -5,6 +5,16 @@ An interactive solar and house-battery simulator, with a built-in voice guide to
 The whole app is one self-contained file, `index.html`. The voice guide, weather data, scripts and styles are built in, and nothing needs to be installed or built to use it. The same page is also kept as separate source files in `source/`, with a build script that puts them back together (see "Source files and building").
 
 
+## Mathematical authority — equations first, code second
+
+Solar Sandbox now maintains an independently inspectable mathematical equation registry for **PV/DC power, wire resistance, battery charge/SoC, AC power factor and delivered/unserved energy**. The registry is not presentation code: it checks units, dependency closure, law revisions, evidence tier and conservation residuals, while the new physics engine reads its computed stage outputs.
+
+A companion product/topology graph identifies manufacturer-specific devices, physical terminals, individual wire runs, voltage rails and protection uncertainties. It can reject crossed rails, missing return paths, overcurrent and junction imbalances. **It cannot certify electrical installation compliance.**
+
+The read-only integrated browser exposes `SolarNextCore.getMathematicalDefinitions()`, `evaluateMathematics(...)`, and `inspectInstallation(...)` for engineering inspection without touching the public interface's existing dispatch behavior.
+
+See [Math-first architectural contract](docs/MATH_FIRST_ARCHITECTURE.md), [independent physical evidence](docs/PHYSICAL_BENCHMARK_EVIDENCE.md), and [release blockers](validation/next-core/coverage.json).
+
 ## Independent physical-engine validation (read-only integration)
 
 A second, strictly type-checked TypeScript physics engine is now **bundled offline** with this website and available through the diagnostic JavaScript APIs `SolarNextCore.shadowPv(...)` and `SIM.nextCoreShadow()`. They do not alter the live simulator's dispatch decisions, energy totals, generator fuel or battery state. The current interface is unchanged.

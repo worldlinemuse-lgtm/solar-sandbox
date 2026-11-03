@@ -16,7 +16,8 @@
     "mathAuthorityPresent": true,
     "mathsCoverage": "partial: wire, PV/DC, battery, AC PF and AC service",
     "topologyGraphPresent": true,
-    "networkCodeCompliant": false
+    "networkCodeCompliant": false,
+    "canonicalImplicitLaws": 3
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -315,8 +316,8 @@
     {
       "id": "implicit_physics_solver_contracts",
       "category": "engineering_math",
-      "status": "blocked",
-      "description": "The nonlinear solver equations are not yet registered as first-class residuals with a general physical root-solver contract"
+      "status": "partial",
+      "description": "Battery-terminal, PV input cable and controller output cable quadratic residuals and admissible branches are registered and checked; nonlinear inverter/network roots still missing"
     }
   ],
   "completedCount": 8,
