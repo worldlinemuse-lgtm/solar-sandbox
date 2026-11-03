@@ -24,6 +24,8 @@ jobs:
           ./node_modules/.bin/tsc --project tsconfig.next-core.json
       - name: Next-core external fixtures, invariants and edge cases
         run: node --test tests/next-core/*.test.cjs
+      - name: Next-core thermal and PV DC benchmarks versus pvlib
+        run: python tests/next_core_pvlib.py
       - name: Page matches the source build
         run: python source/build.py --check
       - name: Model integrity regressions (battery, loads, generator)
