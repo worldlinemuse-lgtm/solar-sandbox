@@ -90,7 +90,8 @@ function operatingPoint(spec:IslandSpec, state:BatteryElectricalState,
      invAc*(1/spec.inverter.estimatedRunningEfficiency-1)):0;
   const invDc=invAc+invLoss;
   const chargeHeadroom=maxChargingTerminalPowerW(spec.battery,state,seconds);
-  const solar=solvePvBus({...spec.pv,busSinkLimitW:invDc+chargeHeadroom});
+  const solar=solvePvBus({...spec.pv,
+    busSinkLimitW:invDc+chargeHeadroom,intervalSeconds:seconds});
   const netBatteryTerminal=invDc-solar.busPowerW;
   const battery=integrateBatteryElectrical(spec.battery,state,netBatteryTerminal,seconds);
   assertPowerBalance("Island DC node",

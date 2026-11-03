@@ -16,6 +16,9 @@ export interface PvBusInput {
   readonly batteryBusVoltageV: number;
   readonly controllerWireLoopOhm: number;
   readonly busSinkLimitW?: number;
+  /** Time represented by the captured energy frame; defaults to 1 s only for
+   * instantaneous electrical-only observations. */
+  readonly intervalSeconds?:number;
 }
 export interface PvBusResult {
   readonly maximumPanelPowerW:number;
@@ -67,7 +70,8 @@ export function solvePvBus(x:Readonly<PvBusInput>):PvBusResult {
     "panel.availableW":p,"panel.operatingV":v,"panel.currentA":iPv,
     "pv.loopOhm":rp,"mppt.efficiency":eff,
     "bus.voltageV":vb,"bus.currentA":iBus,
-    "controller.loopOhm":rc,"interval.seconds":1
+    "controller.loopOhm":rc,
+    "interval.seconds":x.intervalSeconds===undefined?1:x.intervalSeconds
   });
   const m=mathTrace.values;
   const residual=mathTrace.invariants.find(x=>x.id==="pv.global_conservation")!.value;
