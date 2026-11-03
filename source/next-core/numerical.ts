@@ -1,4 +1,6 @@
 import {ModelFailure, finite, nonnegative} from "./contracts";
+import {verifyImplicitRoot,BATTERY_TERMINAL_CURRENT,
+ PV_INPUT_CABLE_CURRENT,CONTROLLER_OUTPUT_CABLE_CURRENT} from "./math/implicit";
 
 /** Small-magnitude root of R I^2 - V I + P = 0, stable as R -> 0.
  * For a battery P=Vterminal*I, Vterminal=Voc-R*I; current is positive on discharge.
@@ -7,10 +9,16 @@ import {ModelFailure, finite, nonnegative} from "./contracts";
 export function terminalCurrentA(openV: number, internalOhm: number, terminalW: number): number {
   if (!(finite("openV",openV)>0)) throw new ModelFailure("INVALID_INPUT", "openV must be positive");
   nonnegative("internalOhm",internalOhm); finite("terminalW",terminalW);
-  if (internalOhm===0) return terminalW/openV;
   const discriminant=openV*openV-4*internalOhm*terminalW;
-  if (discriminant < 0) throw new ModelFailure("PHYSICAL_INFEASIBILITY","Terminal load exceeds maximum available electrical power");
-  return 2*terminalW/(openV+Math.sqrt(discriminant));
+  if (discriminant < 0) throw new ModelFailure("PHYSICAL_INFEASIBILITY",
+    "Terminal load exceeds maximum available electrical power");
+  const current=internalOhm===0?terminalW/openV:
+    2*terminalW/(openV+Math.sqrt(discriminant));
+  verifyImplicitRoot(BATTERY_TERMINAL_CURRENT,{
+    "battery.ocvV":openV,"battery.internalOhm":internalOhm,
+    "battery.requiredW":terminalW
+  },current);
+  return current;
 }
 
 /** Current delivering P to a remote bus through positive R: P=I*Vbus+I^2*R.
@@ -19,7 +27,12 @@ export function terminalCurrentA(openV: number, internalOhm: number, terminalW: 
 export function deliveryCurrentA(busV: number, loopOhm: number, sourcePowerW: number): number {
   if (!(finite("busV",busV)>0)) throw new ModelFailure("INVALID_INPUT","busV must be positive");
   nonnegative("loopOhm",loopOhm);nonnegative("sourcePowerW",sourcePowerW);
-  return 2*sourcePowerW/(busV+Math.sqrt(busV*busV+4*loopOhm*sourcePowerW));
+  const current=2*sourcePowerW/(busV+Math.sqrt(busV*busV+4*loopOhm*sourcePowerW));
+  verifyImplicitRoot(CONTROLLER_OUTPUT_CABLE_CURRENT,{
+   "wire.busV":busV,"wire.loopOhm":loopOhm,
+   "wire.sourceW":sourcePowerW
+  },current);
+  return current;
 }
 
 /** Lower-current solution to P = I*V - R*I^2.
@@ -32,7 +45,12 @@ export function extractionCurrentA(sourceV: number, loopOhm: number, acceptedPow
   if (disc < -1e-9*Math.max(1,sourceV*sourceV)) {
     throw new ModelFailure("PHYSICAL_INFEASIBILITY","PV cable cannot deliver requested power");
   }
-  return 2*acceptedPowerW/(sourceV+Math.sqrt(Math.max(0,disc)));
+  const current=2*acceptedPowerW/(sourceV+Math.sqrt(Math.max(0,disc)));
+  verifyImplicitRoot(PV_INPUT_CABLE_CURRENT,{
+   "wire.sourceV":sourceV,"wire.loopOhm":loopOhm,
+   "wire.acceptedW":acceptedPowerW
+  },current);
+  return current;
 }
 
 export function powerResidualW(inputsW: readonly number[], outputsW: readonly number[]): number {

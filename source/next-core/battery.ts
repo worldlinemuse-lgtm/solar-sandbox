@@ -1,5 +1,7 @@
 import {ModelFailure,inRange,finite,nonnegative} from "./contracts";
-import {terminalCurrentA,assertPowerBalance} from "./numerical";
+import {terminalCurrentA} from "./numerical";
+import {MATHEMATICS} from "./math/models";
+import type {MathEvaluation} from "./math/registry";
 
 export interface BatteryElectricalSpec {
   readonly capacityAh:number;
@@ -29,6 +31,8 @@ export interface BatteryStep {
   readonly nextSoc:number;
   readonly boundaryReached:boolean;
   readonly chemicalBalanceResidualW:number;
+  /** Accepted electrical, heat, charge and SOC transformations, with source tiers. */
+  readonly mathTrace:MathEvaluation;
 }
 
 /** Positive P discharges. Negative P charges. Boundary times split exactly.
@@ -59,30 +63,44 @@ export function integrateBatteryElectrical(
     throw new ModelFailure("CURRENT_LIMIT","Discharge current exceeds published/modelled maximum");
   if(-current>p.maximumChargeCurrentA+1e-9)
     throw new ModelFailure("CURRENT_LIMIT","Charge current exceeds published/modelled maximum");
-  const terminalV=p.openCircuitVoltageV-current*p.internalResistanceOhm;
-  if(terminalV<p.minimumTerminalVoltageV-1e-9 || terminalV>p.maximumTerminalVoltageV+1e-9)
-    throw new ModelFailure("VOLTAGE_LIMIT","Battery terminal voltage outside permitted bounds");
-  const effectiveA=current<0?current*p.coulombicChargeEfficiency:current;
-  const ahHeadroom=effectiveA>0 ? (s.soc-p.socFloor)*p.capacityAh:
+  const mathInput={
+    "battery.ocvV":p.openCircuitVoltageV,"battery.currentA":current,
+    "battery.internalOhm":p.internalResistanceOhm,
+    "battery.chargeEfficiency":p.coulombicChargeEfficiency,
+    "battery.capacityAh":p.capacityAh,"battery.soc":s.soc,
+    "interval.seconds":dtSec
+  };
+  // The canonical math graph computes terminal voltage, heat, retained chemical
+  // energy, effective charge-current and SOC delta. The state-machine logic
+  // decides only WHEN to stop at the physical SOC boundary.
+  const preliminary=MATHEMATICS.battery.evaluate(mathInput);
+  const terminalV=preliminary.values["battery.terminalV"];
+  if(terminalV<p.minimumTerminalVoltageV-1e-9 ||
+     terminalV>p.maximumTerminalVoltageV+1e-9)
+    throw new ModelFailure("VOLTAGE_LIMIT",
+      "Battery terminal voltage outside permitted bounds");
+  const effectiveA=preliminary.values["battery.effectiveCurrentA"];
+  const ahHeadroom=effectiveA>0?(s.soc-p.socFloor)*p.capacityAh:
     effectiveA<0?(p.socCeiling-s.soc)*p.capacityAh:Infinity;
-  const toBoundary=effectiveA===0?Infinity:Math.max(0,3600*ahHeadroom/Math.abs(effectiveA));
+  const toBoundary=effectiveA===0?Infinity:
+    Math.max(0,3600*ahHeadroom/Math.abs(effectiveA));
   const seconds=Math.min(dtSec,toBoundary);
-  const nextSoc=inRange("new battery SOC",s.soc-effectiveA*seconds/(3600*p.capacityAh),
+  const mathTrace=seconds===dtSec?preliminary:
+    MATHEMATICS.battery.evaluate({...mathInput,"interval.seconds":seconds});
+  const m=mathTrace.values;
+  const nextSoc=inRange("new battery SOC",m["battery.socNext"],
     Math.max(0,p.socFloor-1e-10),Math.min(1,p.socCeiling+1e-10));
-  const heat=current*current*p.internalResistanceOhm;
-  // Gross electrochemical conversion equals Voc*I. During charging,
-  // coulombic inefficiency reduces chemical energy actually retained. Treat
-  // the shortfall as positive loss, not as extra stored energy.
-  const electrochemical=p.openCircuitVoltageV*current;
-  const coulombicLoss=current<0?(-electrochemical)*(1-p.coulombicChargeEfficiency):0;
-  const chemicalStored=electrochemical+coulombicLoss;
-  const residual=assertPowerBalance("Battery terminals",
-    [chemicalStored],[terminalPowerW,heat,coulombicLoss]);
+  const residual=mathTrace.invariants.find(x=>
+    x.id==="battery.terminal_energy_conservation")!.value;
   return {
-    currentA:current,terminalVoltageV:terminalV,terminalPowerW,
-    batteryInternalHeatW:heat,chemicalPowerW:chemicalStored,
-    coulombicChargeLossW:coulombicLoss,supportedSeconds:seconds,
+    currentA:current,terminalVoltageV:m["battery.terminalV"],
+    terminalPowerW:m["battery.terminalW"],
+    batteryInternalHeatW:m["battery.heatW"],
+    chemicalPowerW:m["battery.netChemicalW"],
+    coulombicChargeLossW:m["battery.chargeLossW"],
+    supportedSeconds:seconds,
     nextSoc:Math.max(p.socFloor,Math.min(p.socCeiling,nextSoc)),
-    boundaryReached:seconds<dtSec-1e-10,chemicalBalanceResidualW:residual
+    boundaryReached:seconds<dtSec-1e-10,
+    chemicalBalanceResidualW:residual,mathTrace
   };
 }

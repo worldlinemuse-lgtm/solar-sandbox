@@ -24,8 +24,14 @@ def build():
         assert t.count(k) == 1, f'{k} should appear once in template.html, found {t.count(k)}'
     # Deterministic provenance. Do not insert wall-clock build times: identical inputs must
     # generate byte-for-byte identical offline apps and machine-verifiable source digests.
-    manifest_files = sorted(set(PARTS.values()) | {'guide.mp3', 'template.html', 'build.py'} |
-        {'next-core/' + f for f in os.listdir(os.path.join(HERE, 'next-core')) if f.endswith('.ts')})
+    # Source-of-truth includes ALL recursive mathematical registry declarations,
+    # not just top-level entrypoints. A law change must change the model hash.
+    core_files = {
+        os.path.relpath(os.path.join(root, name), HERE).replace(os.sep, '/')
+        for root, _, names in os.walk(os.path.join(HERE, 'next-core'))
+        for name in names if name.endswith('.ts')
+    }
+    manifest_files = sorted(set(PARTS.values()) | {'guide.mp3', 'template.html', 'build.py'} | core_files)
     source_sha256 = {
         f: hashlib.sha256(open(os.path.join(HERE, f), 'rb').read()).hexdigest()
         for f in manifest_files

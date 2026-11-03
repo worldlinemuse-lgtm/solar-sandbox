@@ -8,6 +8,7 @@ on:
       - release/result-provenance-2026-11-02
       - milestone/reference-validation-provenance-2026-11-02
       - validation/engine-integration-2026-11-03
+      - architecture/math-authority-2026-11-03
     paths:
       - 'source/**'
       - '.github/workflows/rebuild-fix.yml'
