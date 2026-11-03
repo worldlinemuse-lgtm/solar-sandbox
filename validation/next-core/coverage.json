@@ -1,0 +1,292 @@
+{
+  "schema": 1,
+  "asOf": "2026-11-03",
+  "repo": "worldlinemuse-lgtm/solar-sandbox",
+  "branch": "engine/typed-physical-core-2026-11-03",
+  "phase": "independent_verification_core_not_live_activated",
+  "releaseGates": {
+    "nextCoreCanReplaceLiveEngine": false,
+    "householdPlannerEnabled": false,
+    "optimizerEnabled": false,
+    "reason": "Insufficient physical equipment calibration and complete topology coverage"
+  },
+  "statusSemantics": {
+    "implemented": "Tested functionality with its specifically stated scope only",
+    "partial": "Some code and/or evidence exists; not validated across intended operating domain",
+    "blocked": "Required independent evidence and/or implementation absent"
+  },
+  "requirements": [
+    {
+      "id": "typed_dimensions",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Branded unit constructors exist; interfaces still accept numeric legacy-style fields"
+    },
+    {
+      "id": "dc_conservation",
+      "category": "engineering_math",
+      "status": "implemented",
+      "description": "Independent DC/AC and PV/battery ledgers are tested"
+    },
+    {
+      "id": "adaptive_soc_events",
+      "category": "engineering_math",
+      "status": "implemented",
+      "description": "Battery SOC boundaries split independently verified reference intervals"
+    },
+    {
+      "id": "pv_temperature",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Sandia module-construction coefficient benchmarked; site thermal calibration absent"
+    },
+    {
+      "id": "pv_module_stc",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "LONGi datasheet coefficients and temp-adjusted STC model benchmarked"
+    },
+    {
+      "id": "mppt_tracking",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Fixed-Vmp proxy; actual IV and MPPT dynamic behavior uncalibrated"
+    },
+    {
+      "id": "pv_wire_loss",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Current-coupled I2R analytically verified, conductor thermal behavior still estimated"
+    },
+    {
+      "id": "mppt_clipping",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Max DC current clipping modelled; hardware input thermal/dynamic behavior missing"
+    },
+    {
+      "id": "battery_electrical",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Analytic OCV/R and coulombic ledger, no temperature/SOC calibration curves"
+    },
+    {
+      "id": "battery_bms",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Separate charge/discharge port hysteresis and timed trip tested with synthetic thresholds"
+    },
+    {
+      "id": "battery_thermal",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Exact RC equation and timestep invariance; no measured Rth/C values for catalog models"
+    },
+    {
+      "id": "charge_taper",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Real CC/CV charge curves and charge-controller interaction not integrated"
+    },
+    {
+      "id": "battery_aging",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Chemistry-specific degradation/thermal exposure not independently calibrated"
+    },
+    {
+      "id": "inverter_steady_ac",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Per-leg W, VA, PF constraints tested; part-load efficiency curve estimated"
+    },
+    {
+      "id": "motor_start",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Starting apparent power with unknown PF remains unverified; transient waveform not integrated"
+    },
+    {
+      "id": "split_phase_transfer",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "240 V generator/charger transfer and neutral behavior not validated"
+    },
+    {
+      "id": "generator_state_machine",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Manual start, cool, refuel, finite tank and reserve are tested in reference model"
+    },
+    {
+      "id": "generator_fuel_curve",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Honda endpoint interpolation only; idle/part-load instrument data missing"
+    },
+    {
+      "id": "generator_battery_charger",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Reference island refuses generator-to-battery charger operation"
+    },
+    {
+      "id": "wiring_protection",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Legacy NEC table tests; full topology and fault interrupt data missing"
+    },
+    {
+      "id": "grounding_certification",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Actual wiring/grounding/circuit protection cannot be certified by simulator"
+    },
+    {
+      "id": "numerical_convergence",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Quadratic analytic roots; thermal exact integration; other subminute circuits remain"
+    },
+    {
+      "id": "weather_provenance",
+      "category": "engineering_math",
+      "status": "partial",
+      "description": "Source files SHA256 recorded but original POWER request/clock missing"
+    },
+    {
+      "id": "weather_clock_validation",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "Historical POWER UTC/LST import cannot be established from saved request"
+    },
+    {
+      "id": "external_pvlib",
+      "category": "engineering_math",
+      "status": "implemented",
+      "description": "Solar thermal and PV DC fixtures compared against separately implemented pvlib"
+    },
+    {
+      "id": "whole_system_measured",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "No independent instrumented full-system logs"
+    },
+    {
+      "id": "uncertainty",
+      "category": "engineering_math",
+      "status": "blocked",
+      "description": "No calibrated probabilistic or bounded joint scenario propagation"
+    },
+    {
+      "id": "legacy_energy_invariants",
+      "category": "controls_and_reporting",
+      "status": "implemented",
+      "description": "Existing six 24-hour cases and 50 recorded modeled winters in CI"
+    },
+    {
+      "id": "legacy_stale_input_protection",
+      "category": "controls_and_reporting",
+      "status": "implemented",
+      "description": "Async edits, cancellation and stale display protections in legacy UI"
+    },
+    {
+      "id": "legacy_report_provenance",
+      "category": "controls_and_reporting",
+      "status": "implemented",
+      "description": "Legacy model fingerprint, exact configuration and JSON results shipped"
+    },
+    {
+      "id": "new_core_result_provenance",
+      "category": "controls_and_reporting",
+      "status": "partial",
+      "description": "New independent fixtures/evidence registry; core not wired to legacy UI"
+    },
+    {
+      "id": "reproducible_randomness",
+      "category": "controls_and_reporting",
+      "status": "partial",
+      "description": "Reference core deterministic; legacy optional game snow remains unseeded"
+    },
+    {
+      "id": "catalog_variant_audit",
+      "category": "controls_and_reporting",
+      "status": "partial",
+      "description": "Named LONGi/Victron/Honda identities, other catalog revisions not verified"
+    },
+    {
+      "id": "price_cost_audit",
+      "category": "controls_and_reporting",
+      "status": "partial",
+      "description": "Legacy source-labeled estimates; taxes/labor/shipping and dated prices unverified"
+    },
+    {
+      "id": "cross_version_imports",
+      "category": "controls_and_reporting",
+      "status": "implemented",
+      "description": "Legacy import rejects known incompatible state revisions"
+    },
+    {
+      "id": "offline_pwa",
+      "category": "controls_and_reporting",
+      "status": "implemented",
+      "description": "Legacy hosted offline service-worker regression tests pass"
+    },
+    {
+      "id": "android_runtime",
+      "category": "controls_and_reporting",
+      "status": "blocked",
+      "description": "Real Android low-memory/performance profiling and offline upgrade test pending"
+    },
+    {
+      "id": "mobile_navigation",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "Task-based accessible mobile nav not implemented"
+    },
+    {
+      "id": "mobile_touch_targets",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "44-pixel targets and native mobile schematic not implemented"
+    },
+    {
+      "id": "accessibility",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "Keyboard/SVG disconnect/tab semantics and screen-reader chart audit pending"
+    },
+    {
+      "id": "build_panel_organization",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "Reorganize setup workflow only after core migration"
+    },
+    {
+      "id": "auto_string_explanation",
+      "category": "product_and_future",
+      "status": "partial",
+      "description": "Wiring behavior exists; feedback during + panels requires audit"
+    },
+    {
+      "id": "household_load_planner",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "Essential-load planning waits on validated end-to-end physics"
+    },
+    {
+      "id": "system_optimizer",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "Feasibility-first optimizer waits on physical validation"
+    },
+    {
+      "id": "ranking_completeness",
+      "category": "product_and_future",
+      "status": "blocked",
+      "description": "No globally optimality claims until defined objective and search coverage"
+    }
+  ],
+  "completedCount": 8,
+  "totalCount": 45
+}
