@@ -128,7 +128,8 @@ export const BATTERY_MATH:MathDefinition={
   input("battery.chargeEfficiency","1","parameter","R3_assumed",{min:1e-12,max:1}),
   input("battery.capacityAh","Ah","parameter","R3_assumed",positive),
   input("battery.soc","1","state","R2_derived",fraction),
-  input("interval.seconds","s","state","R2_derived",positive)
+  // An electrical state can remain at a protection boundary for exactly 0 s.
+  input("interval.seconds","s","state","R2_derived",nonneg)
  ],
  equations:[
   equation("battery.terminal_drop.v1","electrical","battery.dropV","V",
