@@ -3,15 +3,15 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const path=require("node:path");
 const {LONGI_435_PVSYST,singleDiodeMpp}=require(path.resolve(__dirname,"../../.next-core-dist/pv-diode.js"));
-const published=[
-{g:200,watts:85.7},{g:400,watts:174.6},{g:600,watts:263.2},
-{g:800,watts:350.6},{g:1000,watts:436.1}
-];
+const fs=require("node:fs");
+const fixture=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+  "../../validation/next-core/pv-pvsyst-435m.json"),"utf8"));
+const published=fixture.referencePoints.map(x=>({g:x.irradianceWm2,watts:x.maximumPowerW}));
 test("LONGi 435 W PVsyst published independent five-point irradiance performance",()=>{
  for(const {g,watts} of published){
   const r=singleDiodeMpp(LONGI_435_PVSYST,g,25);
   assert.equal(r.converged,true);
-  assert.ok(Math.abs(r.maxPowerW-watts)<=0.02*watts,
+  assert.ok(Math.abs(r.maxPowerW-watts)<=fixture.acceptance.maximumRelativeDeviation*watts,
     g+" W/m2: model "+r.maxPowerW+" W, external PVsyst "+watts+" W");
   assert.ok(r.maxPowerVoltageV>30&&r.maxPowerVoltageV<45);
   assert.ok(r.maxPowerCurrentA>0&&r.maxPowerCurrentA<r.shortCircuitCurrentA);
