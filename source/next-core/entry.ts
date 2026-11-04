@@ -4,6 +4,8 @@
  * legacy live simulation or electrical design certification.
  */
 import {singleDiodeMpp,LONGI_435_PVSYST} from "./pv-diode";
+// Published external reference module parameters, not measured installed equipment.
+export {LONGI_435_PVSYST};
 import {solvePvBus} from "./solar";
 import {advanceReferenceIsland} from "./island";
 import {makeSyntheticBenchSpec,LONGI_LR4_72HBD_435M} from "./catalog";
@@ -27,6 +29,11 @@ export const validationStatus=Object.freeze({
   wiringValidation:"structural_only_not_code_compliant",
   canReplaceProductionSolver:false,
   physicalCalibration:false,
+  calibrationMathAvailable:true,
+  mathematicalCalibrationDomains:["pv_cold_design","pv_diode_cable",
+    "battery_local_thevenin","inverter_measured_dc","generator_measured_fuel",
+    "prediction_residuals"],
+  physicalCalibrationDatasetCount:0,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
   missing:["whole-system instrument data","measured battery OCV/SoC/temperature",
