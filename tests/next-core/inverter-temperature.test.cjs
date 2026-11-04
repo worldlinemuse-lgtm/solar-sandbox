@@ -24,11 +24,20 @@ test("temperatures outside published ratings are indeterminate, not extrapolated
  assert.equal(assess(75,800).estimatedContinuousW,null);
  assert.throws(()=>assess(-300,300),/invalid/);
 });
-test("5-kVA published anchors are separately variant scoped",()=>{
- const a=assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,40,3500,4500);
- assert.equal(a.status,"rated_reference_estimate");
- close(a.conservativeNextHotterAnchorW,3700);
+test("5-kVA published 25/40/65C anchors are VA, NOT W; no invented real-power approval",()=>{
+ const a=assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,40,3200,3500);
+ assert.equal(a.status,"indeterminate_real_power");
+ assert.equal(a.sourceRatedUnit,"VA");
+ close(a.conservativeNextHotterAnchorVA,3700);
  close(a.permittedNominalVA,5000);
- assert.equal(assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,65,3200,4000).status,
-   "exceeds_conservative_envelope");
+ assert.equal(a.conservativeNextHotterAnchorW,null);
+ assert.equal(a.estimatedContinuousW,null);
+ const vaOver=assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,40,3200,3900);
+ assert.equal(vaOver.status,"exceeds_conservative_envelope");
+ assert.equal(assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,65,2700,2900).status,
+   "indeterminate_temperature"); // Manufacturer separately states 60C max operating
+ assert.equal(assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,60,2500,2800).status,
+   "indeterminate_real_power");
+ assert.throws(()=>assessInverterThermalCapacity(VICTRON_5KVA_120V_THERMAL,40,3500,3200),
+   /watts cannot exceed apparent VA/);
 });
