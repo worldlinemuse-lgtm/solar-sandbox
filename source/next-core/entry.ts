@@ -10,6 +10,9 @@ import {makeSyntheticBenchSpec,LONGI_LR4_72HBD_435M} from "./catalog";
 import {assessPvColdDesign} from "./pv-design";
 import {solveDiodeArrayCableMpp} from "./pv-wire-iv";
 export {assessPvColdDesign,solveDiodeArrayCableMpp};
+export {calibrationResiduals,fitLocalThevenin} from "./calibration";
+export {makeInverterDcCurve,interpolateInverterDcInput,
+  makeGeneratorFuelCurve,interpolateGeneratorFuelRate} from "./calibration-curves";
 import type {IslandSpec,IslandState,IslandRequest} from "./island";
 import {ModelFailure,finite,nonnegative} from "./contracts";
 import {MATHEMATICS} from "./math/models";
