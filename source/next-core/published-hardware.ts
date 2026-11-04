@@ -13,7 +13,7 @@
  *
  * No explicit original manual for a specific user's device has been checked.
  */
-import {ModelFailure,finite,nonnegative} from "./contracts";
+import {nonnegative} from "./contracts";
 
 export const HONDA_EU2200I_PUBLISHED=Object.freeze({
  id:"Honda EU2200i EU2200ITAN",
