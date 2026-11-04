@@ -66,13 +66,18 @@ export function makePvModuleSnapshot(m:Readonly<PvModuleSpec>,a:Readonly<ArrayAr
   // At nonzero irradiance, Voc is still a temperature-adjusted STC proxy:
   // an actual diode curve must supply the logarithmic irradiance dependence.
   const illuminated=env.effectiveIrradianceWm2>0;
-  // The fixed-Vmp reference solver still needs a positive *reference* voltage\n  // at zero sunlight; it multiplies by 0 W and cannot infer an energized port.\n  return {availablePowerW:available,seriesVmpV:a.series*m.vmpStcV*vmpFactor,
+  // The fixed-Vmp reference solver still needs a positive *reference* voltage
+  // at zero sunlight; it multiplies by 0 W and cannot infer an energized port.
+  return {availablePowerW:available,seriesVmpV:a.series*m.vmpStcV*vmpFactor,
     seriesVocV:illuminated?a.series*m.vocStcV*vocFactor:0,
     totalShortCircuitA:a.parallel*m.iscStcA*
       (env.effectiveIrradianceWm2/1000)*iscFactor,
     stcTotalPowerW:pTotal,status:"modelled_with_published_coefficients"};
 }
-/** Instantaneous modeled snapshot comparison ONLY. For a design's coldest Voc and\n * maximum irradiance/current, use assessPvColdDesign, with explicit design extremes.\n * This function does NOT establish compatibility of an installation. */\nexport function checkControllerLimits(s:PvModuleSnapshot,limit:Readonly<ControllerVoltageConstraint>):
+/** Instantaneous modeled snapshot comparison ONLY. For a design's coldest Voc and
+ * maximum irradiance/current, use assessPvColdDesign, with explicit design extremes.
+ * This function does NOT establish compatibility of an installation. */
+export function checkControllerLimits(s:PvModuleSnapshot,limit:Readonly<ControllerVoltageConstraint>):
   {status:"pass"|"fail";reasons:string[]} {
   const reasons:string[]=[];
   if(s.seriesVocV>limit.absoluteMaxVocV+1e-9)reasons.push("Absolute PV Voc limit exceeded");
