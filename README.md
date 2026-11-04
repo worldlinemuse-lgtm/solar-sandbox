@@ -25,6 +25,16 @@ The separate PV reference engine reconstructs the LONGi LR4-72HBD-435M single-di
 
 See [reference hardware and physical evidence](docs/PHYSICAL_BENCHMARK_EVIDENCE.md), [engine design contract](docs/NEXT_CORE_ENGINE_CONTRACT.md), and [validation coverage and release gates](validation/next-core/coverage.json).
 
+### Formula-first calibration milestone (November 4, 2026)
+
+The new reference core now separately evaluates **design-cold PV Voc versus instantaneous Voc**, scales PV short-circuit current by effective irradiance, and solves a **nonlinear array single-diode I–V curve with cable losses** rather than assuming an unchanging Vmp. New numerical calibration utilities compute independent prediction residuals (MAE, RMSE, signed bias, relative errors and uncertainty-weighted chi-square), fit a local battery `OCV−IR` relation under tightly constrained SOC/temperature, and interpolate **supplied** inverter DC-input and running-generator fuel-rate measurements without extrapolating beyond their observed domain. Reference-only APIs expose these formulas in the offline bundled new core without modifying live simulation state.
+
+**These are mathematical validation and future-calibration tools, not fitted empirical models.** The repo still has **zero independently instrumented full-system datasets**. Manufacturer peak efficiency, historical modeled weather, synthetic regression fixtures and internally consistent conservation equations are **not physical calibration measurements**. Production dispatcher/planner/optimizer remain gated.
+
+See the complete [mathematical calibration audit and evidence requirements](docs/MATH_CALIBRATION_AUDIT_2026-11-04.md). Device-specific calibration needs timestamped measured V/I/W/VA, ambient and device temperature, load and generator fuel data, provenance, uncertainty and separate held-out validation.
+
+
+
 ## Auditable analysis exports and version compatibility
 
 Completed historical-winter and battery-aging calculations now provide **Export auditable results (JSON)** controls. Reports contain the exact system configuration, appliance patterns, model source SHA-256 digests, historical weather years, initial conditions, output summaries and explicit calibration limits. Change the modeled system or appliance pattern and the prior result is invalidated; repeat the calculation to obtain a new report.

@@ -1,23 +1,29 @@
 {
   "schema": 1,
-  "asOf": "2026-11-03",
+  "asOf": "2026-11-04",
   "repo": "worldlinemuse-lgtm/solar-sandbox",
-  "branch": "engine/typed-physical-core-2026-11-03",
-  "phase": "math_first_registry_connected_to_read_only_reference_core",
+  "branch": "validation/math-calibration-2026-11-04",
+  "phase": "mathematical_reference_and_calibration_pipeline_not_field_verified",
   "releaseGates": {
     "nextCoreCanReplaceLiveEngine": false,
     "householdPlannerEnabled": false,
     "optimizerEnabled": false,
-    "reason": "Mathematical registry and typed equipment topology introduced; several physical subsystems and instrument comparisons remain unvalidated",
+    "reason": "New cold-design and nonlinear I-V reference math passes only specified fixtures; independent instrumented calibration, MPPT/inverter/battery physical validation and system logic migration remain blocked",
     "shadowModeIntegrated": true,
     "physicalHardwareDatasetCount": 0,
     "externalPvsystPvCurvePoints": 5,
     "independentWeatherClockConfirmed": false,
     "mathAuthorityPresent": true,
-    "mathsCoverage": "partial: wire, PV/DC, battery, AC PF and AC service",
+    "mathsCoverage": "partial: wire/PV I-V cable optimum, PV extreme voltage/Isc, battery OCV/R regression, AC PF and energy ledgers; not full system",
     "topologyGraphPresent": true,
     "networkCodeCompliant": false,
-    "canonicalImplicitLaws": 3
+    "canonicalImplicitLaws": 3,
+    "nonLinearPvCableReferenceAvailable": true,
+    "coldDesignVoltageCurrentReferenceAvailable": true,
+    "batteryLocalTheveninFitAvailable": true,
+    "measurementResidualScoringAvailable": true,
+    "inverterMeasuredDcCurveMathAvailable": true,
+    "generatorMeasuredFuelCurveMathAvailable": true
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -53,19 +59,19 @@
       "id": "pv_module_stc",
       "category": "engineering_math",
       "status": "partial",
-      "description": "LONGi datasheet coefficients and temp-adjusted STC model benchmarked"
+      "description": "LONGi PVsyst single-diode MPP tested at five reference points; STC Isc now scales with G and dark Voc=0; temperature and variant calibration absent"
     },
     {
       "id": "mppt_tracking",
       "category": "engineering_math",
       "status": "blocked",
-      "description": "Fixed-Vmp proxy; actual IV and MPPT dynamic behavior uncalibrated"
+      "description": "Nonlinear source/cable optimum is a reference only; real MPPT controller dynamic behavior and efficiency remain uncalibrated"
     },
     {
       "id": "pv_wire_loss",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Current-coupled I2R analytically verified, conductor thermal behavior still estimated"
+      "description": "Nonlinear I-V array/cable optimum independently searched and energy-checked; wire thermal/contact data still unmeasured, not wired to production"
     },
     {
       "id": "mppt_clipping",
@@ -77,7 +83,7 @@
       "id": "battery_electrical",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Analytic OCV/R and coulombic ledger, no temperature/SOC calibration curves"
+      "description": "Analytic OCV/R and coulombic ledger; local Thevenin least-squares estimator added but no independent instrument readings or SOC/T curves"
     },
     {
       "id": "battery_bms",
@@ -107,7 +113,7 @@
       "id": "inverter_steady_ac",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Per-leg W, VA, PF constraints tested; part-load efficiency curve estimated"
+      "description": "Per-leg W/VA/PF verified analytically; measured-domain inverter DC-demand interpolation added, still zero device data and no PF/temperature curve"
     },
     {
       "id": "motor_start",
@@ -131,7 +137,7 @@
       "id": "generator_fuel_curve",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Honda endpoint interpolation only; idle/part-load instrument data missing"
+      "description": "Honda published endpoint interpolation remains legacy reference; new measured-domain gph-vs-output interpolator has no independent instrumented records"
     },
     {
       "id": "generator_battery_charger",
@@ -155,7 +161,7 @@
       "id": "numerical_convergence",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Quadratic analytic roots; thermal exact integration; other subminute circuits remain"
+      "description": "Quadratic implicit roots, nonlinear diode-I-V+cable global grid/golden refinement, thermal exact integration; no general inverter/network nonlinear roots"
     },
     {
       "id": "weather_provenance",
@@ -167,7 +173,7 @@
       "id": "weather_clock_validation",
       "category": "engineering_math",
       "status": "blocked",
-      "description": "Historical POWER UTC/LST import cannot be established from saved request"
+      "description": "Historical NASA POWER original request/time convention still missing; clock-sensitive calibration unavailable"
     },
     {
       "id": "external_pvlib",
@@ -179,7 +185,7 @@
       "id": "whole_system_measured",
       "category": "engineering_math",
       "status": "blocked",
-      "description": "No independent instrumented full-system logs"
+      "description": "Zero independent instrumented whole-system data; do not infer accuracy from synthetic/PVsyst agreement"
     },
     {
       "id": "uncertainty",

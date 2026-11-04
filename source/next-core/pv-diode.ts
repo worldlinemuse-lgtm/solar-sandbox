@@ -128,3 +128,15 @@ export function singleDiodeMpp(
    maxPowerW:pm,maxPowerVoltageV:vm,maxPowerCurrentA:im,converged:true,
    evidence:"published_pvsyst_irradiance_curve_reference_temperature_extrapolation_estimated"};
 }
+
+/** A point on the parameterized SINGLE-DIODE I-V curve, before external wiring.
+ * Not a sensor reading. This call allows an independent cable operating-point
+ * maximizer to use the complete nonlinear source curve instead of fixed Vmp.
+ */
+export function diodeCurrentAtVoltage(
+ r:Readonly<SingleDiodeReference>,g:number,cellC:number,moduleVoltageV:number
+):number {
+ nonnegative("moduleVoltageV",moduleVoltageV);
+ const p=diodeParams(r,g,cellC);
+ return currentAtVoltage(p,moduleVoltageV);
+}

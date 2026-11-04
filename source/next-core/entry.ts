@@ -4,9 +4,17 @@
  * legacy live simulation or electrical design certification.
  */
 import {singleDiodeMpp,LONGI_435_PVSYST} from "./pv-diode";
+// Published external reference module parameters, not measured installed equipment.
+export {LONGI_435_PVSYST};
 import {solvePvBus} from "./solar";
 import {advanceReferenceIsland} from "./island";
-import {makeSyntheticBenchSpec} from "./catalog";
+import {makeSyntheticBenchSpec,LONGI_LR4_72HBD_435M} from "./catalog";
+import {assessPvColdDesign} from "./pv-design";
+import {solveDiodeArrayCableMpp} from "./pv-wire-iv";
+export {assessPvColdDesign,solveDiodeArrayCableMpp};
+export {calibrationResiduals,fitLocalThevenin} from "./calibration";
+export {makeInverterDcCurve,interpolateInverterDcInput,
+  makeGeneratorFuelCurve,interpolateGeneratorFuelRate} from "./calibration-curves";
 import type {IslandSpec,IslandState,IslandRequest} from "./island";
 import {ModelFailure,finite,nonnegative} from "./contracts";
 import {MATHEMATICS} from "./math/models";
@@ -21,6 +29,11 @@ export const validationStatus=Object.freeze({
   wiringValidation:"structural_only_not_code_compliant",
   canReplaceProductionSolver:false,
   physicalCalibration:false,
+  calibrationMathAvailable:true,
+  mathematicalCalibrationDomains:["pv_cold_design","pv_diode_cable",
+    "battery_local_thevenin","inverter_measured_dc","generator_measured_fuel",
+    "prediction_residuals"],
+  physicalCalibrationDatasetCount:0,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
   missing:["whole-system instrument data","measured battery OCV/SoC/temperature",
@@ -32,6 +45,10 @@ export interface ShadowPvRequest{
  readonly controllerId:string;
  readonly irradianceWm2:number;
  readonly cellTemperatureC:number;
+ /** Required for design voltage assessment; instantaneous temperature is insufficient. */
+ readonly coldDesignMinimumCellTemperatureC?:number|null;
+ readonly hotDesignMaximumCellTemperatureC?:number|null;
+ readonly maximumDesignEffectiveIrradianceWm2?:number|null;
  readonly series:number;
  readonly stringsByController:readonly number[];
  readonly mpptCurrentLimitA:number;
@@ -56,11 +73,28 @@ export function shadowPv(x:Readonly<ShadowPvRequest>):unknown {
  nonnegative("irradianceWm2",x.irradianceWm2);
  finite("cellTemperatureC",x.cellTemperatureC);
  nonnegative("legacySnowFraction",x.legacySnowFraction);
+ // The actual design extreme is NOT necessarily the simulated minute's
+ // cell temperature. Do not silently label instantaneous Voc 'cold Voc'.
+ const designAssessment=assessPvColdDesign({
+   vocStcV:LONGI_LR4_72HBD_435M.vocStcV,
+   iscStcA:LONGI_LR4_72HBD_435M.iscStcA,
+   vocTemperatureCoefficientPerC:LONGI_LR4_72HBD_435M.vocTempCoefficientPerC,
+   iscTemperatureCoefficientPerC:LONGI_LR4_72HBD_435M.iscTempCoefficientPerC
+ },{modulesInSeries:x.series,stringsInParallel:Math.max(...x.stringsByController)},{
+   minimumDesignCellTemperatureC:x.coldDesignMinimumCellTemperatureC??null,
+   maximumDesignCellTemperatureC:x.hotDesignMaximumCellTemperatureC??null,
+   maximumDesignEffectiveIrradianceWm2:x.maximumDesignEffectiveIrradianceWm2??null
+ },{
+   absoluteMaximumInputVoltageV:x.mpptAbsoluteVocV,
+   startupOperatingMaximumInputVoltageV:x.mpptOperatingVocV,
+   maximumPvShortCircuitCurrentA:x.mpptIscLimitA
+ });
  const module=singleDiodeMpp(LONGI_435_PVSYST,x.irradianceWm2,x.cellTemperatureC);
- const coldVoc=x.series*module.openCircuitVoltageV;
- if(coldVoc>x.mpptAbsoluteVocV||coldVoc>x.mpptOperatingVocV)
-   return {status:"fail",reason:"Panel Voc exceeds controller limit at provided cell temperature",
-     seriesVocV:coldVoc,limitAbsoluteV:x.mpptAbsoluteVocV,limitOperatingV:x.mpptOperatingVocV};
+ const instantaneousVoc=x.series*module.openCircuitVoltageV;
+ if(instantaneousVoc>x.mpptAbsoluteVocV||instantaneousVoc>x.mpptOperatingVocV)
+   return {status:"fail",reason:"Instantaneous modeled PV Voc exceeds controller voltage rating; independent design extremes still required",
+     instantaneousSeriesVocV:instantaneousVoc,
+     designAssessment,limitAbsoluteV:x.mpptAbsoluteVocV,limitOperatingV:x.mpptOperatingVocV};
  const controllers=x.stringsByController.map(strings=>{
    const isc=strings*module.shortCircuitCurrentA;
    if(isc>x.mpptIscLimitA)
@@ -88,11 +122,13 @@ export function shadowPv(x:Readonly<ShadowPvRequest>):unknown {
    boundaryConditions:{irradianceWm2:x.irradianceWm2,cellTemperatureC:x.cellTemperatureC,
      busVoltageV:x.busVoltageV,series:x.series,stringsByController:[...x.stringsByController]},
    moduleMppW:module.maxPowerW,controllerMaximumEnvelopeW:envelope,controllers,
+   instantaneousSeriesVocV:instantaneousVoc,designAssessment,
    legacyControllerOutputW:x.legacyControllerOutputW,
    diagnosticDeltaW:x.legacyControllerOutputW===null?null:envelope-x.legacyControllerOutputW,
    limitations:["Effective irradiance/cell temperature are inherited from legacy weather; this is not an independent weather validation",
     "No modeled charge taper, snow patches, bypass-diode strings, MPPT dynamic tracking or output sink constraint",
     "Published PVsyst IV parameters are a model, not independently instrumented field tests",
+    "Cold design requires independent minimum cell temperature and maximum irradiance; a simulated minute is not a design extreme",
     "Peak controller efficiency used at all loads; not field validated"]};
 }
 export function runReferenceIsland(spec:Readonly<IslandSpec>,state:Readonly<IslandState>,
