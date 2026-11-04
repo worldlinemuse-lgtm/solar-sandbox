@@ -8,6 +8,7 @@
  * Honda EU2200i: https://powerequipment.honda.com/generators/models/EU2200i/
  * Battle Born BB10012:
  * https://battlebornbatteries.com/wp-content/uploads/2022/10/100Ah-12V-Standard-Battery-Manual_Rev032_1.29.26.pdf
+ * That URL currently serves Rev038 (2026-08-12), as verified in-document.
  * Victron SmartSolar 150/70:
  * https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html
  *
@@ -29,7 +30,7 @@ export const HONDA_EU2200I_PUBLISHED=Object.freeze({
  dataTier:"manufacturer_public_specification_two_points_only"
 });
 export const BATTLE_BORN_BB10012_PUBLISHED=Object.freeze({
- id:"Battle Born BB10012 12V 100Ah 2026 revised manual",
+ id:"Battle Born BB10012 12V 100Ah Rev038 2026-08-12",
  nominalCapacityAh:100,
  publishedInternalResistanceOhm:0.007,
  maxContinuousDischargeA:100,
@@ -40,6 +41,7 @@ export const BATTLE_BORN_BB10012_PUBLISHED=Object.freeze({
  maximumChargeTemperatureC:55, // 131°F; manual also has mixed 135°F text
  minimumDischargeTemperatureC:-20,
  sourceUrl:"https://battlebornbatteries.com/wp-content/uploads/2022/10/100Ah-12V-Standard-Battery-Manual_Rev032_1.29.26.pdf",
+ sourcedManualRevision:"PMI_BB10012 Rev038 2026-08-12",
  dataTier:"manufacturer_published_limits_not_soc_voltage_curve"
 });
 export interface HondaFuelEstimate{
