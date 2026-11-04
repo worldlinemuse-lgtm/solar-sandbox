@@ -8,7 +8,7 @@ This is **R1 model-agreement validation** at controlled reference conditions, no
 
 Time-dependent module power outside STC requires temperature and irradiance assumptions. PV module DC maximum is not equivalent to battery charge power. Actual controller conversion efficiency, wiring losses, battery BMS limits and load-driven MPPT curtailment all affect delivered energy.
 
-## R0 measurement evidence needed to finish physical calibration
+## Optional physical-performance validation (E3; not required to implement the mathematical simulator)
 
 A physical calibration package must contain *measured, instrument-identifiable observations*:
 
@@ -22,7 +22,7 @@ A physical calibration package must contain *measured, instrument-identifiable o
 
 Each measurement should preserve instrument serial number, manufacturer/model, calibration certificate/date if relevant, sample interval, uncertainty and the original raw file hash. A result compared to synthetic fixtures, simulations, or uncalibrated estimates cannot be classified `R0_measured`.
 
-**There are currently zero independent instrumented whole-system measurement datasets in this repository.** No amount of self-consistency testing will substitute for these missing observations. Therefore the new engine is integrated as a read-only browser shadow diagnostic, and the live legacy solver remains authoritative only as an **estimated** model—not a certified physical prediction.
+**There are currently zero independently instrumented whole-system measurement datasets in this repository.** Such measurements would be necessary to quantify actual installation-specific predictive error, but they are **not required to implement or mathematically verify authoritative physics equations**. The new engine remains read-only because E0–E2 model completeness, product applicability and integration tests are unfinished—not because laboratory hardware is unavailable.
 
 ## Browser integration
 
@@ -37,4 +37,4 @@ The new engine also exposes `runReferenceIsland` for mathematical fixture evalua
 3. Rebuild `index.html` with Python and check byte-for-byte identity plus all source fingerprints.
 4. Run Chromium/Playwright to prove the bridge is present, outputs are evidence-labeled, and calling it does **not** mutate the live configuration, battery or generator state.
 5. Run existing 50 modeled-winter and PWA tests; do not claim that these establish site-level empirical accuracy.
-6. Permit production engine replacement only after instrumented validation covers the required device/topology domains and uncertainties.
+6. For an **engineering simulation product**, permit production-engine replacement after E0–E2 published-source equation verification, independent numerical benchmarks, bounded assumptions, product-specific catalog verification, and complete state/dispatch/topology integration tests. **Actual instrumented field measurements are not mandatory for developing established engineering formulas.** Require field measurements only when claiming E3 installation-specific prediction accuracy or validation against particular hardware. See [standing math-first policy](DEVELOPMENT_ACCURACY_POLICY.md).

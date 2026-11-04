@@ -21,7 +21,7 @@ A second, strictly type-checked TypeScript physics engine is now **bundled offli
 
 The separate PV reference engine reconstructs the LONGi LR4-72HBD-435M single-diode model and checks against five independently published PVsyst curve points, with manufacturer/specification and pvlib regression tests. Unsupported models and missing measurements remain explicitly unsupported or estimated. An independent mathematical conservation error in battery charge-efficiency bookkeeping and unverified AC generator/inverter PowerAssist summation have also been corrected in the new core.
 
-**This is a mathematical/published-reference milestone, not an instrument-calibrated home electrical system.** Only zero field-instrument datasets are currently available, so the new power dispatcher is NOT the live production solver. Live-engine replacement, household planner and automatic optimizer remain blocked pending measurements and topology verification.
+**This is a mathematical/published-reference milestone, not an instrument-calibrated home electrical system.** The new power dispatcher is not yet the live production solver because its E0-E2 source-validated physical model, numerical behavior, weather alignment, and system integration are incomplete. **Instrumented field datasets are not required to implement correct physics or continue developing the simulator.** The planner/optimizer will follow the model and logic checks, not a laboratory equipment purchase.
 
 See [reference hardware and physical evidence](docs/PHYSICAL_BENCHMARK_EVIDENCE.md), [engine design contract](docs/NEXT_CORE_ENGINE_CONTRACT.md), and [validation coverage and release gates](validation/next-core/coverage.json).
 
@@ -31,7 +31,7 @@ The new reference core now separately evaluates **design-cold PV Voc versus inst
 
 **These are mathematical validation and future-calibration tools, not fitted empirical models.** The repo still has **zero independently instrumented full-system datasets**. Manufacturer peak efficiency, historical modeled weather, synthetic regression fixtures and internally consistent conservation equations are **not physical calibration measurements**. Production dispatcher/planner/optimizer remain gated.
 
-See the complete [mathematical calibration audit and evidence requirements](docs/MATH_CALIBRATION_AUDIT_2026-11-04.md). Device-specific calibration needs timestamped measured V/I/W/VA, ambient and device temperature, load and generator fuel data, provenance, uncertainty and separate held-out validation.
+See the complete [mathematical calibration audit and evidence requirements](docs/MATH_CALIBRATION_AUDIT_2026-11-04.md). **Standing policy:** [Source-first, equation-first simulation engineering](docs/DEVELOPMENT_ACCURACY_POLICY.md). Public manufacturer's datasets and independent published-model benchmarks are the required development baseline; actual instrumented field validation is an optional, separate prediction-error tier. The current model also includes **published PVsyst Rsh(G) physics with source-fit/held-out reference curves, exact Thevenin RC battery voltage dynamics, Honda's actual fuel endpoints without invented idle fuel, and a Victron MPPT peak-efficiency output upper bound.** The currently active production dispatcher remains unchanged until source-equation and chronological integration checks pass.
 
 ### Independent physics accuracy audit — critical published-parameter distinctions
 
