@@ -230,3 +230,25 @@ A regression test checks the equation for every accepted frame, including split 
 ### Wire semantics (no hidden round-trip multiplication)
 
 The registered `WIRE_LOSS_MATH` input was renamed to **`wire.conductorOhm`** in registry revision 2. It is the resistance of one named conductor segment. Separately, the PV/MPPT root laws retain `wire.loopOhm` for the **full round-trip circuit loop**. These two resistances must never be silently substituted; doing so can overstate or understate cable loss by a factor of two.
+
+
+## 12. Circuit-pair reachability and split-phase 120 V rails
+
+The infrastructure graph now checks more than terminal presence. For every declared required
+port pair, the supply and return conductor networks must independently reach **at least
+one common product ID** through correctly matched rails, with junctions traversed by explicit
+conductors. A positive rail connected to an MPPT and a return rail connected only to an
+unrelated device is rejected as \`return.counterparty\`, even though both wires have
+endpoints. Duplicate circuit-pair declarations are also rejected.
+
+AC 120 V circuits distinguish an L1-to-neutral pair (\`AC_120\`, retained for compatibility)
+from an L2-to-neutral pair (\`AC_120_L2\`). A 240 V L1-to-L2 pair remains \`AC_240\`.
+This prevents L2-to-neutral circuits from being misclassified as L1 circuits in the
+structural model.
+
+**Scope boundary:** Counterparty reachability is necessary but not sufficient for a valid
+electrical system. This check does not prove conductor polarity under actual operation,
+terminal current sharing, neutral bonding, fault-clearing behavior, breaker coordination,
+islanding transfer, split-phase balancing, grounding or code compliance. The output
+remains a *structural* check only, never installation approval. These checks run only in
+the read-only next-core model until physical validation and shadow comparisons are complete.
