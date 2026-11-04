@@ -56,7 +56,7 @@ export interface PortPair {
  readonly productId:string;
  readonly positiveTerminal:string;
  readonly negativeTerminal:string;
- readonly kind:"PV_DC"|"BAT_DC"|"AC_120"|"AC_240";
+ readonly kind:"PV_DC"|"BAT_DC"|"AC_120"|"AC_120_L2"|"AC_240";
 }
 export interface InstallationGraph {
  readonly id:string;
@@ -106,7 +106,8 @@ function isAc(rail:Rail){return rail==="AC_L1"||rail==="AC_L2"||rail==="AC_NEUTR
 const pairRails:Record<PortPair["kind"],[Rail,Rail]|[Rail,Rail,Rail]> = {
  PV_DC:["PV_POS","PV_NEG"],
  BAT_DC:["BAT_POS","BAT_NEG"],
- AC_120:["AC_L1","AC_NEUTRAL"],
+ AC_120:["AC_L1","AC_NEUTRAL"], // Kept as explicit L1 compatibility alias.
+ AC_120_L2:["AC_L2","AC_NEUTRAL"],
  AC_240:["AC_L1","AC_L2"]
 };
 
@@ -146,6 +147,7 @@ export function evaluateInstallation(
   ports.set(node.id,node);
  }
  const connected=new Set<string>(),junctions:Record<string,number>={};
+ const adjacency=new Map<string,Set<string>>();
  const captures:ConductorCapture[]=[];
  for(const edge of graph.conductors){
   identified(edge.id);
@@ -155,6 +157,14 @@ export function evaluateInstallation(
   if(!a||!z)invalid("conductor "+edge.id+" has unrecognized endpoint");
   if(edge.from===edge.to)invalid("conductor "+edge.id+" shorts terminal onto itself");
   connected.add(a.id);connected.add(z.id);
+  // Only physically same-rail conductors contribute to return-path reachability.
+  // An invalid cross-rail edge cannot be used to fake a connected circuit.
+  if(a.rail===z.rail){
+   if(!adjacency.has(a.id))adjacency.set(a.id,new Set());
+   if(!adjacency.has(z.id))adjacency.set(z.id,new Set());
+   adjacency.get(a.id)!.add(z.id);
+   adjacency.get(z.id)!.add(a.id);
+  }
   const affected=[edge.id,a.id,z.id];
   if(a.rail!==z.rail)
     report("error","rail.mismatch","Conductor directly connects different rails "+a.rail+" / "+z.rail,affected);
@@ -211,7 +221,31 @@ export function evaluateInstallation(
   if(port.requiredConnection&&!connected.has(port.id))
    report("error","required.unconnected","Required terminal has no conductor",[port.id]);
  }
+ /** The two conductors of a required port must reach a common other product.
+  * Individual "connected" flags are insufficient: positive wired to one
+  * device and return wired to an unrelated device is an open circuit.
+  * This is topological continuity, not proof of a safe or code-compliant loop.
+  */
+ const counterpartProducts=(start:string,ownProduct:string):Set<string>=>{
+  const visited=new Set<string>([start]),queue=[start],found=new Set<string>();
+  for(let i=0;i<queue.length;i++){
+   const id=queue[i];
+   for(const adjacent of adjacency.get(id)??[]){
+    if(visited.has(adjacent))continue;
+    visited.add(adjacent);
+    queue.push(adjacent);
+    const product=ports.get(adjacent)!.productId;
+    if(product!==ownProduct)found.add(product);
+   }
+  }
+  return found;
+ };
+ const seenPairs=new Set<string>();
  for(const pair of graph.requiredPairs){
+  const pairKey=pair.productId+":"+pair.kind+":"+
+    pair.positiveTerminal+":"+pair.negativeTerminal;
+  if(seenPairs.has(pairKey))invalid("duplicate required terminal pair "+pairKey);
+  seenPairs.add(pairKey);
   const p=ports.get(pair.positiveTerminal),n=ports.get(pair.negativeTerminal);
   const rails=pairRails[pair.kind];
   if(!p||!n||p.productId!==pair.productId||n.productId!==pair.productId)
@@ -222,6 +256,14 @@ export function evaluateInstallation(
   if(!connected.has(p.id)||!connected.has(n.id))
    report("error","return.incomplete","Declared circuit lacks one or both conductors",
      [pair.productId,p.id,n.id]);
+  else if(p.rail===rails[0]&&n.rail===rails[1]){
+   const positivePeers=counterpartProducts(p.id,pair.productId);
+   const returnPeers=counterpartProducts(n.id,pair.productId);
+   if(![...positivePeers].some(id=>returnPeers.has(id)))
+    report("error","return.counterparty",
+      "Supply and return do not reach a common other product on their respective rails",
+      [pair.productId,p.id,n.id]);
+  }
  }
  for(const [node,residual] of Object.entries(junctions)){
   const scale=Math.max(1,...graph.conductors.filter(e=>e.from===node||e.to===node)
