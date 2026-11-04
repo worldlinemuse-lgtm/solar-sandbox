@@ -39,7 +39,9 @@
     "publishedPvsystRshIrradianceEquationAvailable": true,
     "publishedPvsystCurveParameterFitWithHoldoutAvailable": true,
     "peakMpptEfficiencyUsedAsUpperBoundReference": true,
-    "publishedHondaAndBattleBornReferenceDataAvailable": true
+    "publishedHondaAndBattleBornReferenceDataAvailable": true,
+    "genericBatteryTheveninExactConstantCurrentReferenceAvailable": true,
+    "batteryManufacturerOcvSocCurveFitted": false
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -99,7 +101,7 @@
       "id": "battery_electrical",
       "category": "engineering_math",
       "status": "partial",
-      "description": "BB10012 Rev038 2026 100Ah/7mOhm and charge/BMS limits sourced; local equivalent circuit math exists, exact OCV(SOC,T) curve remains unknown, not a lab-gated code task."
+      "description": "Published SAM and Thevenin RC equations: exact constant-current R-C polarization, OCV(SOC) interpolation, signed SoC and boundary splits, plus real BB10012 Rev038 nameplate. Manufacturer-specific OCV(SOC,T) and RC(SOC,T) params not provided; not fabricated."
     },
     {
       "id": "battery_bms",
