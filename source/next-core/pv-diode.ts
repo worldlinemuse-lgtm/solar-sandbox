@@ -34,7 +34,10 @@ export const LONGI_435_PVSYST:Readonly<SingleDiodeReference>={
  seriesResistanceOhm:.27,
  shuntResistanceOhm:1000,
  saturationCurrentRefA:0.087e-9,
- iscTemperatureCoeffPerC:0.0005,
+ // The exact PVsyst PDF reports +6.7 mA/C absolute Isc slope, or
+ // +0.0067/11.36 per C. Do NOT silently reuse the different catalog
+ // manufacturer-sheet coefficient (+0.05%/C) for this 2020 PVsyst variant.
+ iscTemperatureCoeffPerC:0.0067/11.36,
  bandgapEV:1.121, // Silicon bandgap approximation; R3 assumed for temperature extrapolation
  evidenceUrl:"https://greensun.ro/wp-content/uploads/2021/05/LR4_72HBD-435M-Glass_Glass_435W.pdf"
 };
