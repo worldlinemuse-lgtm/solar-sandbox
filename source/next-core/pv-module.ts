@@ -61,12 +61,18 @@ export function makePvModuleSnapshot(m:Readonly<PvModuleSpec>,a:Readonly<ArrayAr
   const vmpFactor=1+(m.powerTempCoefficientPerC-m.iscTempCoefficientPerC)*d;
   if(vmpFactor<=0)
     throw new ModelFailure("PHYSICAL_INFEASIBILITY","PV voltage linearization invalid");
-  return {availablePowerW:available,seriesVmpV:a.series*m.vmpStcV*vmpFactor,
-    seriesVocV:a.series*m.vocStcV*vocFactor,
-    totalShortCircuitA:a.parallel*m.iscStcA*iscFactor,
+  // Photocurrent/Isc is proportional to effective irradiance in the linear
+  // STC reference approximation. At zero sunlight, there is no I_sc or V_oc.
+  // At nonzero irradiance, Voc is still a temperature-adjusted STC proxy:
+  // an actual diode curve must supply the logarithmic irradiance dependence.
+  const illuminated=env.effectiveIrradianceWm2>0;
+  return {availablePowerW:available,seriesVmpV:illuminated?a.series*m.vmpStcV*vmpFactor:0,
+    seriesVocV:illuminated?a.series*m.vocStcV*vocFactor:0,
+    totalShortCircuitA:a.parallel*m.iscStcA*
+      (env.effectiveIrradianceWm2/1000)*iscFactor,
     stcTotalPowerW:pTotal,status:"modelled_with_published_coefficients"};
 }
-export function checkControllerLimits(s:PvModuleSnapshot,limit:Readonly<ControllerVoltageConstraint>):
+/** Instantaneous modeled snapshot comparison ONLY. For a design's coldest Voc and\n * maximum irradiance/current, use assessPvColdDesign, with explicit design extremes.\n * This function does NOT establish compatibility of an installation. */\nexport function checkControllerLimits(s:PvModuleSnapshot,limit:Readonly<ControllerVoltageConstraint>):
   {status:"pass"|"fail";reasons:string[]} {
   const reasons:string[]=[];
   if(s.seriesVocV>limit.absoluteMaxVocV+1e-9)reasons.push("Absolute PV Voc limit exceeded");
