@@ -68,6 +68,18 @@ def main():
             maximumDesignIscA:25,mc4PairDesignIscA:[12,13]});
           const hotInverter=a.assessInverterThermalCapacity(
             a.VICTRON_3KVA_120V_THERMAL,65,2000,2500);
+          const shuntFit=a.fitPublishedLongiPvsystRshZero();
+          const mpptBound=a.boundMpptDcPower({
+            availableControllerInputPowerW:2500,batteryChargeVoltageV:28.8,
+            ratedMaximumBatteryChargeCurrentA:70,
+            publishedPeakConversionEfficiency:.98,nominalArrayReferenceW:2000
+          });
+          const hondaQuarter=a.estimateHondaFuelGph(450);
+          const hondaIdle=a.estimateHondaFuelGph(0);
+          const shuntAtRef=a.pvsystShuntResistance({
+            irradianceWm2:1000,referenceIrradianceWm2:1000,
+            rshReferenceOhm:1000,rshAtZeroIrradianceOhm:4000,decay:5.5
+          });
           const definitions=a.getMathematicalDefinitions();
           const wire=a.evaluateMathematics('wire',{
             'wire.currentA':10,'wire.conductorOhm':.1,'interval.seconds':60
@@ -95,6 +107,12 @@ def main():
             signedReactiveApparentVA:reactive.legs[0].fundamentalApparentVA,
             mc4Status:mppt.status,
             hotInverterStatus:hotInverter.status,
+            publishedFitHeldoutRmse:shuntFit.heldOutRelativeRmse,
+            publishedFitRsh0:shuntFit.fittedRshZeroOhm,
+            mpptBoundW:mpptBound.dcOutputMaximumPossibleW,
+            hondaQuarterGph:hondaQuarter.fuelGallonsPerHour,
+            hondaIdleUnknown:hondaIdle.status,
+            shuntAtRefOhm:shuntAtRef,
             unchanged:first===JSON.stringify({cfg:src.cfg,loads:src.loads,soc:src.soc,
               generatorFuel:src.genFuelLeft,weather:SIM.wxId()}),
             modelHash:window.SIM_PROVENANCE.source_sha256['next-core-browser.js'],
@@ -121,6 +139,12 @@ def main():
         assert abs(x["signedReactiveApparentVA"]-1200)<1e-8,x
         assert x["mc4Status"]=="checked_ratings_only",x
         assert x["hotInverterStatus"]=="exceeds_conservative_envelope",x
+        assert x["publishedFitHeldoutRmse"]<0.002,x
+        assert 15000<x["publishedFitRsh0"]<50000,x
+        assert abs(x["mpptBoundW"]-2016)<1e-8,x
+        assert abs(x["hondaQuarterGph"]-(.95/8.1))<1e-8,x
+        assert x["hondaIdleUnknown"]=="below_published_range",x
+        assert abs(x["shuntAtRefOhm"]-1000)<1e-8,x
         assert 0 < x["g"]["controllerMaximumEnvelopeW"] < 1750,x
         assert x["unsupported"]=="unsupported"
         assert x["legacy"] in ("unsupported","indeterminate","estimated")
