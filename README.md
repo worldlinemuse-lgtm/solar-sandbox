@@ -5,6 +5,14 @@ An interactive solar and house-battery simulator, with a built-in voice guide to
 The whole app is one self-contained file, `index.html`. The voice guide, weather data, scripts and styles are built in, and nothing needs to be installed or built to use it. The same page is also kept as separate source files in `source/`, with a build script that puts them back together (see "Source files and building").
 
 
+## Brand independence and third-party rights
+
+**Independent app — not sponsored, certified, affiliated with, approved by or endorsed by the brands, data providers or agencies named here.** Product and company names (including LONGi, Victron, Renogy, Battle Born, LiTime and Honda) are used to identify real equipment for factual simulation and comparison. Trademarks belong to their respective owners. NASA POWER, PVWatts and other referenced sources are attributed as data/technical references, not partners or approvers.
+
+Copyright permission is separate from attribution or a brand disclaimer. Do not add manufacturer logos, photographs, copied manuals, promotional text, third-party audio, software or data without checking the actual rights and applicable licenses. The review found an embedded voice recording with **unverified ownership/redistribution permissions** and an outstanding PVWatts/NSRDB dataset terms check; therefore the project is **not certified copyright-clear for commercial distribution**.
+
+See [Brand, third-party content and rights audit](docs/BRAND_AND_CONTENT_RIGHTS.md) for the asset inventory, required checks and citation references. A top-level software license has not been selected; public GitHub visibility is not an open-source license.
+
 ## Mathematical authority — equations first, code second
 
 Solar Sandbox now maintains an independently inspectable mathematical equation registry for **PV/DC power, wire resistance, battery charge/SoC, AC power factor and delivered/unserved energy**. The registry is not presentation code: it checks units, dependency closure, law revisions, evidence tier and conservation residuals, while the new physics engine reads its computed stage outputs.
