@@ -31,7 +31,7 @@ export interface CalibrationResiduals {
  /** Chi-square, available only if ALL samples have positive uncertainty. */
  readonly chiSquare:number|null;
  readonly reducedChiSquare:number|null;
- readonly measurementUnits:"caller_declared_and_verified";
+ readonly measurementUnits:"not_checked_by_this_numerical_kernel";
  readonly status:"math_only_measurement_provenance_not_verified";
 }
 export function calibrationResiduals(
@@ -63,7 +63,7 @@ export function calibrationResiduals(
    chiSquare:allSigma?chi:null,
    reducedChiSquare:allSigma&&n>estimatedParameterCount?
      chi/(n-estimatedParameterCount):null,
-   measurementUnits:"caller_declared_and_verified",
+   measurementUnits:"not_checked_by_this_numerical_kernel",
    status:"math_only_measurement_provenance_not_verified"
  };
 }
