@@ -12,6 +12,12 @@ import {makeSyntheticBenchSpec,LONGI_LR4_72HBD_435M} from "./catalog";
 import {assessPvColdDesign} from "./pv-design";
 import {solveDiodeArrayCableMpp} from "./pv-wire-iv";
 export {assessPvColdDesign,solveDiodeArrayCableMpp};
+export {pvsystShuntResistance} from "./pvsyst-shunt";
+export {fitPublishedLongiPvsystRshZero,LONGI_PVSYST_POWER_2020}
+  from "./pvsyst-published-fit";
+export {boundMpptDcPower} from "./mppt-power-envelope";
+export {HONDA_EU2200I_PUBLISHED,BATTLE_BORN_BB10012_PUBLISHED,
+  estimateHondaFuelGph} from "./published-hardware";
 export {fitPublishedPvThermalSlope,LONGI_PVSYST_2020_THERMAL_ANCHORS}
   from "./pv-temperature-reference";
 export {assessSignedAcPhasors} from "./ac-phasor";
@@ -42,7 +48,9 @@ export const validationStatus=Object.freeze({
     "battery_local_thevenin","inverter_measured_dc","generator_measured_fuel",
     "prediction_residuals","published_pv_temperature_slope",
     "signed_ac_reactive_phasors","conductor_temperature_resistance",
-    "inverter_ambient_derating","mppt_per_connector_50A_30A_and_voltage_headroom"],
+    "inverter_ambient_derating","mppt_per_connector_50A_30A_and_voltage_headroom",
+    "pvsyst_rsh_irradiance_source_fit","mppt_peak_efficiency_upper_bound",
+    "published_honda_fuel_anchors_and_battery_limits"],
   physicalCalibrationDatasetCount:0,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
