@@ -66,7 +66,7 @@ export function makePvModuleSnapshot(m:Readonly<PvModuleSpec>,a:Readonly<ArrayAr
   // At nonzero irradiance, Voc is still a temperature-adjusted STC proxy:
   // an actual diode curve must supply the logarithmic irradiance dependence.
   const illuminated=env.effectiveIrradianceWm2>0;
-  return {availablePowerW:available,seriesVmpV:illuminated?a.series*m.vmpStcV*vmpFactor:0,
+  // The fixed-Vmp reference solver still needs a positive *reference* voltage\n  // at zero sunlight; it multiplies by 0 W and cannot infer an energized port.\n  return {availablePowerW:available,seriesVmpV:a.series*m.vmpStcV*vmpFactor,
     seriesVocV:illuminated?a.series*m.vocStcV*vocFactor:0,
     totalShortCircuitA:a.parallel*m.iscStcA*
       (env.effectiveIrradianceWm2/1000)*iscFactor,
