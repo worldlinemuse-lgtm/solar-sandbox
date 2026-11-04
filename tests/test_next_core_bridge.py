@@ -53,6 +53,21 @@ def main():
           const fuelPrediction=a.interpolateGeneratorFuelRate(fuelCurve,900);
           const residuals=a.calibrationResiduals([{observed:8,predicted:9},
             {observed:10,predicted:9}]);
+          const copper=a.conductorTemperatureLoss({
+            loopResistanceAtReferenceOhm:.1,referenceTemperatureC:20,
+            conductorTemperatureC:50,temperatureCoefficientAtReferencePerC:.00393,
+            currentA:20,intervalSeconds:3600});
+          const reactive=a.assessSignedAcPhasors([
+            {id:"lag",realPowerW:600,reactiveVarSigned:800,leg:"L1"},
+            {id:"lead",realPowerW:600,reactiveVarSigned:-800,leg:"L1"}
+          ],{phases:"120V",continuousRealWPerLeg:2400,
+            continuousApparentVAPerLeg:3000,sinusoidalWaveformsConfirmed:true});
+          const mppt=a.assessVictron15070Point({
+            termination:"MC4_TWO_PAIRS",mode:"starting",batteryBusVoltageV:26.4,
+            pvInputPortVoltageV:31.4,maximumColdDesignVocV:112,
+            maximumDesignIscA:25,mc4PairDesignIscA:[12,13]});
+          const hotInverter=a.assessInverterThermalCapacity(
+            a.VICTRON_3KVA_120V_THERMAL,65,2000,2500);
           const definitions=a.getMathematicalDefinitions();
           const wire=a.evaluateMathematics('wire',{
             'wire.currentA':10,'wire.conductorOhm':.1,'interval.seconds':60
@@ -74,6 +89,12 @@ def main():
             fuelInterpolationGph:fuelPrediction.gallonsPerHour,
             calibrationRmse:residuals.rmse,
             nonlinearPvSolver:typeof a.solveDiodeArrayCableMpp,
+            temperatureSlopeMath:typeof a.fitPublishedPvThermalSlope,
+            copperPowerLossW:copper.powerLossW,
+            signedReactiveStatus:reactive.status,
+            signedReactiveApparentVA:reactive.legs[0].fundamentalApparentVA,
+            mc4Status:mppt.status,
+            hotInverterStatus:hotInverter.status,
             unchanged:first===JSON.stringify({cfg:src.cfg,loads:src.loads,soc:src.soc,
               generatorFuel:src.genFuelLeft,weather:SIM.wxId()}),
             modelHash:window.SIM_PROVENANCE.source_sha256['next-core-browser.js'],
@@ -94,6 +115,12 @@ def main():
         assert abs(x["fuelInterpolationGph"]-.19)<1e-9,x
         assert abs(x["calibrationRmse"]-1)<1e-9,x
         assert x["nonlinearPvSolver"]=="function",x
+        assert x["temperatureSlopeMath"]=="function",x
+        assert abs(x["copperPowerLossW"]-44.716)<1e-8,x
+        assert x["signedReactiveStatus"]=="pass_sinusoidal_model",x
+        assert abs(x["signedReactiveApparentVA"]-1200)<1e-8,x
+        assert x["mc4Status"]=="checked_ratings_only",x
+        assert x["hotInverterStatus"]=="exceeds_conservative_envelope",x
         assert 0 < x["g"]["controllerMaximumEnvelopeW"] < 1750,x
         assert x["unsupported"]=="unsupported"
         assert x["legacy"] in ("unsupported","indeterminate","estimated")
