@@ -68,7 +68,7 @@ ILREF = ISCREF + I0REF * math.expm1(ISCREF * RS / AREF) + ISCREF * RS / RSH
 
 def pvsyst_lambert_inputs(g, tc):
     tk = tc + 273.15
-    il = ILREF * g / 1000 * (1 + ALPHA_ISC_REL * (tc - 25))
+    il = g / 1000 * (ILREF + ISCREF * ALPHA_ISC_REL * (tc - 25))
     i0 = I0REF * (tk / TREF)**3 * math.exp(
         EG_EV / (n * KB_EV) * (1 / TREF - 1 / tk))
     a = n * N * KB * tk / Q_E
