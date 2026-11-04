@@ -21,7 +21,9 @@
     "nonLinearPvCableReferenceAvailable": true,
     "coldDesignVoltageCurrentReferenceAvailable": true,
     "batteryLocalTheveninFitAvailable": true,
-    "measurementResidualScoringAvailable": true
+    "measurementResidualScoringAvailable": true,
+    "inverterMeasuredDcCurveMathAvailable": true,
+    "generatorMeasuredFuelCurveMathAvailable": true
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -111,7 +113,7 @@
       "id": "inverter_steady_ac",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Per-leg W, VA, PF constraints tested; part-load efficiency curve estimated"
+      "description": "Per-leg W/VA/PF verified analytically; measured-domain inverter DC-demand interpolation added, still zero device data and no PF/temperature curve"
     },
     {
       "id": "motor_start",
@@ -135,7 +137,7 @@
       "id": "generator_fuel_curve",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Honda endpoint interpolation only; idle/part-load instrument data missing"
+      "description": "Honda published endpoint interpolation remains legacy reference; new measured-domain gph-vs-output interpolator has no independent instrumented records"
     },
     {
       "id": "generator_battery_charger",
