@@ -1,104 +1,151 @@
 /**
- * Published ambient-temperature continuous output derating, NOT a fixed
- * 25°C rating applied to hot operating cabinets.
+ * Victron MultiPlus-II 120 V temperature-dependent published output ratings.
  *
- * Manufacturer gives discrete steady-state power points. Linear interpolation
- * between them is a *scenario estimate*, not a verified guaranteed rating.
- * A separate conservative step envelope uses the next hotter published
- * operating anchor as a bound, under explicit monotone-derating assumption.
- * No cold (<minimum) or over-temperature (>maximum) extrapolation is allowed.
+ * CRITICAL SOURCE-UNIT DISTINCTION, verified in official Victron table:
+ * 24/3000/70-50: 25/40/65C real W = 2400/2200/1700, 3000 VA nominal.
+ * 24/5000/120-95: 25/40/65C values = 4000/3700/3000 **VA**,
+ * NOT watts; 5000 VA nominal. The published operating temperature range
+ * for 5 kVA is -40 to +60C, despite a 65C derating anchor.
  *
- * Victron MultiPlus-II 120V:
+ * Do not silently convert those 5k values to real watts. Without a
+ * separately established real-W rating, 5k reference can establish a
+ * VA-limit failure, but not certify the requested real-W output as passing.
+ *
+ * Manufacturer source:
  * https://www.victronenergy.com/media/pg/MultiPlus-II_120V/en/technical-specifications-mp-ii-120v.html
- * 3 kVA: 2400W @25C, 2200W @40C, 1700W @65C; 3000VA @25C.
- * 5 kVA: 4000W @25C, 3700W @40C, 3000W @65C; 5000VA @25C.
+ *
+ * Linear interpolation is an ESTIMATE. Next-hotter published anchor checks
+ * assume nonincreasing capability with increasing ambient temperature.
+ * Neither establishes actual thermal behavior or electrical code approval.
  */
 import {ModelFailure,finite,nonnegative} from "./contracts";
-export interface InverterThermalAnchor {readonly ambientTemperatureC:number;readonly continuousW:number}
+
+export interface InverterThermalAnchor {
+ readonly ambientTemperatureC:number;
+ readonly continuousRating:number;
+}
 export interface InverterThermalReference {
  readonly id:string;
+ readonly ratedQuantityUnit:"W"|"VA";
  readonly publishedAtC:readonly InverterThermalAnchor[];
- /** Datasheet VA rating, never treated as W. */
+ readonly maximumPublishedOperatingTemperatureC:number;
  readonly nominalApparentVA:number;
  readonly sourceUrl:string;
 }
+export type InverterThermalStatus=
+ "rated_reference_estimate"|"exceeds_conservative_envelope"|
+ "indeterminate_temperature"|"indeterminate_real_power";
 export interface InverterThermalResult {
- readonly status:"rated_reference_estimate"|"exceeds_conservative_envelope"|"indeterminate_temperature";
+ readonly status:InverterThermalStatus;
  readonly requestedRealW:number;
  readonly requestedApparentVA:number;
  readonly estimatedContinuousW:number|null;
  readonly conservativeNextHotterAnchorW:number|null;
+ readonly estimatedContinuousVA:number|null;
+ readonly conservativeNextHotterAnchorVA:number|null;
  readonly permittedNominalVA:number;
  readonly sourceId:string;
- readonly validation:"published_discrete_temperatures_plus_assumed_interpolation_not_certified";
+ readonly sourceRatedUnit:"W"|"VA";
  readonly reasons:readonly string[];
+ readonly validation:"published_discrete_temperatures_plus_assumed_interpolation_not_certified";
 }
+const SOURCE="https://www.victronenergy.com/media/pg/MultiPlus-II_120V/en/technical-specifications-mp-ii-120v.html";
+
 export const VICTRON_3KVA_120V_THERMAL:Readonly<InverterThermalReference>={
  id:"MultiPlus-II_120V_24-3000_thermal_2026",
- publishedAtC:[{ambientTemperatureC:25,continuousW:2400},
-  {ambientTemperatureC:40,continuousW:2200},
-  {ambientTemperatureC:65,continuousW:1700}],
+ ratedQuantityUnit:"W",
+ publishedAtC:[{ambientTemperatureC:25,continuousRating:2400},
+  {ambientTemperatureC:40,continuousRating:2200},
+  {ambientTemperatureC:65,continuousRating:1700}],
+ maximumPublishedOperatingTemperatureC:65,
  nominalApparentVA:3000,
- sourceUrl:"https://www.victronenergy.com/media/pg/MultiPlus-II_120V/en/technical-specifications-mp-ii-120v.html"
+ sourceUrl:SOURCE
 };
 export const VICTRON_5KVA_120V_THERMAL:Readonly<InverterThermalReference>={
  id:"MultiPlus-II_120V_24-5000_thermal_2026",
- publishedAtC:[{ambientTemperatureC:25,continuousW:4000},
-  {ambientTemperatureC:40,continuousW:3700},
-  {ambientTemperatureC:65,continuousW:3000}],
+ ratedQuantityUnit:"VA",
+ publishedAtC:[{ambientTemperatureC:25,continuousRating:4000},
+  {ambientTemperatureC:40,continuousRating:3700},
+  {ambientTemperatureC:65,continuousRating:3000}],
+ maximumPublishedOperatingTemperatureC:60,
  nominalApparentVA:5000,
- sourceUrl:"https://www.victronenergy.com/media/pg/MultiPlus-II_120V/en/technical-specifications-mp-ii-120v.html"
+ sourceUrl:SOURCE
 };
 export function assessInverterThermalCapacity(
  reference:Readonly<InverterThermalReference>,ambientC:number,
  requestW:number,requestVA:number
 ):InverterThermalResult{
- const temperature=finite("inverter ambientC",ambientC);
- const power=nonnegative("requestedRealW",requestW);
- const apparent=nonnegative("requestedApparentVA",requestVA);
- if(temperature<=-273.15||!reference.id||!reference.sourceUrl)
-   throw new ModelFailure("INVALID_INPUT","Inverter ambient temperature or source reference invalid");
- const va=nonnegative("nominalApparentVA",reference.nominalApparentVA);
+ const t=finite("inverter ambientC",ambientC);
+ const p=nonnegative("requestedRealW",requestW);
+ const s=nonnegative("requestedApparentVA",requestVA);
+ if(t<=-273.15||!reference.id||!reference.sourceUrl||p>s+1e-9)
+   throw new ModelFailure("INVALID_INPUT",
+     "Inverter reference or ambient invalid; real watts cannot exceed apparent VA");
+ if(reference.ratedQuantityUnit!=="W"&&reference.ratedQuantityUnit!=="VA")
+   throw new ModelFailure("INVALID_INPUT","Published rating unit must be W or VA");
+ const ratedVA=nonnegative("nominalApparentVA",reference.nominalApparentVA);
+ const upper=finite("maximumPublishedOperatingTemperatureC",
+   reference.maximumPublishedOperatingTemperatureC);
  const rows=reference.publishedAtC;
- if(rows.length<2)throw new ModelFailure("INVALID_INPUT","At least two published temperature points required");
+ if(rows.length<2)throw new ModelFailure("INVALID_INPUT",
+   "At least two sourced temperature anchors required");
  for(let i=0;i<rows.length;i++){
    finite("published temperature",rows[i].ambientTemperatureC);
-   nonnegative("published continuous W",rows[i].continuousW);
+   nonnegative("published continuous "+reference.ratedQuantityUnit,
+     rows[i].continuousRating);
    if(i>0&&(rows[i].ambientTemperatureC<=rows[i-1].ambientTemperatureC||
-       rows[i].continuousW>rows[i-1].continuousW))
+       rows[i].continuousRating>rows[i-1].continuousRating))
      throw new ModelFailure("INVALID_INPUT",
-       "Inverter thermal anchors must be sorted by rising temperature and nonincreasing rated W");
+       "Inverter thermal anchors must have rising temperatures and nonincreasing ratings");
  }
  const reasons:string[]=[];
- if(apparent>va+1e-9)reasons.push("Requested VA exceeds published 25C nominal VA rating");
- if(temperature<rows[0].ambientTemperatureC||temperature>rows[rows.length-1].ambientTemperatureC){
-   reasons.push("Temperature outside independently published continuous-power reference points; do not extrapolate");
-   return {status:"indeterminate_temperature",requestedRealW:power,
-     requestedApparentVA:apparent,estimatedContinuousW:null,
-     conservativeNextHotterAnchorW:null,permittedNominalVA:va,
-     sourceId:reference.id,validation:"published_discrete_temperatures_plus_assumed_interpolation_not_certified",
-     reasons};
+ const nominalVAExceeded=s>ratedVA+1e-9;
+ if(nominalVAExceeded)
+   reasons.push("Requested VA exceeds manufacturer's nominal VA ceiling");
+ const invalidTemperature=t<rows[0].ambientTemperatureC||
+   t>rows[rows.length-1].ambientTemperatureC||t>upper;
+ const report=(status:InverterThermalStatus,interpolated:number|null,
+   hotter:number|null):InverterThermalResult=>({
+     status,requestedRealW:p,requestedApparentVA:s,
+     estimatedContinuousW:reference.ratedQuantityUnit==="W"?interpolated:null,
+     conservativeNextHotterAnchorW:reference.ratedQuantityUnit==="W"?hotter:null,
+     estimatedContinuousVA:reference.ratedQuantityUnit==="VA"?interpolated:null,
+     conservativeNextHotterAnchorVA:reference.ratedQuantityUnit==="VA"?hotter:null,
+     permittedNominalVA:ratedVA,sourceId:reference.id,
+     sourceRatedUnit:reference.ratedQuantityUnit,
+     reasons,validation:"published_discrete_temperatures_plus_assumed_interpolation_not_certified"
+ });
+ if(invalidTemperature){
+   reasons.push("Ambient temperature is outside available reference/operating domain; no extrapolation");
+   return report(nominalVAExceeded?"exceeds_conservative_envelope":
+     "indeterminate_temperature",null,null);
  }
- let hot=rows[rows.length-1],estimate=hot.continuousW;
- if(temperature<=rows[0].ambientTemperatureC){hot=rows[0];estimate=hot.continuousW;}
- else for(let i=1;i<rows.length;i++){
-   if(temperature<=rows[i].ambientTemperatureC){
+ let hot=rows[rows.length-1],estimate=hot.continuousRating;
+ if(t<=rows[0].ambientTemperatureC){
+   hot=rows[0];estimate=hot.continuousRating;
+ }else for(let i=1;i<rows.length;i++){
+   if(t<=rows[i].ambientTemperatureC){
      const low=rows[i-1];hot=rows[i];
-     const frac=(temperature-low.ambientTemperatureC)/
+     const frac=(t-low.ambientTemperatureC)/
        (hot.ambientTemperatureC-low.ambientTemperatureC);
-     estimate=low.continuousW+(hot.continuousW-low.continuousW)*frac;
+     estimate=low.continuousRating+
+       (hot.continuousRating-low.continuousRating)*frac;
      break;
    }
  }
- const violates=power>hot.continuousW+1e-9||apparent>va+1e-9;
- if(power>hot.continuousW+1e-9)
-   reasons.push("Real W demand exceeds the next-hotter published continuous-power anchor");
- if(!violates)
-   reasons.push("Within next-hotter-anchor arithmetic only; no field temperature, waveform, surge or full equipment verification");
- return {status:violates?"exceeds_conservative_envelope":"rated_reference_estimate",
-   requestedRealW:power,requestedApparentVA:apparent,
-   estimatedContinuousW:estimate,conservativeNextHotterAnchorW:hot.continuousW,
-   permittedNominalVA:va,sourceId:reference.id,
-   validation:"published_discrete_temperatures_plus_assumed_interpolation_not_certified",
-   reasons};
+ if(reference.ratedQuantityUnit==="W"){
+   if(p>hot.continuousRating+1e-9)
+     reasons.push("Requested real W exceeds next-hotter published real-W reference anchor");
+   if(s>ratedVA+1e-9||p>hot.continuousRating+1e-9)
+     return report("exceeds_conservative_envelope",estimate,hot.continuousRating);
+   reasons.push("Within published-W reference envelope only; no empirical waveform/thermal certification");
+   return report("rated_reference_estimate",estimate,hot.continuousRating);
+ }
+ // The 5k table is apparent VA. DO NOT claim this establishes continuous real W.
+ if(s>hot.continuousRating+1e-9||nominalVAExceeded){
+   reasons.push("Requested VA exceeds next-hotter published apparent-VA anchor");
+   return report("exceeds_conservative_envelope",estimate,hot.continuousRating);
+ }
+ reasons.push("Published thermal anchor is VA, not W; cannot establish real-W capacity from this table");
+ return report("indeterminate_real_power",estimate,hot.continuousRating);
 }
