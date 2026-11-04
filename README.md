@@ -11,7 +11,14 @@ The whole app is one self-contained file, `index.html`. The voice guide, weather
 
 Copyright permission is separate from attribution or a brand disclaimer. Do not add manufacturer logos, photographs, copied manuals, promotional text, third-party audio, software or data without checking the actual rights and applicable licenses. The review found an embedded voice recording with **unverified ownership/redistribution permissions** and an outstanding PVWatts/NSRDB dataset terms check; therefore the project is **not certified copyright-clear for commercial distribution**.
 
-See [Brand, third-party content and rights audit](docs/BRAND_AND_CONTENT_RIGHTS.md) for the asset inventory, required checks and citation references. A top-level software license has not been selected; public GitHub visibility is not an open-source license.
+See [Brand, third-party content and rights audit](docs/BRAND_AND_CONTENT_RIGHTS.md) for the asset inventory, required checks and citation references.
+
+### Legal notices and proposed terms (prepublication review)
+
+- [Full legal, safety, brand, IP, warranty and liability notices](docs/LEGAL_NOTICES_AND_DISCLAIMERS.md) are also embedded directly in the offline application. Short, visible safety/brand warnings appear at the top of the page.
+- [Terms of Use — prepublication contract draft](docs/TERMS_OF_USE_PREPUBLICATION_DRAFT.md) is **not operative** and **not an accepted user agreement**. It requires a verified operator, business model, jurisdiction, lawful consent/acceptance mechanism and legal review before publication.
+- A comprehensive disclaimer **does not guarantee immunity**, make copyrighted content lawful, or eliminate applicable statutory or consumer rights. The [outstanding rights review](https://github.com/worldlinemuse-lgtm/solar-sandbox/issues/11) must still be completed before commercial release.
+ A top-level software license has not been selected; public GitHub visibility is not an open-source license.
 
 ## Mathematical authority — equations first, code second
 
