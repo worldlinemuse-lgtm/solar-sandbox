@@ -12,6 +12,7 @@
  * must be checked against the exact module manufacturer wiring variant.
  */
 import {ModelFailure,finite,nonnegative} from "./contracts";
+import {pvsystShuntResistance} from "./pvsyst-shunt";
 const K_B=1.380649e-23;
 const Q_E=1.602176634e-19;
 export interface SingleDiodeReference {
@@ -21,6 +22,11 @@ export interface SingleDiodeReference {
   readonly equivalentCellsInSeries:number;
   readonly seriesResistanceOhm:number;
   readonly shuntResistanceOhm:number;
+  /** PVsyst Rsh0, absent from LONGi's 2020 published one-page report.
+   * Supply only when independently sourced or deliberately scenario-assumed. */
+  readonly shuntAtZeroIrradianceOhm?:number;
+  /** PVsyst exponential parameter, normally 5.5 for crystalline modules. */
+  readonly shuntIrradianceDecay?:number;
   readonly saturationCurrentRefA:number;
   readonly iscTemperatureCoeffPerC:number;
   /** Silicon/material bandgap prior. Not necessarily sufficient to reproduce
@@ -75,7 +81,24 @@ function diodeParams(x:SingleDiodeReference,g:number,tc:number) {
    x.shortCircuitCurrentRefA*x.seriesResistanceOhm/x.shuntResistanceOhm;
   const factor=1+x.iscTemperatureCoeffPerC*(tc-25);
   if(factor<0)throw new ModelFailure("PHYSICAL_INFEASIBILITY","PV photocurrent temperature extrapolation invalid");
-  const il=ilr*g/1000*factor;
+  // PVsyst published photocurrent equation uses absolute Isc temperature
+  // coefficient: IL(G,T)=(G/1000)[ILref + muIsc_absolute*(T-25)].
+  // Do NOT multiply the (slightly larger) ILref by the relative Isc slope.
+  const alphaAbs=x.shortCircuitCurrentRefA*x.iscTemperatureCoeffPerC;
+  const il=g/1000*(ilr+alphaAbs*(tc-25));
+  if(il<0)throw new ModelFailure("PHYSICAL_INFEASIBILITY",
+    "PVsyst photocurrent extrapolation outside its valid temperature range");
+  if((x.shuntAtZeroIrradianceOhm===undefined)!==
+     (x.shuntIrradianceDecay===undefined))
+    throw new ModelFailure("INVALID_INPUT",
+      "PVsyst Rsh irradiance mode requires both independently sourced Rsh0 and exponent");
+  const rsh=x.shuntAtZeroIrradianceOhm===undefined?x.shuntResistanceOhm:
+    pvsystShuntResistance({
+      irradianceWm2:g,referenceIrradianceWm2:1000,
+      rshReferenceOhm:x.shuntResistanceOhm,
+      rshAtZeroIrradianceOhm:x.shuntAtZeroIrradianceOhm,
+      decay:x.shuntIrradianceDecay!
+    });
   const alpha=x.idealityFactor*x.equivalentCellsInSeries*K_B*tk/Q_E;
   // Silicon bandgap approximation, per-cell thermal dependence of dark saturation current.
   // This is an explicit R3 extrapolation, not published temperature-characterized IV data.
@@ -85,7 +108,7 @@ function diodeParams(x:SingleDiodeReference,g:number,tc:number) {
     throw new ModelFailure("INVALID_INPUT","Effective thermal activation must exceed zero");
   const exponent=activation/(x.idealityFactor*kEV)*(1/298.15-1/tk);
   const i0=i0r*Math.pow(tk/298.15,3)*Math.exp(exponent);
-  return {il,alpha,i0,rs:x.seriesResistanceOhm,rsh:x.shuntResistanceOhm};
+  return {il,alpha,i0,rs:x.seriesResistanceOhm,rsh};
 }
 function diodeTerm(z:number):number{
  if(z>700) return Infinity;
