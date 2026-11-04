@@ -33,6 +33,26 @@ def main():
             mpptAbsoluteVocV:150,mpptOperatingVocV:145,mpptIscLimitA:50,
             mpptEfficiency:.98,pvCableLoopOhm:.1,controllerCableLoopOhm:.03,
             busVoltageV:26.4,legacyControllerOutputW:null,legacySnowFraction:0});
+          const designTest=a.assessPvColdDesign({
+            vocStcV:49.1,iscStcA:11.36,
+            vocTemperatureCoefficientPerC:-.00284,iscTemperatureCoefficientPerC:.0005
+          },{modulesInSeries:3,stringsInParallel:2},{
+            minimumDesignCellTemperatureC:-29.5,maximumDesignCellTemperatureC:45,
+            maximumDesignEffectiveIrradianceWm2:1000
+          },{absoluteMaximumInputVoltageV:150,
+            startupOperatingMaximumInputVoltageV:145,
+            maximumPvShortCircuitCurrentA:50});
+          const curve=a.makeInverterDcCurve([
+            {acRealOutputW:0,dcInputW:12},{acRealOutputW:500,dcInputW:565}
+          ]);
+          const calibratedDc=a.interpolateInverterDcInput(curve,250);
+          const fuelCurve=a.makeGeneratorFuelCurve([
+            {deliveredAcRealW:0,measuredGallonsPerHour:.08},
+            {deliveredAcRealW:1800,measuredGallonsPerHour:.30}
+          ]);
+          const fuelPrediction=a.interpolateGeneratorFuelRate(fuelCurve,900);
+          const residuals=a.calibrationResiduals([{observed:8,predicted:9},
+            {observed:10,predicted:9}]);
           const definitions=a.getMathematicalDefinitions();
           const wire=a.evaluateMathematics('wire',{
             'wire.currentA':10,'wire.conductorOhm':.1,'interval.seconds':60
@@ -49,6 +69,11 @@ def main():
             wireConservation:wire.invariants.every(v=>v.passed),
             topologyApi:typeof a.inspectInstallation,
             g,unsupported:unsupported.status,legacy:legacy.status,
+            coldDesignStatus:designTest.status,
+            calibratedDcW:calibratedDc.predictedDcInputW,
+            fuelInterpolationGph:fuelPrediction.gallonsPerHour,
+            calibrationRmse:residuals.rmse,
+            nonlinearPvSolver:typeof a.solveDiodeArrayCableMpp,
             unchanged:first===JSON.stringify({cfg:src.cfg,loads:src.loads,soc:src.soc,
               generatorFuel:src.genFuelLeft,weather:SIM.wxId()}),
             modelHash:window.SIM_PROVENANCE.source_sha256['next-core-browser.js'],
@@ -63,6 +88,12 @@ def main():
         assert abs(x["wireHeatWh"] - 10/60)<1e-9,x
         assert x["wireConservation"] and x["topologyApi"]=="function",x
         assert x["g"]["status"]=="estimated",x
+        assert x["g"]["designAssessment"]["status"]=="indeterminate",x
+        assert x["coldDesignStatus"]=="fail",x
+        assert abs(x["calibratedDcW"]-288.5)<1e-9,x
+        assert abs(x["fuelInterpolationGph"]-.19)<1e-9,x
+        assert abs(x["calibrationRmse"]-1)<1e-9,x
+        assert x["nonlinearPvSolver"]=="function",x
         assert 0 < x["g"]["controllerMaximumEnvelopeW"] < 1750,x
         assert x["unsupported"]=="unsupported"
         assert x["legacy"] in ("unsupported","indeterminate","estimated")
