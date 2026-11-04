@@ -31,8 +31,8 @@ test("inverter curve refuses impossible energy gain and inconsistent knots",()=>
  assert.throws(()=>makeInverterDcCurve([{acRealOutputW:0,dcInputW:10},
    {acRealOutputW:500,dcInputW:450}]),/cannot exceed/);
  assert.throws(()=>makeInverterDcCurve([{acRealOutputW:0,dcInputW:20},
-   {acRealOutputW:500,dcInputW:510},
-   {acRealOutputW:1000,dcInputW:490}]),/decreases/);
+   {acRealOutputW:500,dcInputW:1510},
+   {acRealOutputW:1000,dcInputW:1490}]),/decreases/);
  assert.throws(()=>makeInverterDcCurve([{acRealOutputW:500,dcInputW:600},
    {acRealOutputW:500,dcInputW:600}]),/distinct/);
  assert.throws(()=>makeInverterDcCurve([]),/at least two/);
