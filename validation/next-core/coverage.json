@@ -2,13 +2,13 @@
   "schema": 1,
   "asOf": "2026-11-04",
   "repo": "worldlinemuse-lgtm/solar-sandbox",
-  "branch": "validation/physics-accuracy-hardening-2026-11-04",
-  "phase": "independent_mathematical_accuracy_hardening_not_field_calibrated",
+  "branch": "validation/published-physics-2026-11-04",
+  "phase": "published_primary_sources_and_equation_first_simulation_validation",
   "releaseGates": {
     "nextCoreCanReplaceLiveEngine": false,
     "householdPlannerEnabled": false,
     "optimizerEnabled": false,
-    "reason": "Reference mathematical checks broadened; 5k MultiPlus-II continuous 4000/3700/3000 ratings are sourced as VA not W, while legacy catalog labels 4000W. Field data, operating topology, weather clock and live-model migration remain unresolved.",
+    "reason": "Live engine replacement still blocked by E0-E2 mathematical/system integration requirements, missing verified weather time alignment, incomplete real equipment physics and circuit topology. No field-instrument dataset is required to implement/verify an engineering formula.",
     "shadowModeIntegrated": true,
     "physicalHardwareDatasetCount": 0,
     "externalPvsystPvCurvePoints": 5,
@@ -33,7 +33,13 @@
     "nasaMissingSampleRejectionAvailable": true,
     "physicallyMeasuredWholeSystemValidation": false,
     "victron5kVAversusWReferenceCorrected": true,
-    "legacyVictron5kWattLabelUnverified": true
+    "legacyVictron5kWattLabelUnverified": true,
+    "validationStrategy": "authoritative_published_physics_plus_manufacturer_datasheets_plus_independent_numeric_benchmarks",
+    "fieldMeasurementsMandatoryForEngineeringSimulatorRelease": false,
+    "publishedPvsystRshIrradianceEquationAvailable": true,
+    "publishedPvsystCurveParameterFitWithHoldoutAvailable": true,
+    "peakMpptEfficiencyUsedAsUpperBoundReference": true,
+    "publishedHondaAndBattleBornReferenceDataAvailable": true
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -69,7 +75,7 @@
       "id": "pv_module_stc",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Five published 25C PVsyst irradiance points + exact 2020 Isc slope 6.7mA/C; cross-variant and time-varying PVsyst Rsh(G) unverified"
+      "description": "Published LONGi PVsyst 2020 STC data, five published irradiance power points and corrected absolute muIsc; optional exponential Rsh(G) model; Rsh0 inversely fitted to public 200/600W curves, 400/800W held-out, not a claimed manufacturer value."
     },
     {
       "id": "mppt_tracking",
@@ -87,13 +93,13 @@
       "id": "mppt_clipping",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Max DC current clipping modelled; hardware input thermal/dynamic behavior missing"
+      "description": "Independent MPPT upper envelope min(Pv_available * published_peak_efficiency, Vcharge * max_charge_A). A published 98% peak is not constant measured efficiency; no full dynamic controller conversion curve."
     },
     {
       "id": "battery_electrical",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Analytic OCV/R and coulombic ledger; local Thevenin least-squares estimator added but no independent instrument readings or SOC/T curves"
+      "description": "BB10012 Rev038 2026 100Ah/7mOhm and charge/BMS limits sourced; local equivalent circuit math exists, exact OCV(SOC,T) curve remains unknown, not a lab-gated code task."
     },
     {
       "id": "battery_bms",
@@ -147,7 +153,7 @@
       "id": "generator_fuel_curve",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Measured-domain fuel curves can preserve nonmonotonic valid observations, with diagnostic flag; no real running idle/load instrument data"
+      "description": "Honda 0.95-gal tank 8.1h at 450 W and 3.2h at 1800 W published; isolated reference interpolates only between anchors, refuses to invent idle gph, no logic migration yet."
     },
     {
       "id": "generator_battery_charger",
@@ -183,19 +189,19 @@
       "id": "weather_clock_validation",
       "category": "engineering_math",
       "status": "blocked",
-      "description": "NASA POWER hourly API default is LST, which is not civil Eastern DST; original historical request/source clock still missing"
+      "description": "Original NASA historical API request still unrecorded; reconstruct source through explicit NASA time-standard=UTC API request and verify civil-hour mapping. Public-data reproducibility issue, NOT a hardware measurement requirement."
     },
     {
       "id": "external_pvlib",
       "category": "engineering_math",
       "status": "implemented",
-      "description": "pvlib Lambert-W + SciPy PV array cable comparison and Sandia module temperatures checked against independent references, NOT field instrumentation"
+      "description": "Independent pvlib Lambert-W and SciPy array cable benchmarks; published PVsyst Rsh(G) fit training/heldout tests and independent Lambert-W comparisons added."
     },
     {
       "id": "whole_system_measured",
       "category": "engineering_math",
       "status": "blocked",
-      "description": "Zero independent instrumented whole-system measurements; no defensible prediction accuracy percentage"
+      "description": "Optional E3 real-world/site performance-validation tier has zero independent instrumented datasets. No E3 accuracy claim permitted; E0-E2 physics engineering development is not blocked by this absence."
     },
     {
       "id": "uncertainty",
