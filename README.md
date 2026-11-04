@@ -33,6 +33,15 @@ The new reference core now separately evaluates **design-cold PV Voc versus inst
 
 See the complete [mathematical calibration audit and evidence requirements](docs/MATH_CALIBRATION_AUDIT_2026-11-04.md). Device-specific calibration needs timestamped measured V/I/W/VA, ambient and device temperature, load and generator fuel data, provenance, uncertainty and separate held-out validation.
 
+### Independent physics accuracy audit — critical published-parameter distinctions
+
+A second, deeper reference audit found and addressed **2020 PVsyst versus catalog Isc coefficient ambiguity**, missing-data weather sentinels, nonmonotonic physical calibration readings, **signed inductive/capacitive AC reactive-power cancellation**, conductor **temperature-dependent** resistance, product-specific inverter **25–65°C output derating**, and Victron MPPT **start/run voltage headroom plus 30 A-per-MC4/50 A-total current constraints**.
+
+The independent LONGi PVsyst report also reveals a temperature-slope difference between the simplified reference diode and its published voltage coefficient. The new **published-source slope fit** quantifies that residual explicitly; it does **not** claim installed-panel temperature accuracy or replace the original model in live dispatch. New reference equations are exposed through the `SolarNextCore` read-only API and independently tested.
+
+Read the [independent mathematical and real-world accuracy audit](docs/INDEPENDENT_ACCURACY_AUDIT_2026-11-04.md) for the full evidence table, formulas, exact sources, unresolved calibration gaps and strict release gates. **No new code in this milestone makes the live simulator, wiring, planner, or optimizer physically certified.**
+
+
 
 
 ## Auditable analysis exports and version compatibility

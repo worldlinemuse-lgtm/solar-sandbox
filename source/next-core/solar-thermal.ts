@@ -19,6 +19,7 @@ export function sandiaTemperature(
 ):{moduleC:number;cellC:number;coefficients:ThermalCoefficients}{
  nonnegative("POA irradiance",irradianceWm2);finite("airC",airC);
  nonnegative("wind speed",windMps);
+ if(airC<=-273.15)throw new ModelFailure("INVALID_INPUT","Ambient temperature at/below absolute zero");
  const c=SANDIA_THERMAL[mount];
  if(!c)throw new ModelFailure("INVALID_INPUT","Unsupported module construction/mount");
  const tm=airC+irradianceWm2*Math.exp(c.a+c.b*windMps);

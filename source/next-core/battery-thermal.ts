@@ -32,6 +32,8 @@ export function advanceBatteryThermal(p:Readonly<ThermalParameters>,s:Readonly<T
     throw new ModelFailure("INVALID_INPUT","Thermal resistance must be positive");
   finite("batteryTemperatureC",s.batteryTemperatureC);
   finite("ambientTemperatureC",x.ambientTemperatureC);
+  if(s.batteryTemperatureC<=-273.15||x.ambientTemperatureC<=-273.15)
+    throw new ModelFailure("INVALID_INPUT","Thermal temperature at/below absolute zero");
   finite("batteryCurrentA",x.batteryCurrentA);
   nonnegative("batteryInternalResistanceOhm",x.batteryInternalResistanceOhm);
   nonnegative("heaterPowerW",x.heaterPowerW);

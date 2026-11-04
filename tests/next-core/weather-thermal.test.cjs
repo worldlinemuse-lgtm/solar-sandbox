@@ -48,3 +48,21 @@ test("Sandia glass/glass is not silently assigned glass/polymer thermal coeffici
  close(dark.cellC,-5);
  assert.throws(()=>sandiaTemperature(-1,25,1,"open_rack_glass_glass"),/negative/);
 });
+
+test("NASA POWER missing/sentinel weather values NEVER integrate into physical power",()=>{
+ const a={meanValues:[400,-999,200],firstHourStartSeconds:0,units:"W/m2",provenance:source};
+ assert.throws(()=>integrateHourlyMeans(a,3600,3600),/negative/);
+ // The untouched earlier valid interval is safe to integrate independently.
+ close(integrateHourlyMeans(a,0,3600).timeIntegralInHours,400);
+ const wind={...a,meanValues:[2,-999,4],units:"m/s"};
+ assert.throws(()=>integrateHourlyMeans(wind,3600,60),/negative/);
+ const temp={...a,meanValues:[12,-999,15],units:"C"};
+ assert.throws(()=>integrateHourlyMeans(temp,3600,60),/absolute zero/);
+ const coldValid={...temp,meanValues:[-30,-40,-20]};
+ close(integrateHourlyMeans(coldValid,3600,3600).mean,-40);
+ assert.throws(()=>integrateHourlyMeans({...a,provenance:{...source,clock:"UNKNOWN"}},0,60),
+   /Unknown weather clock/);
+});
+test("reference thermal equations reject temperatures below absolute zero",()=>{
+ assert.throws(()=>sandiaTemperature(1000,-300,1,"open_rack_glass_glass"),/absolute zero/);
+});

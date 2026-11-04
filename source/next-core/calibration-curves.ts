@@ -28,6 +28,8 @@ export interface InverterDcCurve {
  readonly minimumAcW:number;
  readonly maximumAcW:number;
  readonly includedIdleObservation:boolean;
+ /** Data flag only. A real device may show mode-dependent nonmonotonic values. */
+ readonly observedDcDrawMonotone:boolean;
  readonly status:"numerical_fit_not_verified_instrumentation";
 }
 /** Positive output is AC delivered, positive input is DC supplied.
@@ -46,17 +48,20 @@ export function makeInverterDcCurve(
       "Inverter output power cannot exceed its input power in a steady conversion snapshot");
    return {acRealOutputW:ac,dcInputW:dc};
  }).sort((a,b)=>a.acRealOutputW-b.acRealOutputW);
+ let monotone=true;
  for(let i=1;i<rows.length;i++){
    if(rows[i].acRealOutputW<=rows[i-1].acRealOutputW)
      throw new ModelFailure("INVALID_INPUT","Inverter AC load knots must be distinct");
-   if(rows[i].dcInputW+1e-9<rows[i-1].dcInputW)
-     throw new ModelFailure("PHYSICAL_INFEASIBILITY",
-       "Observed inverter DC draw decreases with larger AC output; monotone curve rejected");
+   // A lower measured DC draw at greater AC output is unusual but not a
+   // thermodynamic impossibility: the converter may change operating mode.
+   // Do not destroy legitimate field observations to force a preferred shape.
+   if(rows[i].dcInputW<rows[i-1].dcInputW)monotone=false;
  }
  return {
    observations:rows.map(x=>Object.freeze(x)),
    minimumAcW:rows[0].acRealOutputW,maximumAcW:rows[rows.length-1].acRealOutputW,
    includedIdleObservation:rows[0].acRealOutputW===0,
+   observedDcDrawMonotone:monotone,
    status:"numerical_fit_not_verified_instrumentation"
  };
 }
@@ -83,6 +88,7 @@ export interface GeneratorRateCurve {
  readonly observations:readonly GeneratorOperatingObservation[];
  readonly minimumLoadW:number;
  readonly maximumLoadW:number;
+ readonly observedFuelRateMonotone:boolean;
  readonly status:"numerical_fit_not_verified_instrumentation";
 }
 /** No assumption that fuel burn at zero load vanishes: running-idle fuel
@@ -98,15 +104,17 @@ export function makeGeneratorFuelCurve(
    deliveredAcRealW:nonnegative("generator output W["+i+"]",x.deliveredAcRealW),
    measuredGallonsPerHour:nonnegative("generator gph["+i+"]",x.measuredGallonsPerHour)
  })).sort((a,b)=>a.deliveredAcRealW-b.deliveredAcRealW);
+ let monotone=true;
  for(let i=1;i<rows.length;i++){
    if(rows[i].deliveredAcRealW<=rows[i-1].deliveredAcRealW)
      throw new ModelFailure("INVALID_INPUT","Generator power knots must be distinct");
-   if(rows[i].measuredGallonsPerHour+1e-9<rows[i-1].measuredGallonsPerHour)
-     throw new ModelFailure("PHYSICAL_INFEASIBILITY",
-       "Fuel rate decreased at higher loading; curve needs more operational context or measurement review");
+   // Distinct operating modes (e.g. ECO-throttle) can violate monotonicity.
+   // Record the anomaly without mislabelling measured data 'impossible physics'.
+   if(rows[i].measuredGallonsPerHour<rows[i-1].measuredGallonsPerHour)monotone=false;
  }
  return {observations:rows.map(x=>Object.freeze(x)),minimumLoadW:rows[0].deliveredAcRealW,
    maximumLoadW:rows[rows.length-1].deliveredAcRealW,
+   observedFuelRateMonotone:monotone,
    status:"numerical_fit_not_verified_instrumentation"};
 }
 export function interpolateGeneratorFuelRate(

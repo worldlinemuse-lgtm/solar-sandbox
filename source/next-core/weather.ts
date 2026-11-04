@@ -44,7 +44,16 @@ export function integrateHourlyMeans(series:HourlySeries,startSecond:number,dura
   finite("startSecond",startSecond);
   if(!(finite("durationSeconds",durationSeconds)>0))
     throw new ModelFailure("INVALID_INPUT","duration must be positive");
+  // An unknown clock cannot be silently aligned to a civil-time load schedule.
+  // NASA POWER defaults to local SOLAR time, which differs from civil local time.
+  // Conversion is a separate explicit, provenanced step, never a DST guess.
+  if(series.provenance.clock==="UNKNOWN")
+    throw new ModelFailure("INVALID_INPUT",
+      "Unknown weather clock: original NASA POWER time-standard request must be verified");
   const first=finite("firstHourStartSeconds",series.firstHourStartSeconds);
+  if(!Number.isInteger(first)||!Number.isInteger(startSecond))
+    throw new ModelFailure("INVALID_INPUT",
+      "Weather intervals must use integer timestamp seconds for reproducible hour boundaries");
   if(!series.meanValues.length)throw new ModelFailure("INVALID_INPUT","Empty weather series");
   const end=startSecond+durationSeconds;
   if(startSecond<first||end>first+3600*series.meanValues.length+1e-9)
@@ -55,7 +64,16 @@ export function integrateHourlyMeans(series:HourlySeries,startSecond:number,dura
     const k=Math.floor((t-first)/3600);
     if(k<0||k>=series.meanValues.length)
       throw new ModelFailure("INVALID_INPUT","Weather array index out of bounds");
+    // NASA missing/fill values must be rejected, never treated as negative
+    // solar generation, negative wind, or a valid sub-absolute-zero temperature.
     const value=finite("weather sample",series.meanValues[k]);
+    if(series.units==="W/m2"||series.units==="m/s"){
+      nonnegative("weather "+series.units+" sample",value);
+    }else if(series.units==="C"){
+      if(value<=-273.15)
+        throw new ModelFailure("INVALID_INPUT",
+          "Temperature is at/below absolute zero; missing/sentinel sample suspected");
+    }else throw new ModelFailure("INVALID_INPUT","Unrecognized weather units");
     const next=Math.min(end,first+(k+1)*3600);
     if(next<=t)throw new ModelFailure("SOLVER_DID_NOT_CONVERGE","Weather hour boundary stalled");
     const sec=next-t;

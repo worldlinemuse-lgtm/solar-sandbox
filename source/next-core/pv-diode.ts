@@ -23,7 +23,12 @@ export interface SingleDiodeReference {
   readonly shuntResistanceOhm:number;
   readonly saturationCurrentRefA:number;
   readonly iscTemperatureCoeffPerC:number;
+  /** Silicon/material bandgap prior. Not necessarily sufficient to reproduce
+   * the datasheet temperature slope under this simplified diode model. */
   readonly bandgapEV:number;
+  /** Optional EFFECTIVE dark-current thermal activation fitted to a published
+   * voltage slope. It is NOT an independent material-bandgap measurement. */
+  readonly effectiveThermalActivationEV?:number;
   readonly evidenceUrl:string;
 }
 export const LONGI_435_PVSYST:Readonly<SingleDiodeReference>={
@@ -34,7 +39,10 @@ export const LONGI_435_PVSYST:Readonly<SingleDiodeReference>={
  seriesResistanceOhm:.27,
  shuntResistanceOhm:1000,
  saturationCurrentRefA:0.087e-9,
- iscTemperatureCoeffPerC:0.0005,
+ // The exact PVsyst PDF reports +6.7 mA/C absolute Isc slope, or
+ // +0.0067/11.36 per C. Do NOT silently reuse the different catalog
+ // manufacturer-sheet coefficient (+0.05%/C) for this 2020 PVsyst variant.
+ iscTemperatureCoeffPerC:0.0067/11.36,
  bandgapEV:1.121, // Silicon bandgap approximation; R3 assumed for temperature extrapolation
  evidenceUrl:"https://greensun.ro/wp-content/uploads/2021/05/LR4_72HBD-435M-Glass_Glass_435W.pdf"
 };
@@ -72,7 +80,10 @@ function diodeParams(x:SingleDiodeReference,g:number,tc:number) {
   // Silicon bandgap approximation, per-cell thermal dependence of dark saturation current.
   // This is an explicit R3 extrapolation, not published temperature-characterized IV data.
   const kEV=8.617333262145e-5;
-  const exponent=x.bandgapEV/(x.idealityFactor*kEV)*(1/298.15-1/tk);
+  const activation=x.effectiveThermalActivationEV??x.bandgapEV;
+  if(!(finite("thermal activation",activation)>0))
+    throw new ModelFailure("INVALID_INPUT","Effective thermal activation must exceed zero");
+  const exponent=activation/(x.idealityFactor*kEV)*(1/298.15-1/tk);
   const i0=i0r*Math.pow(tk/298.15,3)*Math.exp(exponent);
   return {il,alpha,i0,rs:x.seriesResistanceOhm,rsh:x.shuntResistanceOhm};
 }
