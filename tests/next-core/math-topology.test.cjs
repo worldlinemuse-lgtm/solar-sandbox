@@ -88,3 +88,54 @@ test("junction currents must close by Kirchhoff; structural pass is never code c
  assert.ok(out.findings.some(x=>x.id==="junction.kcl"));
  assert.equal(out.codeComplianceVerified,false);
 });
+
+
+test("required positive and return wires must reach the SAME counterparty, not unrelated devices",()=>{
+ const g=graph();
+ g.products.push({...g.products[0],id:"unrelated",role:"other"});
+ g.terminals.push({...g.terminals[3],id:"unrelated.minus",productId:"unrelated"});
+ // All declared source terminals are connected, but their two rails serve
+ // unrelated products. The previous implementation reported structural pass.
+ g.conductors[1].to="unrelated.minus";
+ g.terminals[3].requiredConnection=false;
+ g.requiredPairs.splice(1);
+ const out=evaluateInstallation(g,60);
+ assert.equal(out.status,"invalid");
+ assert.ok(out.findings.some(x=>x.id==="return.counterparty"));
+ assert.ok(!out.findings.some(x=>x.id==="return.incomplete"));
+});
+
+test("the return path may traverse an explicitly wired junction",()=>{
+ const g=graph();
+ g.products.push({id:"pvbus",maker:"Fixture",model:"Positive junction",revision:"1",
+   datasheetUrl:"https://example.invalid/",role:"bus"});
+ g.terminals.push({...g.terminals[0],id:"pvbus.positive",productId:"pvbus",kind:"junction"});
+ g.conductors[0].to="pvbus.positive";
+ g.conductors.push({...g.conductors[0],id:"bus.to.mppt",
+   from:"pvbus.positive",to:"m1.plus",currentA:10});
+ const out=evaluateInstallation(g,60);
+ assert.equal(out.status,"structural_checks_passed");
+ near(out.junctionResidualA["pvbus.positive"],0);
+ assert.ok(!out.findings.some(x=>x.id==="return.counterparty"));
+});
+
+test("L2-to-neutral 120 V branch is separate from L1-to-neutral, not conflated with 240 V",()=>{
+ const g=graph();
+ g.products[0]={...g.products[0],maker:"Fixture",model:"Split-phase source",role:"generator"};
+ g.products[1]={...g.products[1],maker:"Fixture",model:"L2 120 V load",role:"load"};
+ g.terminals=g.terminals.map(t=>({
+   ...t,rail:t.rail==="PV_POS"?"AC_L2":"AC_NEUTRAL",
+   minimumV:110,maximumV:125
+ }));
+ g.requiredPairs=g.requiredPairs.map(p=>({...p,kind:"AC_120_L2"}));
+ assert.equal(evaluateInstallation(g,60).status,"structural_checks_passed");
+ g.requiredPairs=g.requiredPairs.map(p=>({...p,kind:"AC_120"}));
+ assert.ok(evaluateInstallation(g,60).findings.some(x=>x.id==="pair.rails"));
+ g.requiredPairs=g.requiredPairs.map(p=>({...p,kind:"AC_240"}));
+ assert.ok(evaluateInstallation(g,60).findings.some(x=>x.id==="pair.rails"));
+});
+
+test("duplicate required circuit declarations fail rather than double-certify",()=>{
+ const g=graph();g.requiredPairs.push({...g.requiredPairs[0]});
+ assert.throws(()=>evaluateInstallation(g,60),/duplicate required terminal pair/);
+});
