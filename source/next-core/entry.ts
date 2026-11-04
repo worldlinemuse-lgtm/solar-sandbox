@@ -1,4 +1,6 @@
 /**
+ * Published-source mathematics: PVsyst shunt/fit, MPPT power ceiling and
+ * exact constant-current Thevenin RC references. All diagnostics are read-only.
  * Browser integration for independently tested models.
  * This is a read-only diagnostics API, NOT an approved replacement for the
  * legacy live simulation or electrical design certification.
