@@ -35,6 +35,8 @@ jobs:
         run: git diff --exit-code -- source/next-core-browser.js
       - name: Page matches the source build
         run: python source/build.py --check
+      - name: Verify brand attribution and content-rights notices
+        run: python tests/test_brand_notices.py
       - name: Model integrity regressions (battery, loads, generator)
         run: python tests/test_integrity.py
       - name: Page test suite (skips the slow 25-winter runs)
