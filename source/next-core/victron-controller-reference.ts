@@ -77,7 +77,7 @@ export function assessVictron15070Point(
    nonnegative("maximumDesignIscA",x.maximumDesignIscA);
  const totalIscMargin=isc===null?null:50-isc;
  if(isc===null){missing=true;reasons.push("Maximum design PV short-circuit current absent");}
- else if(totalIscMargin<-1e-9){
+ else if(isc>50+1e-9){
    failed=true;reasons.push("Total design Isc exceeds 50 A manufacturer limit");
  }
  let margins:readonly number[]|null=null;
