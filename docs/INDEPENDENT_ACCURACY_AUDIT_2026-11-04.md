@@ -8,7 +8,7 @@
 
 The reference kernel includes independently benchmarked mathematical functions; the **production household simulation remains estimated**. There are **zero independent instrumented whole-system datasets** in this repository. No defensible universal percentage for delivered-energy or backup-runtime accuracy can yet be assigned.
 
-The work in this audit is deliberately two-tier: (1) correct mathematical relationships and expose missing physical data, (2) separately fit/validate real equipment after collecting actual measurements, **before** migrating live dispatch or building an optimizer.
+The development procedure is **published-source and equation first**: implement accurate physics, verify equations and published equipment inputs independently, then integrate complete device/state logic before planner/optimizer work. Separate physical-site measurement comparisons are useful for actual installation prediction-error claims, but **are not mandatory to build or mathematically validate the engineering simulator**.
 
 ## A. Findings and exact response
 
@@ -79,4 +79,4 @@ As of this audit, **mathematical reference work is ongoing and empirically limit
 }
 ```
 
-After mathematical reference coverage is demonstrably complete, the next effort is to collect and validate **real independent measurement packages** and to integrate the corrected formulas with actual hardware/topology constraints. Only then should live dispatch be migrated, followed by the household planner and automatic optimizer. Good UI or internal test counts cannot stand in for the missing measurements.
+After independent E0-E2 source/math reference coverage is complete, the next effort is integrated system/state/wiring math with manufacturer-verified constraints. Then the live solver can be replaced, followed by the household planner and automatic optimizer. **E3 instrumented field calibration is optional for a mathematical simulator**, but must precede claims about actual installed-system prediction error. See [source-first development policy](DEVELOPMENT_ACCURACY_POLICY.md).
