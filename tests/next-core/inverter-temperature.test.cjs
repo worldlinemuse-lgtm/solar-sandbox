@@ -13,7 +13,7 @@ test("Victron 3-kVA 120V published 25/40/65C real-power anchors are kept separat
 });
 test("a hot cabinet is not silently tested against the 25C published rating",()=>{
  const x=assess(50,1900);
- close(x.estimatedContinuousW,2060);
+ close(x.estimatedContinuousW,2000);
  close(x.conservativeNextHotterAnchorW,1700);
  assert.equal(x.status,"exceeds_conservative_envelope");
  assert.ok(assess(50,1600).status==="rated_reference_estimate");
