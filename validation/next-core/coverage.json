@@ -8,7 +8,7 @@
     "nextCoreCanReplaceLiveEngine": false,
     "householdPlannerEnabled": false,
     "optimizerEnabled": false,
-    "reason": "Published PV temperature coefficient mismatch and missing true field models make real-world calibration incomplete; reference-only signed AC, controller per-input, wire temperature, inverter derating and weather sentinels now have explicit model checks",
+    "reason": "Reference mathematical checks broadened; 5k MultiPlus-II continuous 4000/3700/3000 ratings are sourced as VA not W, while legacy catalog labels 4000W. Field data, operating topology, weather clock and live-model migration remain unresolved.",
     "shadowModeIntegrated": true,
     "physicalHardwareDatasetCount": 0,
     "externalPvsystPvCurvePoints": 5,
@@ -31,7 +31,9 @@
     "publishedInverterThermalReferenceAvailable": true,
     "victronPerMc4RatedEnvelopeReferenceAvailable": true,
     "nasaMissingSampleRejectionAvailable": true,
-    "physicallyMeasuredWholeSystemValidation": false
+    "physicallyMeasuredWholeSystemValidation": false,
+    "victron5kVAversusWReferenceCorrected": true,
+    "legacyVictron5kWattLabelUnverified": true
   },
   "statusSemantics": {
     "implemented": "Tested functionality with its specifically stated scope only",
@@ -121,7 +123,7 @@
       "id": "inverter_steady_ac",
       "category": "engineering_math",
       "status": "partial",
-      "description": "Per-leg W/VA and measured-domain inverter DC-demand; signed reactive-power phasor and published 25/40/65C thermal derating references added, no harmonic/field measurements"
+      "description": "Per-leg W/VA and signed P/Q with harmonic unknowns; Victron 3k published 25/40/65C real-W derating separately from 5k VA-only 25/40/65C anchors (60C max operation). Legacy 5k 4000W catalog label is unsupported from cited VA data; no physical calibration."
     },
     {
       "id": "motor_start",
