@@ -142,6 +142,10 @@
 .sim .horgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
 .sim .horgrid label{display:flex;flex-direction:column;font-size:12px;gap:2px}
 .sim .horgrid input{width:100%;min-width:0}
+.legal-banner{font-size:13px;line-height:1.5;margin:12px 0;padding:10px 12px;border:1px solid #b9b9b5;border-radius:10px}
+.legal-banner a{font-weight:600}
+#brand-rights{font-size:13px;line-height:1.5}
+#brand-rights p{margin:8px 0}
 </style>
 </head>
 <body><div class="wrap">
@@ -150,6 +154,7 @@
 <p class="updated">Researched Oct 30–31, 2026</p>
 <div class="guide" id="guide"><button type="button" id="gBtn">Play the voice guide</button><span class="gt" id="gTime">2:23</span><span class="gbar" id="gBar"><i id="gFill"></i></span><audio id="gAudio" preload="metadata" src="__AUDIO_SRC__"></audio></div>
 <p class="lede">Build an off-grid system from real parts, pick exactly what it powers and when, then run it through Honesdale's typical weather year and see whether the lights stay on.</p>
+<p class="legal-banner" role="note"><b>Independent simulator:</b> Brand names and model numbers identify reference equipment only. No company or government agency endorses this app. <a href="#brand-rights">Read brand and copyright notices</a>.</p>
 <ul>
 <li>A learning model, not a wiring plan or safety check: the manuals, proper fusing and an electrician decide a real build.</li>
 <li>Sun and temperature are hourly <a href="https://pvwatts.nlr.gov/">PVWatts</a> typical-year data, or 25 recorded winters from <a href="https://power.larc.nasa.gov/">NASA POWER</a> on the Missions tab; appliance watts are estimates you can edit.</li>
@@ -414,6 +419,13 @@
 <li><a href="https://www.hp.com/us-en/shop/pdp/hp-elitebook-8-g1i-14-inch-ai-customizable-ap6j3av-mb">HP EliteBook 8 G1i 14" specs</a>: battery and adapter</li>
 <li><a href="https://api.starlink.com/public-files/specification_sheet_standard.pdf">Starlink Standard spec sheet</a>: average power</li>
 </ul></div>
+<section class="sources" id="brand-rights" aria-label="Brand and copyright notices">
+<h2>Independence, trademarks and third-party rights</h2>
+<p><b>Independent project.</b> Solar Sandbox is not affiliated with, sponsored by, endorsed by, certified by or approved by any manufacturer, retailer, data provider, standards body or government agency mentioned here. These organizations have not reviewed or approved the simulation or its results.</p>
+<p>Manufacturer names, product names and model identifiers are included only for factual identification and comparison. Trademarks belong to their respective owners. Brand references do not grant use of their logos, product photographs, manuals, marketing language, trade dress or other protected materials.</p>
+<p>Weather and reference data identify <a href="https://power.larc.nasa.gov/">NASA POWER</a>, <a href="https://pvwatts.nlr.gov/">PVWatts</a> and related technical sources. This acknowledgement does not imply agency sponsorship or independent certification. No official NASA emblem or seal is claimed for this app.</p>
+<p>Rights verification is ongoing for some distributed materials, notably the voice guide and weather dataset terms. A disclaimer or citation does not replace copyright permission, and commercial redistribution is not yet cleared. See the <a href="https://github.com/worldlinemuse-lgtm/solar-sandbox/blob/main/docs/BRAND_AND_CONTENT_RIGHTS.md" rel="noopener noreferrer" target="_blank">brand, source and content-rights review</a> for details and unresolved items.</p>
+</section>
 </div>
 <script>
 __TMY__
