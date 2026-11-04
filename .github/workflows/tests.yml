@@ -31,6 +31,8 @@ jobs:
         run: python tests/next_core_pvlib.py
       - name: Independent nonlinear PV array and cable reference versus pvlib + SciPy
         run: python tests/next_core_pvlib_iv.py
+      - name: Independently verify published PVsyst shunt and held-out curves against pvlib
+        run: python tests/next_core_pvlib_pvsyst_shunt.py
       - name: Run full-day synthetic power-flow reference and energy ledger
         run: node scripts/next-core-reference.cjs > /dev/null
       - name: Verify pinned browser mathematical bundle is byte-identical to source
