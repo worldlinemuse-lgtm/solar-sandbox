@@ -27,12 +27,20 @@ test("inverter curve uses independently provided DC-input measurements without d
  assert.throws(()=>interpolateInverterDcInput(fit,1200),/outside measured/);
  assert.throws(()=>interpolateInverterDcInput(fit,-1),/negative/);
 });
-test("inverter curve refuses impossible energy gain and inconsistent knots",()=>{
+test("inverter refuses impossible energy gain but does not censor nonmonotonic valid measurements",()=>{
  assert.throws(()=>makeInverterDcCurve([{acRealOutputW:0,dcInputW:10},
    {acRealOutputW:500,dcInputW:450}]),/cannot exceed/);
- assert.throws(()=>makeInverterDcCurve([{acRealOutputW:0,dcInputW:20},
+ const nonMonotone=makeInverterDcCurve([{acRealOutputW:0,dcInputW:20},
    {acRealOutputW:500,dcInputW:1510},
-   {acRealOutputW:1000,dcInputW:1490}]),/decreases/);
+   {acRealOutputW:1000,dcInputW:1490}]);
+ // Real devices can switch modes: do not label physically valid knots impossible.
+ assert.equal(nonMonotone.observedDcDrawMonotone,false);
+ assert.ok(interpolateInverterDcInput(nonMonotone,750).predictedDcInputW>=750);
+ assert.equal(fitIsMonotone(),true);
+ function fitIsMonotone(){
+   return makeInverterDcCurve([{acRealOutputW:0,dcInputW:12},
+     {acRealOutputW:500,dcInputW:565}]).observedDcDrawMonotone;
+ }
  assert.throws(()=>makeInverterDcCurve([{acRealOutputW:500,dcInputW:600},
    {acRealOutputW:500,dcInputW:600}]),/distinct/);
  assert.throws(()=>makeInverterDcCurve([]),/at least two/);
@@ -52,9 +60,12 @@ test("running generator fuel curve preserves nonzero idle, interpolates, integra
  assert.throws(()=>interpolateGeneratorFuelRate(fit,1900),/outside measured/);
  assert.throws(()=>mid.gallonsOverSeconds(-1),/Negative generator runtime/);
 });
-test("generator fuel observations reject nonmonotone and duplicate readings for unsafe extrapolation",()=>{
- assert.throws(()=>makeGeneratorFuelCurve([{deliveredAcRealW:100,measuredGallonsPerHour:.3},
-   {deliveredAcRealW:500,measuredGallonsPerHour:.2}]),/decreased at higher/);
+test("generator nonmonotonic measured rates are preserved but duplicate power points rejected",()=>{
+ const observation=makeGeneratorFuelCurve([
+   {deliveredAcRealW:100,measuredGallonsPerHour:.3},
+   {deliveredAcRealW:500,measuredGallonsPerHour:.2}]);
+ assert.equal(observation.observedFuelRateMonotone,false);
+ close(interpolateGeneratorFuelRate(observation,300).gallonsPerHour,.25);
  assert.throws(()=>makeGeneratorFuelCurve([{deliveredAcRealW:100,measuredGallonsPerHour:.2},
    {deliveredAcRealW:100,measuredGallonsPerHour:.2}]),/distinct/);
  assert.throws(()=>makeGeneratorFuelCurve([{deliveredAcRealW:100,measuredGallonsPerHour:.2}]),/at least two/);
