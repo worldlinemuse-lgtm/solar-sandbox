@@ -13,6 +13,7 @@ import {assessPvColdDesign} from "./pv-design";
 import {solveDiodeArrayCableMpp} from "./pv-wire-iv";
 export {assessPvColdDesign,solveDiodeArrayCableMpp};
 export {pvsystShuntResistance} from "./pvsyst-shunt";
+export {advanceBatteryEcm,batteryOcvAt} from "./battery-ecm";
 export {fitPublishedLongiPvsystRshZero,LONGI_PVSYST_POWER_2020}
   from "./pvsyst-published-fit";
 export {boundMpptDcPower} from "./mppt-power-envelope";
@@ -50,7 +51,8 @@ export const validationStatus=Object.freeze({
     "signed_ac_reactive_phasors","conductor_temperature_resistance",
     "inverter_ambient_derating","mppt_per_connector_50A_30A_and_voltage_headroom",
     "pvsyst_rsh_irradiance_source_fit","mppt_peak_efficiency_upper_bound",
-    "published_honda_fuel_anchors_and_battery_limits"],
+    "published_honda_fuel_anchors_and_battery_limits",
+    "thevenin_battery_exact_rc_and_source_ocv_curve"],
   physicalCalibrationDatasetCount:0,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
