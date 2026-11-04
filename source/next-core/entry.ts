@@ -12,6 +12,14 @@ import {makeSyntheticBenchSpec,LONGI_LR4_72HBD_435M} from "./catalog";
 import {assessPvColdDesign} from "./pv-design";
 import {solveDiodeArrayCableMpp} from "./pv-wire-iv";
 export {assessPvColdDesign,solveDiodeArrayCableMpp};
+export {fitPublishedPvThermalSlope,LONGI_PVSYST_2020_THERMAL_ANCHORS}
+  from "./pv-temperature-reference";
+export {assessSignedAcPhasors} from "./ac-phasor";
+export {conductorTemperatureLoss,NIST_ANNEALED_COPPER_ALPHA_20_PER_C}
+  from "./wire-temperature";
+export {assessInverterThermalCapacity,VICTRON_3KVA_120V_THERMAL,
+  VICTRON_5KVA_120V_THERMAL} from "./inverter-temperature";
+export {assessVictron15070Point} from "./victron-controller-reference";
 export {calibrationResiduals,fitLocalThevenin} from "./calibration";
 export {makeInverterDcCurve,interpolateInverterDcInput,
   makeGeneratorFuelCurve,interpolateGeneratorFuelRate} from "./calibration-curves";
@@ -32,7 +40,9 @@ export const validationStatus=Object.freeze({
   calibrationMathAvailable:true,
   mathematicalCalibrationDomains:["pv_cold_design","pv_diode_cable",
     "battery_local_thevenin","inverter_measured_dc","generator_measured_fuel",
-    "prediction_residuals"],
+    "prediction_residuals","published_pv_temperature_slope",
+    "signed_ac_reactive_phasors","conductor_temperature_resistance",
+    "inverter_ambient_derating","mppt_per_connector_50A_30A_and_voltage_headroom"],
   physicalCalibrationDatasetCount:0,
   model:"Math-registry governed PV, wiring, battery and AC reference models (read-only)",
   status:"partial_reference_validation",
