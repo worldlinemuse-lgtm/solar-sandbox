@@ -233,3 +233,16 @@ Known sources verified on 2026-11-04:
 - Victron SmartSolar MPPT controller manual, 150/70 model, startup voltage headroom, cold Voc, input current and published peak efficiency: https://www.victronenergy.com/media/pg/Manual_SmartSolar_MPPT_150-70_up_to_250-100_VE.Can/en/technical-specifications.html
 
 The next development task is a targeted gate/test change, not a speculative wholesale solver rewrite.
+
+
+## 9. Execution checkpoint — 2026-11-04 21:50 America/New_York (2026-11-05 UTC)
+
+WP0 implementation initiated on branch engineering/gate-evidence-v1, based on d1e6e507e3fe2f7aad61f4b5d40e795fb0d1d49e. Two isolated changes:
+- scripts/release-gates.cjs (commit 80fe44e43d69d82a9ef53cf807f9a799c31f68f0): pure advisory gate analysis requiring completed engineering/math requirements plus externally attested CI categories. Whole-system field measurement (E3) and installation code certification do not gate engineering eligibility.
+- tests/next-core/coverage.test.cjs (commit 07455771436b70f8db676c69f6dab00d179fc7d7): tests hypothetical future completion, missing weather verification, CI evidence, optional E3 and planner/optimizer dependencies; current release flags remain false.
+
+Draft PR #16: https://github.com/worldlinemuse-lgtm/solar-sandbox/pull/16
+
+Verification as last observed: current main commit d1e6e507 GitHub Actions tests completed successfully. Feature branch Actions were in progress, not yet verified as passed. No local checkout/test execution available in this session. Do NOT merge the draft PR or treat WP0 as complete without reviewing exact CI status, test artifacts and code review. The gate assessor currently consumes hypothetical CI attestation flags only; a trusted attestation-to-commit binding and automated release gate enforcement remain required before activation.
+
+NEXT: review PR #16 test results; correct any failure. Build exact source-to-claim-to-test traceability ledger. Pin Python test dependencies for reproducibility as a separate reviewable change. Then verify source weather archives/provenance as WP1. Stay on E0–E2-first policy and preserve live dispatch.
