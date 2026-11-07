@@ -7,6 +7,23 @@ This is a software-based mathematical engineering simulator and product, not an 
 
 Primary architectural decision: keep the current product usable while progressively establishing one canonical typed mathematical calculation path. Do not rewrite the complete UI or promote the new reference engine merely because its isolated calculations conserve energy. The existing public interface becomes an adapter to the new solver AFTER E0–E2 validation.
 
+## 0B. FIRST-CLASS PARALLEL WORKSTREAM — REAL PRODUCT INTELLIGENCE AND SHOPPING
+
+**Non-negotiable product scope:** Solar Sandbox is both a mathematically valid solar/storage system simulator AND a trustworthy shopper helper for real purchasable hardware. It must know *which exact products exist*, *what their authoritative specifications say*, *which parts physically and operationally fit together*, *what must be purchased in addition*, *which precise retailer offer is available at what time*, and *what the real purchasing decision costs*. Neither a good formula with the wrong SKU nor an attractive price on an incompatible SKU is an acceptable recommendation.
+
+The dedicated actionable design is in [SHOPPING_PRODUCT_INTELLIGENCE_SPEC.md](SHOPPING_PRODUCT_INTELLIGENCE_SPEC.md). It defines canonical ProductIdentity, claim-level EngineeringSpec provenance, mutable MerchantOffer snapshots, BOM/Compatibility contracts, evidence-tier-specific recommendation statuses, offline/online behavior, and SHOP-00 through SHOP-06 implementations with falsification tests.
+
+**Scheduling change:** Product identity/source/provenance normalization and offer-freshness truth begin in parallel with WP0–WP2. Catalog accuracy, real product knowledge and prices are NOT deferred until WP8/WP9. We can ship independently verified product search, variant comparison and honest dated offers before final integrated physics, but we cannot attach validated autonomy/runtime claims until the relevant E0–E2 simulator gate passes. Hard electrical compatibility remains an immediate prerequisite for any "compatible design" designation. Automatic system optimization depends on BOTH the physically validated engine and a verified cost/product intelligence pipeline.
+
+**Three independent truth tracks:**
+1. **Engineering truth** — exact variant and source-backed W/VA, Voc/Isc, charging current/temperature, wiring and safety domains; E0/E1/E2.
+2. **Commerce truth** — exact merchant SKU/pack, listing URL, price/stock/region, freshness, shipping, taxes and offer conditions; never present stale offline prices as live.
+3. **Decision truth** — feasible system and full or explicitly partial BOM, incremental cost beyond owned inventory, stated optimization objective, explicit performance evidence and unknowns.
+
+**Initial source-supported deficiencies:** source/sim.js uses hardcoded seller price snapshots from Oct 30–31, 2026; its "confirmed price" means checked THEN, not current inventory; it explicitly excludes tax/shipping; it extrapolates the user's purchase price of four LONGi panels to additional panels as a guess; individual exact model-to-retailer-offer matching has not been independently established for every catalog item. Existing catalog_variant_audit and price_cost_audit coverage is partial.
+
+**Shopping release gates:** exact identity and per-spec source; honest dated offer and availability; conservative compatibility result; owned/new quantities separated; explicit missing costs, safety constraints and required parts; all purchase recommendations reproducible from source and scenario revisions. "Not code certified" remains separate from "modeled feasible"; no blanket "safe to install" designation.
+
 ## 1. Evidence and reasoning method: apply before each edit
 
 ### 1.1 Define the claim, not just the feature
