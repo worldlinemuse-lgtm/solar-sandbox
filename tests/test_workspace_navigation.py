@@ -30,6 +30,12 @@ def main():
                 assert page.locator("#sim").get_attribute("data-workspace") == tab
                 assert page.locator(ident).is_visible(), (width, tab, ident)
                 assert not page.locator("#stage").is_visible(), (width, tab, "stage blocks task")
+                if tab == "build":
+                    for sub, target in [("battery", "#bpar"), ("site", "#tilt"),
+                                        ("wiring", "#pvMat"), ("projects", "#saveB"),
+                                        ("checks", "#checks"), ("solar", "#ptype")]:
+                        page.locator('.ss-builder-nav button[data-ss-builder="' + sub + '"]').click()
+                        assert page.locator(target).is_visible(), (width, sub, target)
             after = page.evaluate("""() => JSON.stringify({
                 t: SIM.S.t, soc: SIM.S.soc, cfg: SIM.S.cfg, loads: SIM.S.loads,
                 requested: SIM.S.live && SIM.S.live.requested
