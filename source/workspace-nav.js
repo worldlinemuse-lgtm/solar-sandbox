@@ -41,7 +41,9 @@
     return node.parentElement===root?node:null;
   };
   const costStart=rootChild(get("costTop"),build);
-  const costEnd=rootChild(get("checks"),build);
+  const checkRoot=rootChild(get("checks"),build);
+  const costEnd=checkRoot && [...build.children].find(n=>
+    n.classList.contains("group")&&n.textContent.trim().startsWith("Design check")) || checkRoot;
   if(costStart&&costEnd){
     let node=costStart;
     for(let guard=0;node&&node!==costEnd&&guard<32;guard++){
