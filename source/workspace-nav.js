@@ -87,19 +87,21 @@
       }
       subsections.push(section);
     }
+    // Elements are temporarily detached here; document.getElementById cannot
+    // resolve IDs until these sections have been reattached to the document.
     // A product-oriented editor must not bury batteries in the PV menu or
     // position/irradiance controls in the electrical-device menu.
     const solarSection=subsections.find(p=>p.dataset.ssBuilderSection==="solar");
     const batterySection=subsections.find(p=>p.dataset.ssBuilderSection==="battery");
     const siteSection=subsections.find(p=>p.dataset.ssBuilderSection==="site");
     const batteryAnchor=batterySection.children[1]||null;
-    for(const element of [get("btype"),get("sysV"),solarSection.querySelector(".qB")]){
+    for(const element of [solarSection.querySelector("#btype"),solarSection.querySelector("#sysV"),solarSection.querySelector(".qB")]){
       const top=rootChild(element,solarSection);
       if(top)batterySection.insertBefore(top,batteryAnchor);
     }
-    const coldRow=rootChild(get("cold"),batterySection);
+    const coldRow=rootChild(batterySection.querySelector("#cold"),batterySection);
     if(coldRow)siteSection.insertBefore(coldRow,siteSection.children[1]||null);
-    for(const element of [get("shade"),get("horBox")]){
+    for(const element of [solarSection.querySelector("#shade"),solarSection.querySelector("#horBox")]){
       const top=rootChild(element,solarSection);
       if(top)siteSection.appendChild(top);
     }
