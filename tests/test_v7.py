@@ -182,6 +182,7 @@ async def main():
         await pg.evaluate("()=>{const c=SIM.S.cfg;SIM.setPanelType('r400');c.tilt=55;c.az=200;c.mount='roof';c.bifOn=true;c.pvG='8';c.pvFt=80;c.other=321;SIM.S.loads[0].w=77;SIM.S.loads[0].qty=3;SIM.cfgChanged(true,true);}")
         snap = await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})')
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="projects"]')
         await pg.click('#saveB'); note1 = await pg.text_content('#saveNote')
         await pg.evaluate(DEFAULT)
         changed = await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})') != snap
@@ -201,6 +202,7 @@ async def main():
         # reload page, load from storage
         await pg.reload(); await pg.wait_for_timeout(1000); await pg.evaluate('SIM.setPlaying(false)')
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="projects"]')
         await pg.click('#loadB')
         same_after_reload = json.loads(await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})')) == json.loads(snap)
         # export through the real button
@@ -232,6 +234,7 @@ async def main():
         # ---------- 11. UI controls through real inputs ----------
         await pg.evaluate(DEFAULT)
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="site"]')
         e0 = await pg.evaluate('SIM.pvHourly().eff.reduce((a,b)=>a+b,0)')
         await pg.fill('#tilt', '70'); await pg.dispatch_event('#tilt', 'change'); await pg.wait_for_timeout(100)
         await pg.fill('#az', '250'); await pg.dispatch_event('#az', 'change'); await pg.wait_for_timeout(100)
