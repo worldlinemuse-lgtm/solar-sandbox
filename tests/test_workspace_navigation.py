@@ -35,12 +35,21 @@ def main():
                 if tab in ("build", "loads", "missions", "score", "shop", "reference"):
                     page.screenshot(path=str(SHOT_DIR / f"{width}x{height}-{tab}.png"))
                 assert not page.locator("#stage").is_visible(), (width, tab, "stage blocks task")
+                assert not page.locator("#faults").is_visible(), (width, tab, "operational controls leak across pages")
                 if tab == "build":
                     for sub, target in [("battery", "#bpar"), ("site", "#tilt"),
                                         ("wiring", "#pvMat"), ("projects", "#saveB"),
                                         ("checks", "#checks"), ("solar", "#ptype")]:
                         page.locator('.ss-builder-nav button[data-ss-builder="' + sub + '"]').click()
                         assert page.locator(target).is_visible(), (width, sub, target)
+                        if sub == "solar":
+                            assert not page.locator("#btype").is_visible(), (width, "battery picker in PV section")
+                            assert not page.locator("#shade").is_visible(), (width, "shading control in PV section")
+                        if sub == "battery":
+                            assert page.locator("#btype").is_visible(), (width, "battery picker missing")
+                        if sub == "site":
+                            assert page.locator("#shade").is_visible(), (width, "shading control missing")
+                            assert page.locator("#cold").is_visible(), (width, "cold design temperature missing")
             # WAI-ARIA tab behavior must be usable without a pointing device.
             page.locator('.tabs button[data-tab="overview"]').focus()
             page.keyboard.press("ArrowRight")
