@@ -50,6 +50,69 @@
       node=next;
     }
   }
+  // Split the previously enormous Build form by the actual task a person
+  // wants to accomplish. Move original DOM nodes (and their listeners) once.
+  const heading=(value)=>[...build.children].find(n=>
+    n.classList.contains("group")&&n.textContent.trim().startsWith(value));
+  const groupSpecs=[
+    {id:"solar",name:"Panels & MPPT",start:build.firstElementChild},
+    {id:"battery",name:"Battery & backup",start:rootChild(get("bpar"),build)},
+    {id:"site",name:"Site & weather",start:heading("Panel mount")},
+    {id:"wiring",name:"Wiring & protection",start:heading("Wiring")},
+    {id:"projects",name:"Save & share",start:heading("Save and share")},
+    {id:"checks",name:"Design checks",start:heading("Design check")}
+  ];
+  if(groupSpecs.every(x=>x.start)&&
+     new Set(groupSpecs.map(x=>x.start)).size===groupSpecs.length){
+    const subsections=[];
+    for(let i=0;i<groupSpecs.length;i++){
+      const spec=groupSpecs[i], nextStart=groupSpecs[i+1]?.start||null;
+      const section=document.createElement("section");
+      section.className="ss-builder-section";
+      section.dataset.ssBuilderSection=spec.id;
+      section.hidden=i!==0;
+      const h=document.createElement("h3");
+      h.textContent=spec.name;
+      section.appendChild(h);
+      let n=spec.start;
+      for(let guard=0;n&&n!==nextStart&&guard<100;guard++){
+        const next=n.nextElementSibling;
+        section.appendChild(n);
+        n=next;
+      }
+      subsections.push(section);
+    }
+    const header=document.createElement("div");
+    header.className="ss-head";
+    header.innerHTML="<h2>Configure your solar system</h2>"+
+      "<p>Choose a topic below. Existing settings, safety notes and electrical checks remain available.</p>";
+    const sectionNav=document.createElement("nav");
+    sectionNav.className="ss-builder-nav";
+    sectionNav.setAttribute("aria-label","System builder topics");
+    sectionNav.setAttribute("role","tablist");
+    function selectBuilder(id){
+      sectionNav.querySelectorAll("button[data-ss-builder]").forEach(b=>{
+        const on=b.dataset.ssBuilder===id;
+        b.classList.toggle("on",on);
+        b.setAttribute("aria-selected",String(on));
+        b.tabIndex=on?0:-1;
+      });
+      subsections.forEach(p=>p.hidden=p.dataset.ssBuilderSection!==id);
+    }
+    for(const spec of groupSpecs){
+      const b=document.createElement("button");
+      b.type="button";
+      b.textContent=spec.name;
+      b.dataset.ssBuilder=spec.id;
+      b.setAttribute("role","tab");
+      b.onclick=()=>selectBuilder(spec.id);
+      sectionNav.appendChild(b);
+    }
+    build.appendChild(header);
+    build.appendChild(sectionNav);
+    for(const section of subsections)build.appendChild(section);
+    selectBuilder("solar");
+  }
   // Documentation formerly came after the simulator as a second, unbounded
   // page. Keep everything, in its original order, inside Reference.
   const wrap=sim.parentElement;
@@ -166,6 +229,12 @@
     "#sim.ss-work-ready .ss-actions{display:grid;"+
       "grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}"+
     "#sim.ss-work-ready .ss-actions button{min-height:44px;font-weight:600}"+
+    "#sim.ss-work-ready .ss-builder-nav{display:flex;flex-wrap:wrap;gap:6px;"+
+      "margin:12px 0;padding:6px 0;border-bottom:1px solid var(--sr)}"+
+    "#sim.ss-work-ready .ss-builder-nav button{min-height:44px;font-weight:600}"+
+    "#sim.ss-work-ready .ss-builder-nav button.on{background:var(--si);color:var(--sc)}"+
+    "#sim.ss-work-ready .ss-builder-section{padding:4px 0 14px}"+
+    "#sim.ss-work-ready .ss-builder-section h3{font-size:16px;margin:9px 0 12px}"+
     "#sim.ss-work-ready #pane-shop .costs{max-width:100%}"+
     "#sim.ss-work-ready #pane-reference>details{margin:10px 0}"+
     "@media(max-width:600px){"+
