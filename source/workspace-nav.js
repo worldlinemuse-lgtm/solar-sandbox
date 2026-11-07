@@ -87,6 +87,22 @@
       }
       subsections.push(section);
     }
+    // A product-oriented editor must not bury batteries in the PV menu or
+    // position/irradiance controls in the electrical-device menu.
+    const solarSection=subsections.find(p=>p.dataset.ssBuilderSection==="solar");
+    const batterySection=subsections.find(p=>p.dataset.ssBuilderSection==="battery");
+    const siteSection=subsections.find(p=>p.dataset.ssBuilderSection==="site");
+    const batteryAnchor=batterySection.children[1]||null;
+    for(const element of [get("btype"),get("sysV"),solarSection.querySelector(".qB")]){
+      const top=rootChild(element,solarSection);
+      if(top)batterySection.insertBefore(top,batteryAnchor);
+    }
+    const coldRow=rootChild(get("cold"),batterySection);
+    if(coldRow)siteSection.insertBefore(coldRow,siteSection.children[1]||null);
+    for(const element of [get("shade"),get("horBox")]){
+      const top=rootChild(element,solarSection);
+      if(top)siteSection.appendChild(top);
+    }
     const header=document.createElement("div");
     header.className="ss-head";
     header.innerHTML="<h2>Configure your solar system</h2>"+
@@ -160,6 +176,9 @@
   }
   const sourceHeader=reference.querySelector("h2");
   if(sourceHeader)sourceHeader.textContent="Model documentation";
+  const oldDocHeader=[...reference.querySelectorAll("h2")].find(h=>h!==sourceHeader&&
+    h.textContent.trim()==="How the model works");
+  if(oldDocHeader)oldDocHeader.remove();
 
   function addTab(id,label,position){
     const b=document.createElement("button");
@@ -191,6 +210,10 @@
     }
   });
   nav.setAttribute("aria-label","Solar Sandbox main navigation");
+  const brand=document.createElement("div");
+  brand.className="ss-brand";
+  brand.textContent="SOLAR SANDBOX";
+  nav.insertBefore(brand,nav.firstElementChild);
   nav.addEventListener("keydown",event=>{
     const tabs=[...nav.querySelectorAll("button[data-tab]")];
     const index=tabs.indexOf(document.activeElement);
@@ -209,7 +232,7 @@
   // Move navigation before the live diagram: on mobile the menu must never be
   // hidden beneath a 1050-unit-high visualization.
   sim.insertBefore(nav,sim.firstElementChild);
-  const liveSelectors=["quick","stage"];
+  const liveSelectors=["quick","stage","faults"];
   const liveControls=[...sim.querySelectorAll(":scope > .ctl")];
   // One workspace body enables a genuine desktop side rail without
   // re-creating the controls or changing their existing event listeners.
@@ -265,6 +288,8 @@
       "gap:5px;overflow-x:auto;padding:8px;background:var(--sc);"+
       "border:1px solid var(--sr);border-radius:12px 12px 0 0;"+
       "scrollbar-width:thin;overscroll-behavior-x:contain}"+
+    "#sim.ss-work-ready .ss-brand{display:block;font-size:12px;font-weight:800;"+
+      "letter-spacing:.12em;padding:7px 8px;color:var(--sm)}"+
     "#sim.ss-work-ready .tabs button{flex:none;white-space:nowrap;"+
       "border:1px solid var(--sr);border-radius:9px;min-height:44px;"+
       "padding:9px 14px;background:var(--sg);font-weight:600}"+
@@ -274,8 +299,8 @@
       "#sim.ss-work-ready .ss-builder-nav button:focus-visible,"+
       "#sim.ss-work-ready .ss-actions button:focus-visible{outline:3px solid #3b82f6;outline-offset:2px}"+
     "#sim.ss-work-ready [hidden]{display:none!important}"+
-    "#sim.ss-work-ready svg.stage{height:min(68vh,680px);max-height:680px;"+
-      "width:100%;max-width:540px;margin:0 auto;object-fit:contain}"+
+    "#sim.ss-work-ready svg.stage{height:auto;max-height:none;"+
+      "width:100%;max-width:600px;margin:0 auto;object-fit:contain}"+
     "#sim.ss-work-ready .ss-work-pane{padding:20px;max-width:960px;margin:auto}"+
     "#sim.ss-work-ready .ss-head h2{font-size:21px;margin:0 0 4px}"+
     "#sim.ss-work-ready .ss-head p{font-size:13px;color:var(--sm);"+
@@ -290,7 +315,17 @@
     "#sim.ss-work-ready .ss-builder-section{padding:4px 0 14px}"+
     "#sim.ss-work-ready .ss-builder-section h3{font-size:16px;margin:9px 0 12px}"+
     "#sim.ss-work-ready #pane-shop .costs{max-width:100%}"+
-    "#sim.ss-work-ready #pane-reference>details{margin:10px 0}"+
+    "#sim.ss-work-ready #pane-reference>details,"+
+      "#sim.ss-work-ready #pane-shop>details{margin:10px 0}"+
+    "#sim.ss-work-ready #pane-reference details>summary,"+
+      "#sim.ss-work-ready #pane-shop details>summary{display:list-item;"+
+      "padding:10px 12px;border:1px solid var(--sr);border-radius:9px;"+
+      "cursor:pointer;line-height:1.35}"+
+    "#sim.ss-work-ready #pane-reference details>summary b,"+
+      "#sim.ss-work-ready #pane-shop details>summary b{display:inline-block;margin-right:6px}"+
+    "#sim.ss-work-ready #pane-reference details>summary span,"+
+      "#sim.ss-work-ready #pane-shop details>summary span{display:block;"+
+      "color:var(--sm);font-weight:400;font-size:12px;margin-top:4px}"+
     "@media(min-width:901px){"+
       "#sim.ss-work-ready{display:grid;grid-template-columns:208px minmax(0,1fr);align-items:start}"+
       "#sim.ss-work-ready .tabs{grid-column:1;grid-row:1;display:flex;flex-direction:column;"+
@@ -301,6 +336,7 @@
       "#sim.ss-work-ready .ss-workspace-body{grid-column:2;grid-row:1}"+
     "}"+
     "@media(max-width:900px){"+
+      "#sim.ss-work-ready .ss-brand{grid-column:1/-1;padding:0 5px;font-size:11px}"+
       "#sim.ss-work-ready .tabs{position:sticky;top:0;display:grid;"+
         "grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;overflow:visible;padding:6px}"+
       "#sim.ss-work-ready .tabs button{white-space:normal;min-width:0;"+
