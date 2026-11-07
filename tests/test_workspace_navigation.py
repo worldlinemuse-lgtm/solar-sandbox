@@ -36,6 +36,21 @@ def main():
                                         ("checks", "#checks"), ("solar", "#ptype")]:
                         page.locator('.ss-builder-nav button[data-ss-builder="' + sub + '"]').click()
                         assert page.locator(target).is_visible(), (width, sub, target)
+            # WAI-ARIA tab behavior must be usable without a pointing device.
+            page.locator('.tabs button[data-tab="overview"]').focus()
+            page.keyboard.press("ArrowRight")
+            assert page.locator("#sim").get_attribute("data-workspace") == "build"
+            assert page.locator('.tabs button[data-tab="build"]').get_attribute("aria-selected") == "true"
+            page.locator('.ss-builder-nav button[data-ss-builder="solar"]').focus()
+            page.keyboard.press("ArrowRight")
+            assert page.locator("#bpar").is_visible(), (width, "builder keyboard nav")
+            page.keyboard.press("Home")
+            assert page.locator("#ptype").is_visible(), (width, "builder Home shortcut")
+            page.locator('.tabs button[data-tab="shop"]').click()
+            shop_text = page.locator("#pane-shop").inner_text().lower()
+            assert "not live stock" in shop_text, (width, "missing historical offer disclaimer")
+            assert page.locator("#partsList li").count() > 0, (width, "missing product source listing")
+            assert page.locator("#srcParts li").count() > 0, (width, "missing manufacturer sources")
             after = page.evaluate("""() => JSON.stringify({
                 t: SIM.S.t, soc: SIM.S.soc, cfg: SIM.S.cfg, loads: SIM.S.loads,
                 requested: SIM.S.live && SIM.S.live.requested
@@ -54,6 +69,11 @@ def main():
                 scroll: document.documentElement.scrollWidth
             })""")
             assert overflow["scroll"] <= overflow["width"] + 2, (width, overflow)
+            duplicates = page.evaluate("""() => {
+                const ids = [...document.querySelectorAll("[id]")].map(e => e.id);
+                return ids.filter((id, index) => ids.indexOf(id) !== index);
+            }""")
+            assert not duplicates, (width, "duplicate IDs after DOM moves", duplicates)
             assert not errors, (width, errors)
             browser.close()
         print(f"PASS: Solar Sandbox task navigation {width}x{height}")
