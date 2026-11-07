@@ -67,3 +67,4 @@ jobs:
           path: |
             tests/test_v7_results.json
             tests/correctness_results.json
+            tests/ui_screenshots/*.png
