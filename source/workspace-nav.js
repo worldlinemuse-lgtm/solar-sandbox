@@ -111,9 +111,9 @@
     const live=view==="overview";
     for(const id of liveSelectors){
       const n=get(id);
-      if(n)n.hidden=!live;
+      if(n){if(live)n.removeAttribute("hidden");else n.setAttribute("hidden","");}
     }
-    for(const n of liveControls)n.hidden=!live;
+    for(const n of liveControls){if(live)n.removeAttribute("hidden");else n.setAttribute("hidden","");}
     nav.querySelectorAll("button[data-tab]").forEach(b=>{
       const active=b.dataset.tab===view;
       b.setAttribute("aria-selected",String(active));
