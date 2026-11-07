@@ -236,7 +236,7 @@
     const b=event.target.closest("button[data-tab]");
     if(b&&nav.contains(b)){
       synchronize(b.dataset.tab);
-      if(!event.detail || event.detail>0)sim.scrollIntoView({block:"start",behavior:"instant"});
+      sim.scrollIntoView({block:"start",behavior:"auto"});
     }
   });
   overview.addEventListener("click",event=>{
