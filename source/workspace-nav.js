@@ -110,6 +110,20 @@
       b.onclick=()=>selectBuilder(spec.id);
       sectionNav.appendChild(b);
     }
+    sectionNav.addEventListener("keydown",event=>{
+      const tabs=[...sectionNav.querySelectorAll("button[data-ss-builder]")];
+      const index=tabs.indexOf(document.activeElement);
+      if(index<0)return;
+      let next;
+      if(event.key==="ArrowRight"||event.key==="ArrowDown")next=(index+1)%tabs.length;
+      else if(event.key==="ArrowLeft"||event.key==="ArrowUp")next=(index-1+tabs.length)%tabs.length;
+      else if(event.key==="Home")next=0;
+      else if(event.key==="End")next=tabs.length-1;
+      else return;
+      event.preventDefault();
+      tabs[next].click();
+      tabs[next].focus();
+    });
     build.appendChild(header);
     build.appendChild(sectionNav);
     for(const section of subsections)build.appendChild(section);
@@ -163,15 +177,43 @@
     if(textByTab[b.dataset.tab])b.textContent=textByTab[b.dataset.tab];
     b.type="button";
     b.setAttribute("role","tab");
+    b.id="ss-tab-"+b.dataset.tab;
     b.setAttribute("aria-controls","pane-"+b.dataset.tab);
+    const target=get("pane-"+b.dataset.tab);
+    if(target){
+      target.setAttribute("role","tabpanel");
+      target.setAttribute("aria-labelledby",b.id);
+    }
   });
   nav.setAttribute("aria-label","Solar Sandbox main navigation");
+  nav.addEventListener("keydown",event=>{
+    const tabs=[...nav.querySelectorAll("button[data-tab]")];
+    const index=tabs.indexOf(document.activeElement);
+    if(index<0)return;
+    let next;
+    if(event.key==="ArrowRight"||event.key==="ArrowDown")next=(index+1)%tabs.length;
+    else if(event.key==="ArrowLeft"||event.key==="ArrowUp")next=(index-1+tabs.length)%tabs.length;
+    else if(event.key==="Home")next=0;
+    else if(event.key==="End")next=tabs.length-1;
+    else return;
+    event.preventDefault();
+    tabs[next].click();
+    tabs[next].focus();
+  });
 
   // Move navigation before the live diagram: on mobile the menu must never be
   // hidden beneath a 1050-unit-high visualization.
   sim.insertBefore(nav,sim.firstElementChild);
   const liveSelectors=["quick","stage"];
   const liveControls=[...sim.querySelectorAll(":scope > .ctl")];
+  // One workspace body enables a genuine desktop side rail without
+  // re-creating the controls or changing their existing event listeners.
+  const workspaceBody=document.createElement("div");
+  workspaceBody.className="ss-workspace-body";
+  for(const child of [...sim.children]){
+    if(child!==nav)workspaceBody.appendChild(child);
+  }
+  sim.appendChild(workspaceBody);
   function synchronize(view){
     const live=view==="overview";
     for(const id of liveSelectors){
@@ -192,7 +234,10 @@
   // core's chart/render functions or change any simulation data.
   nav.addEventListener("click",event=>{
     const b=event.target.closest("button[data-tab]");
-    if(b&&nav.contains(b))synchronize(b.dataset.tab);
+    if(b&&nav.contains(b)){
+      synchronize(b.dataset.tab);
+      if(!event.detail || event.detail>0)sim.scrollIntoView({block:"start",behavior:"instant"});
+    }
   });
   overview.addEventListener("click",event=>{
     const b=event.target.closest("button[data-ss-go]");
@@ -210,6 +255,7 @@
   const style=document.createElement("style");
   style.textContent=
     "#sim.ss-work-ready{overflow:visible}"+
+    "#sim.ss-work-ready .ss-workspace-body{min-width:0}"+
     "#sim.ss-work-ready .tabs{position:sticky;top:0;z-index:30;display:flex;"+
       "gap:5px;overflow-x:auto;padding:8px;background:var(--sc);"+
       "border:1px solid var(--sr);border-radius:12px 12px 0 0;"+
@@ -239,9 +285,20 @@
     "#sim.ss-work-ready .ss-builder-section h3{font-size:16px;margin:9px 0 12px}"+
     "#sim.ss-work-ready #pane-shop .costs{max-width:100%}"+
     "#sim.ss-work-ready #pane-reference>details{margin:10px 0}"+
-    "@media(max-width:600px){"+
-      "#sim.ss-work-ready .tabs{border-radius:0;padding:6px;gap:4px}"+
-      "#sim.ss-work-ready .tabs button{padding:8px 11px;min-height:44px;font-size:13px}"+
+    "@media(min-width:901px){"+
+      "#sim.ss-work-ready{display:grid;grid-template-columns:208px minmax(0,1fr);align-items:start}"+
+      "#sim.ss-work-ready .tabs{grid-column:1;grid-row:1;display:flex;flex-direction:column;"+
+        "position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);"+
+        "overflow-y:auto;overflow-x:hidden;border:0;border-right:1px solid var(--sr);"+
+        "border-radius:0;padding:12px 10px}"+
+      "#sim.ss-work-ready .tabs button{width:100%;text-align:left;white-space:normal}"+
+      "#sim.ss-work-ready .ss-workspace-body{grid-column:2;grid-row:1}"+
+    "}"+
+    "@media(max-width:900px){"+
+      "#sim.ss-work-ready .tabs{position:sticky;top:0;display:grid;"+
+        "grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;overflow:visible;padding:6px}"+
+      "#sim.ss-work-ready .tabs button{white-space:normal;min-width:0;"+
+        "min-height:48px;padding:7px 5px;line-height:1.2;font-size:12px}"+
       "#sim.ss-work-ready .ss-work-pane{padding:12px}"+
       "#sim.ss-work-ready svg.stage{height:min(60vh,550px);max-width:100%}"+
     "}";
