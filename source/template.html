@@ -149,12 +149,13 @@
 <p class="kicker">Simulation, real part specs, Honesdale weather</p>
 <p class="updated">Researched Oct 30–31, 2026</p>
 <div class="guide" id="guide"><button type="button" id="gBtn">Play the voice guide</button><span class="gt" id="gTime">2:23</span><span class="gbar" id="gBar"><i id="gFill"></i></span><audio id="gAudio" preload="metadata" src="__AUDIO_SRC__"></audio></div>
-<p class="lede">Build an off-grid system from real parts, pick exactly what it powers and when, then run it through Honesdale's typical weather year and see whether the lights stay on.</p>
+<p class="lede">Configure a solar system, test household loads against weather scenarios, and inspect real equipment specifications and dated parts estimates.</p>
+<details class="more" id="gettingStarted"><summary><b>How to use Solar Sandbox &amp; important limitations</b><span>Open for model scope, data sources and quick-start instructions.</span></summary>
 <ul>
-<li>A learning model, not a wiring plan or safety check: the manuals, proper fusing and an electrician decide a real build.</li>
-<li>Sun and temperature are hourly <a href="https://pvwatts.nlr.gov/">PVWatts</a> typical-year data, or 25 recorded winters from <a href="https://power.larc.nasa.gov/">NASA POWER</a> on the Missions tab; appliance watts are estimates you can edit.</li>
-<li>The Panels and Batteries buttons above the diagram add or remove hardware; the Loads tab sets each appliance's watts, count and run times.</li>
-</ul>
+<li>This is a learning and engineering-estimate model, not an installation design or safety certification. Use manufacturer manuals and a qualified electrician for real wiring and protection.</li>
+<li>Sun and temperature use hourly <a href="https://pvwatts.nlr.gov/">PVWatts</a> typical-year data or 25 recorded winters from <a href="https://power.larc.nasa.gov/">NASA POWER</a>. These are scenarios, not weather forecasts; appliance consumption may be estimated.</li>
+<li>Use System Builder to configure hardware, Loads to specify appliances, Scenarios to run test conditions, Results to inspect output, and Shop &amp; Compare for a bill of materials with dated prices.</li>
+</ul></details>
 
 <div class="sim" id="sim">
   <div class="bar" id="statusbar"><span><b id="sbDate">-</b></span><span id="sbWeather">-</span><span id="sbTemp">-</span><span>Battery <b id="sbSoc">-</b></span><span id="sbMission">Free play</span></div>
@@ -425,6 +426,7 @@ __SNOW__
 __PROVENANCE__
 __NEXTCORE__
 __SIMJS__
+__WORKSPACE__
 </script>
 <script>(function(){const a=document.getElementById('gAudio'),btn=document.getElementById('gBtn'),t=document.getElementById('gTime'),f=document.getElementById('gFill'),bar=document.getElementById('gBar');const fm=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');const d=()=>isFinite(a.duration)?a.duration:0;const u=()=>{t.textContent=(a.currentTime>0?fm(a.currentTime)+' / ':'')+fm(d()||143.28);f.style.width=(d()?a.currentTime/d()*100:0)+'%';};btn.onclick=()=>a.paused?a.play():a.pause();a.onplay=()=>{btn.textContent='Pause the voice guide';};a.onpause=a.onended=()=>{btn.textContent=a.ended?'Play the voice guide again':'Resume the voice guide';u();};a.ontimeupdate=a.onloadedmetadata=u;bar.onclick=e=>{const r=bar.getBoundingClientRect();if(d())a.currentTime=Math.min(Math.max((e.clientX-r.left)/r.width,0),1)*d();};})();</script>
 <script>/* Installable offline version: only when served from a web address, never from a local file. */

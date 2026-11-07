@@ -15,7 +15,7 @@ import base64, hashlib, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 PARTS = {'__TMY__': 'tmy.js', '__PHYS__': 'physics.js', '__BATT__': 'battery.js', '__ELEC__': 'elec.js',
          '__HIST__': 'hist.js', '__SNOW__': 'snowhist.js',
-         '__NEXTCORE__': 'next-core-browser.js', '__SIMJS__': 'sim.js'}
+         '__NEXTCORE__': 'next-core-browser.js', '__SIMJS__': 'sim.js', '__WORKSPACE__': 'workspace-nav.js'}
 
 
 def build():

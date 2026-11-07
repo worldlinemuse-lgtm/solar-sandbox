@@ -39,6 +39,10 @@ jobs:
         run: git diff --exit-code -- source/next-core-browser.js
       - name: Page matches the source build
         run: python source/build.py --check
+      - name: Workspace navigation and unchanged simulation state
+        run: |
+          node --check source/workspace-nav.js
+          python tests/test_workspace_navigation.py
       - name: Model integrity regressions (battery, loads, generator)
         run: python tests/test_integrity.py
       - name: Page test suite (skips the slow 25-winter runs)
@@ -63,3 +67,4 @@ jobs:
           path: |
             tests/test_v7_results.json
             tests/correctness_results.json
+            tests/ui_screenshots/*.png

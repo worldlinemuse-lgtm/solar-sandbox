@@ -182,6 +182,7 @@ async def main():
         await pg.evaluate("()=>{const c=SIM.S.cfg;SIM.setPanelType('r400');c.tilt=55;c.az=200;c.mount='roof';c.bifOn=true;c.pvG='8';c.pvFt=80;c.other=321;SIM.S.loads[0].w=77;SIM.S.loads[0].qty=3;SIM.cfgChanged(true,true);}")
         snap = await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})')
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="projects"]')
         await pg.click('#saveB'); note1 = await pg.text_content('#saveNote')
         await pg.evaluate(DEFAULT)
         changed = await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})') != snap
@@ -201,6 +202,7 @@ async def main():
         # reload page, load from storage
         await pg.reload(); await pg.wait_for_timeout(1000); await pg.evaluate('SIM.setPlaying(false)')
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="projects"]')
         await pg.click('#loadB')
         same_after_reload = json.loads(await pg.evaluate('JSON.stringify({c:SIM.S.cfg,l:SIM.S.loads})')) == json.loads(snap)
         # export through the real button
@@ -232,6 +234,7 @@ async def main():
         # ---------- 11. UI controls through real inputs ----------
         await pg.evaluate(DEFAULT)
         await pg.click('.tabs button[data-tab="build"]')
+        await pg.click('.ss-builder-nav button[data-ss-builder="site"]')
         e0 = await pg.evaluate('SIM.pvHourly().eff.reduce((a,b)=>a+b,0)')
         await pg.fill('#tilt', '70'); await pg.dispatch_event('#tilt', 'change'); await pg.wait_for_timeout(100)
         await pg.fill('#az', '250'); await pg.dispatch_event('#az', 'change'); await pg.wait_for_timeout(100)
@@ -239,11 +242,14 @@ async def main():
         ui1 = await pg.evaluate("()=>({tilt:SIM.S.cfg.tilt,az:SIM.S.cfg.az,label:document.getElementById('azV').textContent})")
         await pg.select_option('#mount', 'glued'); m1 = await pg.evaluate('SIM.mountUsed()')
         bif_r200 = await pg.evaluate("getComputedStyle(document.getElementById('bifRow')).display")
+        await pg.click('.ss-builder-nav button[data-ss-builder="solar"]')
         await pg.select_option('#ptype', 'r400'); await pg.wait_for_timeout(150)
+        await pg.click('.ss-builder-nav button[data-ss-builder="site"]')
         bif_r400 = await pg.evaluate("getComputedStyle(document.getElementById('bifRow')).display")
         f0 = await pg.evaluate('SIM.pvHourly().eff.reduce((a,b)=>a+b,0)')
         await pg.select_option('#bifOn', '1'); await pg.wait_for_timeout(100)
         f1 = await pg.evaluate('SIM.pvHourly().eff.reduce((a,b)=>a+b,0)')
+        await pg.click('.ss-builder-nav button[data-ss-builder="wiring"]')
         await pg.select_option('#pvMat', 'al'); await pg.wait_for_timeout(100)
         al = await pg.evaluate("()=>({mat:SIM.S.cfg.pvMat,g:SIM.S.cfg.pvG,opts:[...document.getElementById('pvG').options].map(o=>o.value)})")
         await pg.select_option('#pvG', '4'); await pg.fill('#pvFt', '120'); await pg.dispatch_event('#pvFt', 'change'); await pg.wait_for_timeout(100)
@@ -274,7 +280,7 @@ async def main():
         await pg.evaluate(DEFAULT)
         for scheme in ('light', 'dark'):
             await pg.emulate_media(color_scheme=scheme)
-            for tab in ('build', 'loads', 'missions', 'score'):
+            for tab in ('overview', 'build', 'loads', 'missions', 'score', 'shop', 'reference'):
                 sel = f'.tabs button[data-tab="{tab}"]'
                 if await pg.query_selector(sel): await pg.click(sel)
                 await pg.wait_for_timeout(150)
@@ -289,7 +295,7 @@ async def main():
         res.setdefault('asserts', {})['voice_guide_current'] = dict(gd, passed=abs((gd['dur'] or 0) - 143.28) < 0.5 and not gd['note'] and not gd['outdated'] and gd['label'] in ('2:23', '0:00 / 2:23'))
         lay = {k: v for k, v in res.items() if k.startswith('layout_')}
         res.setdefault('asserts', {})['phone_layout_light_dark'] = dict(
-            views=len(lay), passed=len(lay) == 8 and all(v['sw'] <= v['W'] and not v['bad'] and v['overlaps'] == 0 for v in lay.values()))
+            views=len(lay), passed=len(lay) == 14 and all(v['sw'] <= v['W'] and not v['bad'] and v['overlaps'] == 0 for v in lay.values()))
         res['errors'] = errs
         await b.close()
     json.dump(res, open(OUT, 'w'), indent=1)

@@ -37,7 +37,7 @@ def main():
                          for path in core.rglob("*.ts")}
         assert set(files) == ({
             "build.py", "template.html", "sim.js", "physics.js", "elec.js", "battery.js",
-            "tmy.js", "hist.js", "snowhist.js", "guide.mp3", "next-core-browser.js"
+            "tmy.js", "hist.js", "snowhist.js", "guide.mp3", "next-core-browser.js", "workspace-nav.js"
         } | expected_core)
         assert all("next-core/" + filename in files for filename in [
             "entry.ts", "pv-diode.ts", "island.ts", "battery.ts", "generator.ts", "ac.ts"

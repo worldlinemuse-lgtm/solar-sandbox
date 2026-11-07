@@ -190,6 +190,7 @@ async def run_new_sections(pg, res, DEFAULT, RUN, BAL, find_hour):
     # ---------- 13p. state save/load through the real buttons and file input ----------
     await ev(DEFAULT)
     await pg.click('.tabs button[data-tab="build"]')
+    await pg.click('.ss-builder-nav button[data-ss-builder="projects"]')
     await ev('()=>{const S=SIM.S;for(let i=0;i<500;i++)SIM.step();}')
     ST = "(()=>{const s=SIM.buildStatePayload().state;delete s.log;return JSON.stringify(s);})()"
     snap = await ev(ST)
@@ -229,9 +230,11 @@ async def run_new_sections(pg, res, DEFAULT, RUN, BAL, find_hour):
     # ---------- 13r. UI: new controls work through real inputs ----------
     await ev(DEFAULT)
     await pg.click('.tabs button[data-tab="build"]')
+    await pg.click('.ss-builder-nav button[data-ss-builder="wiring"]')
     await pg.fill('#ambF', '104'); await pg.dispatch_event('#ambF', 'change')
     await pg.fill('#ccc', '4'); await pg.dispatch_event('#ccc', 'change')
     await pg.select_option('#insC', '90'); await pg.select_option('#termC', '75')
+    await pg.click('.ss-builder-nav button[data-ss-builder="battery"]')
     await pg.fill('#soh', '80'); await pg.dispatch_event('#soh', 'change')
     await pg.wait_for_timeout(150)
     r = await ev("()=>({cfg:{ambF:SIM.S.cfg.ambF,ccc:SIM.S.cfg.ccc,insC:SIM.S.cfg.insC,termC:SIM.S.cfg.termC,soh:SIM.S.cfg.soh},tbl:[...document.querySelectorAll('#checks li')].filter(l=>/cable \\(/.test(l.textContent)).map(l=>l.textContent.slice(0,150))})")
