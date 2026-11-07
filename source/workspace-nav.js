@@ -72,6 +72,9 @@
       const section=document.createElement("section");
       section.className="ss-builder-section";
       section.dataset.ssBuilderSection=spec.id;
+      section.id="ss-builder-panel-"+spec.id;
+      section.setAttribute("role","tabpanel");
+      section.setAttribute("aria-labelledby","ss-builder-tab-"+spec.id);
       section.hidden=i!==0;
       const h=document.createElement("h3");
       h.textContent=spec.name;
@@ -106,7 +109,9 @@
       b.type="button";
       b.textContent=spec.name;
       b.dataset.ssBuilder=spec.id;
+      b.id="ss-builder-tab-"+spec.id;
       b.setAttribute("role","tab");
+      b.setAttribute("aria-controls","ss-builder-panel-"+spec.id);
       b.onclick=()=>selectBuilder(spec.id);
       sectionNav.appendChild(b);
     }
@@ -266,6 +271,7 @@
     "#sim.ss-work-ready .tabs button.on{border-color:var(--si);"+
       "background:var(--si);color:var(--sc)}"+
     "#sim.ss-work-ready .tabs button:focus-visible,"+
+      "#sim.ss-work-ready .ss-builder-nav button:focus-visible,"+
       "#sim.ss-work-ready .ss-actions button:focus-visible{outline:3px solid #3b82f6;outline-offset:2px}"+
     "#sim.ss-work-ready [hidden]{display:none!important}"+
     "#sim.ss-work-ready svg.stage{height:min(68vh,680px);max-height:680px;"+
@@ -300,7 +306,7 @@
       "#sim.ss-work-ready .tabs button{white-space:normal;min-width:0;"+
         "min-height:48px;padding:7px 5px;line-height:1.2;font-size:12px}"+
       "#sim.ss-work-ready .ss-work-pane{padding:12px}"+
-      "#sim.ss-work-ready svg.stage{height:min(60vh,550px);max-width:100%}"+
+      "#sim.ss-work-ready svg.stage{height:auto;max-height:none;max-width:600px}"+
     "}";
   document.head.appendChild(style);
   sim.classList.add("ss-work-ready");
