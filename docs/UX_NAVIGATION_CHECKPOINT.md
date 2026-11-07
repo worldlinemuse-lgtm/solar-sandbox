@@ -5,3 +5,5 @@ Task: replace the giant single page with task-specific navigation, preserving si
 Draft implementation on this branch: source/workspace-nav.js is loaded from source/template.html through source/build.py. Generated index.html was rebuilt by validation workflow. Navigation is UI-only and the production main branch is unaffected.
 
 Known work remaining: check all CI tests at latest generated commit, inspect screenshots and keyboard behavior, partition System Builder into focused subareas, and verify price source links and all existing save/import actions. No claim of release readiness yet.
+
+2026-11-07: Corrected Build-section boundary so moving the BOM leaves the Design Checks heading and section in the Builder. The earlier browser test found absent builder navigation; that failure is now explicitly tracked. The generated bundle was rebuilt by Actions; rerun the tests against the generated artifact and do not merge until green.
