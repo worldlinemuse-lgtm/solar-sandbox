@@ -280,7 +280,7 @@ async def main():
         await pg.evaluate(DEFAULT)
         for scheme in ('light', 'dark'):
             await pg.emulate_media(color_scheme=scheme)
-            for tab in ('build', 'loads', 'missions', 'score'):
+            for tab in ('overview', 'build', 'loads', 'missions', 'score', 'shop', 'reference'):
                 sel = f'.tabs button[data-tab="{tab}"]'
                 if await pg.query_selector(sel): await pg.click(sel)
                 await pg.wait_for_timeout(150)
@@ -295,7 +295,7 @@ async def main():
         res.setdefault('asserts', {})['voice_guide_current'] = dict(gd, passed=abs((gd['dur'] or 0) - 143.28) < 0.5 and not gd['note'] and not gd['outdated'] and gd['label'] in ('2:23', '0:00 / 2:23'))
         lay = {k: v for k, v in res.items() if k.startswith('layout_')}
         res.setdefault('asserts', {})['phone_layout_light_dark'] = dict(
-            views=len(lay), passed=len(lay) == 8 and all(v['sw'] <= v['W'] and not v['bad'] and v['overlaps'] == 0 for v in lay.values()))
+            views=len(lay), passed=len(lay) == 14 and all(v['sw'] <= v['W'] and not v['bad'] and v['overlaps'] == 0 for v in lay.values()))
         res['errors'] = errs
         await b.close()
     json.dump(res, open(OUT, 'w'), indent=1)
