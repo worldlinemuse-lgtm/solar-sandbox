@@ -31,6 +31,8 @@ def main():
             c.genOn=true;c.genMode='manual';c.genFuel=0.95;S.genFuelLeft=0.95;S.genRun=false;S.t=120;
             for(let i=0;i<60;i++)SIM.step();return {running:S.genRun,spent:0.95-S.genFuelLeft};}""")
         assert manual=={'running':False,'spent':0},manual
+        page.locator('.tabs button[data-tab="build"]').click()
+        page.locator('.ss-builder-nav button[data-ss-builder="battery"]').click()
         page.locator('#genOn').select_option('1')
         page.locator('#genMode').select_option('manual')
         page.locator('#genFuel').fill('0.1')
