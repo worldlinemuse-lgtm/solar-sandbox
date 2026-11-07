@@ -3,8 +3,10 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
+SHOT_DIR = ROOT / "tests" / "ui_screenshots"
 
 def main():
+    SHOT_DIR.mkdir(parents=True, exist_ok=True)
     for width, height in [(390, 844), (768, 1024), (1280, 800)]:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
@@ -14,6 +16,7 @@ def main():
             page.set_content((ROOT / "index.html").read_text(encoding="utf-8"), timeout=60000)
             page.wait_for_selector('#sim[data-workspace="overview"]')
             assert page.locator("#stage").is_visible(), (width, "stage absent on Overview")
+            page.screenshot(path=str(SHOT_DIR / f"{width}x{height}-overview.png"))
             before = page.evaluate("""() => JSON.stringify({
                 t: SIM.S.t, soc: SIM.S.soc, cfg: SIM.S.cfg, loads: SIM.S.loads,
                 requested: SIM.S.live && SIM.S.live.requested
@@ -29,6 +32,8 @@ def main():
                 page.locator('.tabs button[data-tab="' + tab + '"]').click()
                 assert page.locator("#sim").get_attribute("data-workspace") == tab
                 assert page.locator(ident).is_visible(), (width, tab, ident)
+                if tab in ("build", "loads", "missions", "score", "shop", "reference"):
+                    page.screenshot(path=str(SHOT_DIR / f"{width}x{height}-{tab}.png"))
                 assert not page.locator("#stage").is_visible(), (width, tab, "stage blocks task")
                 if tab == "build":
                     for sub, target in [("battery", "#bpar"), ("site", "#tilt"),
